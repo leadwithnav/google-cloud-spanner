@@ -1652,7 +1652,7 @@ main().catch(console.error);</code></pre>
           </div>
         </div>
 
-        <p>In this step, we use the highly optimized Mutation API to write data into the interleaved <code>Singers</code> and <code>Albums</code> tables.</p>
+        <p>In this step, we use the highly optimized Mutation API to write data into the interleaved <code>TradingAccounts</code> and <code>Trades</code> tables.</p>
 
         <div class="tabs-wrapper">
           <div class="tabs-header">
@@ -1680,23 +1680,23 @@ main().catch(console.error);</code></pre>
     <span class="c-kw">with</span> database.batch() <span class="c-kw">as</span> batch:
         <span class="c-comment"># Write to parent table</span>
         batch.insert_or_update(
-            table=<span class="c-str">"Singers"</span>,
-            columns=(<span class="c-str">"SingerId"</span>, <span class="c-str">"FirstName"</span>, <span class="c-str">"LastName"</span>),
+            table=<span class="c-str">"TradingAccounts"</span>,
+            columns=(<span class="c-str">"AccountId"</span>, <span class="c-str">"AccountName"</span>, <span class="c-str">"FirmName"</span>),
             values=[
-                (1, <span class="c-str">"Marc"</span>, <span class="c-str">"Richards"</span>),
-                (2, <span class="c-str">"Catalina"</span>, <span class="c-str">"Smith"</span>),
-                (3, <span class="c-str">"Alice"</span>, <span class="c-str">"Trenton"</span>),
+                (1, <span class="c-str">"CME_MAIN_ACC"</span>, <span class="c-str">"CME Group Client Services"</span>),
+                (2, <span class="c-str">"CME_RISK_ACC"</span>, <span class="c-str">"Clearing Risk Management"</span>),
+                (3, <span class="c-str">"CME_TEST_ACC"</span>, <span class="c-str">"API SandBox Firm"</span>),
             ],
         )
         
         <span class="c-comment"># Write to interleaved child table</span>
         batch.insert_or_update(
-            table=<span class="c-str">"Albums"</span>,
-            columns=(<span class="c-str">"SingerId"</span>, <span class="c-str">"AlbumId"</span>, <span class="c-str">"AlbumTitle"</span>, <span class="c-str">"MarketingBudget"</span>),
+            table=<span class="c-str">"Trades"</span>,
+            columns=(<span class="c-str">"AccountId"</span>, <span class="c-str">"TradeId"</span>, <span class="c-str">"ProductSymbol"</span>, <span class="c-str">"NotionalValue"</span>),
             values=[
-                (1, 1, <span class="c-str">"Total Junk"</span>, 100000),
-                (1, 2, <span class="c-str">"Go, Go, Go"</span>, 200000),
-                (2, 1, <span class="c-str">"Green Fields"</span>, 350000),
+                (1, 1, <span class="c-str">"ESU6 (E-mini S&P 500 Futures)"</span>, 5000000),
+                (1, 2, <span class="c-str">"CLU6 (Crude Oil Futures)"</span>, 2500000),
+                (2, 1, <span class="c-str">"GCU6 (Gold Futures)"</span>, 3500000),
             ],
         )
     print(<span class="c-str">"Inserted rows using Mutations successfully!"</span>)</code></pre>
@@ -1718,19 +1718,19 @@ main().catch(console.error);</code></pre>
                 </div>
               </div>
               <pre class="code-content"><code><span class="c-kw">func</span> writeMutations(ctx context.Context, client *spanner.Client) error {
-	singerCols := []string{<span class="c-str">"SingerId"</span>, <span class="c-str">"FirstName"</span>, <span class="c-str">"LastName"</span>}
-	albumCols := []string{<span class="c-str">"SingerId"</span>, <span class="c-str">"AlbumId"</span>, <span class="c-str">"AlbumTitle"</span>, <span class="c-str">"MarketingBudget"</span>}
+	accountCols := []string{<span class="c-str">"AccountId"</span>, <span class="c-str">"AccountName"</span>, <span class="c-str">"FirmName"</span>}
+	tradeCols := []string{<span class="c-str">"AccountId"</span>, <span class="c-str">"TradeId"</span>, <span class="c-str">"ProductSymbol"</span>, <span class="c-str">"NotionalValue"</span>}
 
 	mutations := []*spanner.Mutation{
 		<span class="c-comment">// Insert or Update parent records</span>
-		spanner.InsertOrUpdate(<span class="c-str">"Singers"</span>, singerCols, []interface{}{1, <span class="c-str">"Marc"</span>, <span class="c-str">"Richards"</span>}),
-		spanner.InsertOrUpdate(<span class="c-str">"Singers"</span>, singerCols, []interface{}{2, <span class="c-str">"Catalina"</span>, <span class="c-str">"Smith"</span>}),
-		spanner.InsertOrUpdate(<span class="c-str">"Singers"</span>, singerCols, []interface{}{3, <span class="c-str">"Alice"</span>, <span class="c-str">"Trenton"</span>}),
+		spanner.InsertOrUpdate(<span class="c-str">"TradingAccounts"</span>, accountCols, []interface{}{1, <span class="c-str">"CME_MAIN_ACC"</span>, <span class="c-str">"CME Group Client Services"</span>}),
+		spanner.InsertOrUpdate(<span class="c-str">"TradingAccounts"</span>, accountCols, []interface{}{2, <span class="c-str">"CME_RISK_ACC"</span>, <span class="c-str">"Clearing Risk Management"</span>}),
+		spanner.InsertOrUpdate(<span class="c-str">"TradingAccounts"</span>, accountCols, []interface{}{3, <span class="c-str">"CME_TEST_ACC"</span>, <span class="c-str">"API SandBox Firm"</span>}),
 		
 		<span class="c-comment">// Insert or Update interleaved child records</span>
-		spanner.InsertOrUpdate(<span class="c-str">"Albums"</span>, albumCols, []interface{}{1, 1, <span class="c-str">"Total Junk"</span>, 100000}),
-		spanner.InsertOrUpdate(<span class="c-str">"Albums"</span>, albumCols, []interface{}{1, 2, <span class="c-str">"Go, Go, Go"</span>, 200000}),
-		spanner.InsertOrUpdate(<span class="c-str">"Albums"</span>, albumCols, []interface{}{2, 1, <span class="c-str">"Green Fields"</span>, 350000}),
+		spanner.InsertOrUpdate(<span class="c-str">"Trades"</span>, tradeCols, []interface{}{1, 1, <span class="c-str">"ESU6 (E-mini S&P 500 Futures)"</span>, 5000000}),
+		spanner.InsertOrUpdate(<span class="c-str">"Trades"</span>, tradeCols, []interface{}{1, 2, <span class="c-str">"CLU6 (Crude Oil Futures)"</span>, 2500000}),
+		spanner.InsertOrUpdate(<span class="c-str">"Trades"</span>, tradeCols, []interface{}{2, 1, <span class="c-str">"GCU6 (Gold Futures)"</span>, 3500000}),
 	}
 
 	<span class="c-comment">// Apply mutations batch atomically</span>
@@ -1758,21 +1758,21 @@ main().catch(console.error);</code></pre>
                 </div>
               </div>
               <pre class="code-content"><code><span class="c-kw">async</span> <span class="c-kw">function</span> <span class="c-var">writeMutations</span>(database) {
-  <span class="c-kw">const</span> singersTable = database.table(<span class="c-str">'Singers'</span>);
-  <span class="c-kw">const</span> albumsTable = database.table(<span class="c-str">'Albums'</span>);
+  <span class="c-kw">const</span> accountsTable = database.table(<span class="c-str">'TradingAccounts'</span>);
+  <span class="c-kw">const</span> tradesTable = database.table(<span class="c-str">'Trades'</span>);
 
   <span class="c-comment">// Write parent mutations</span>
-  <span class="c-kw">await</span> singersTable.insert([
-    { SingerId: <span class="c-str">'1'</span>, FirstName: <span class="c-str">'Marc'</span>, LastName: <span class="c-str">'Richards'</span> },
-    { SingerId: <span class="c-str">'2'</span>, FirstName: <span class="c-str">'Catalina'</span>, LastName: <span class="c-str">'Smith'</span> },
-    { SingerId: <span class="c-str">'3'</span>, FirstName: <span class="c-str">'Alice'</span>, LastName: <span class="c-str">'Trenton'</span> }
+  <span class="c-kw">await</span> accountsTable.insert([
+    { AccountId: <span class="c-str">'1'</span>, AccountName: <span class="c-str">'CME_MAIN_ACC'</span>, FirmName: <span class="c-str">'CME Group Client Services'</span> },
+    { AccountId: <span class="c-str">'2'</span>, AccountName: <span class="c-str">'CME_RISK_ACC'</span>, FirmName: <span class="c-str">'Clearing Risk Management'</span> },
+    { AccountId: <span class="c-str">'3'</span>, AccountName: <span class="c-str">'CME_TEST_ACC'</span>, FirmName: <span class="c-str">'API SandBox Firm'</span> }
   ]);
 
   <span class="c-comment">// Write child mutations</span>
-  <span class="c-kw">await</span> albumsTable.insert([
-    { SingerId: <span class="c-str">'1'</span>, AlbumId: <span class="c-str">'1'</span>, AlbumTitle: <span class="c-str">'Total Junk'</span>, MarketingBudget: <span class="c-str">'100000'</span> },
-    { SingerId: <span class="c-str">'1'</span>, AlbumId: <span class="c-str">'2'</span>, AlbumTitle: <span class="c-str">'Go, Go, Go'</span>, MarketingBudget: <span class="c-str">'200000'</span> },
-    { SingerId: <span class="c-str">'2'</span>, AlbumId: <span class="c-str">'1'</span>, AlbumTitle: <span class="c-str">'Green Fields'</span>, MarketingBudget: <span class="c-str">'350000'</span> }
+  <span class="c-kw">await</span> tradesTable.insert([
+    { AccountId: <span class="c-str">'1'</span>, TradeId: <span class="c-str">'1'</span>, ProductSymbol: <span class="c-str">'ESU6 (E-mini S&P 500 Futures)'</span>, NotionalValue: <span class="c-str">'5000000'</span> },
+    { AccountId: <span class="c-str">'1'</span>, TradeId: <span class="c-str">'2'</span>, ProductSymbol: <span class="c-str">'CLU6 (Crude Oil Futures)'</span>, NotionalValue: <span class="c-str">'2500000'</span> },
+    { AccountId: <span class="c-str">'2'</span>, TradeId: <span class="c-str">'1'</span>, ProductSymbol: <span class="c-str">'GCU6 (Gold Futures)'</span>, NotionalValue: <span class="c-str">'3500000'</span> }
   ]);
 
   console.log(<span class="c-str">'Inserted rows using Mutations successfully!'</span>);
@@ -1788,7 +1788,7 @@ main().catch(console.error);</code></pre>
             </div>
             <div class="task-content">
               <span class="task-label">Mutation Logic Formulated</span>
-              <span class="task-desc">Implement Singer and Album records inside the mutation batch arrays.</span>
+              <span class="task-desc">Implement TradingAccount and Trade records inside the mutation batch arrays.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t3_2">
@@ -1832,12 +1832,12 @@ main().catch(console.error);</code></pre>
               <pre class="code-content"><code><span class="c-kw">def</span> <span class="c-var">query_data</span>(database):
     <span class="c-comment"># Queries are executed in read-only snapshots to ensure strong consistency</span>
     <span class="c-kw">with</span> database.snapshot() <span class="c-kw">as</span> snapshot:
-        query = <span class="c-str">"SELECT SingerId, FirstName, LastName FROM Singers ORDER BY SingerId"</span>
+        query = <span class="c-str">"SELECT AccountId, AccountName, FirmName FROM TradingAccounts ORDER BY AccountId"</span>
         results = snapshot.execute_sql(query)
         
-        print(<span class="c-str">"\nQuery Results (Singers):"</span>)
+        print(<span class="c-str">"\nQuery Results (TradingAccounts):"</span>)
         <span class="c-kw">for</span> row <span class="c-kw">in</span> results:
-            print(f<span class="c-str">"ID: {row[0]}, Name: {row[1]} {row[2]}"</span>)</code></pre>
+            print(f<span class="c-str">"ID: {row[0]}, Name: {row[1]} (Firm: {row[2]})"</span>)</code></pre>
             </div>
           </div>
 
@@ -1856,15 +1856,15 @@ main().catch(console.error);</code></pre>
                 </div>
               </div>
               <pre class="code-content"><code><span class="c-kw">import</span> <span class="c-str">"google.golang.org/api/iterator"</span> <span class="c-comment">// Add to imports</span>
-
+ 
 <span class="c-kw">func</span> queryData(ctx context.Context, client *spanner.Client) error {
-	stmt := spanner.Statement{SQL: <span class="c-str">"SELECT SingerId, FirstName, LastName FROM Singers ORDER BY SingerId"</span>}
+	stmt := spanner.Statement{SQL: <span class="c-str">"SELECT AccountId, AccountName, FirmName FROM TradingAccounts ORDER BY AccountId"</span>}
 	
 	<span class="c-comment">// Open read-only transaction snapshot</span>
 	iter := client.Single().Query(ctx, stmt)
 	<span class="c-kw">defer</span> iter.Stop()
 
-	fmt.Println(<span class="c-str">"\nQuery Results (Singers):"</span>)
+	fmt.Println(<span class="c-str">"\nQuery Results (TradingAccounts):"</span>)
 	<span class="c-kw">for</span> {
 		row, err := iter.Next()
 		<span class="c-kw">if</span> err == iterator.Done {
@@ -1875,11 +1875,11 @@ main().catch(console.error);</code></pre>
 		}
 		
 		<span class="c-kw">var</span> id int64
-		<span class="c-kw">var</span> firstName, lastName string
-		<span class="c-kw">if</span> err := row.Columns(&id, &firstName, &lastName); err != nil {
+		<span class="c-kw">var</span> accountName, firmName string
+		<span class="c-kw">if</span> err := row.Columns(&id, &accountName, &firmName); err != nil {
 			<span class="c-kw">return</span> err
 		}
-		fmt.Printf(<span class="c-str">"ID: %d, Name: %s %s\n"</span>, id, firstName, lastName)
+		fmt.Printf(<span class="c-str">"ID: %d, Name: %s (Firm: %s)\n"</span>, id, accountName, firmName)
 	}
 	<span class="c-kw">return</span> nil
 }</code></pre>
@@ -1902,17 +1902,17 @@ main().catch(console.error);</code></pre>
               </div>
               <pre class="code-content"><code><span class="c-kw">async</span> <span class="c-kw">function</span> <span class="c-var">queryData</span>(database) {
   <span class="c-kw">const</span> query = {
-    sql: <span class="c-str">'SELECT SingerId, FirstName, LastName FROM Singers ORDER BY SingerId'</span>
+    sql: <span class="c-str">'SELECT AccountId, AccountName, FirmName FROM TradingAccounts ORDER BY AccountId'</span>
   };
 
   <span class="c-kw">const</span> [rows] = <span class="c-kw">await</span> database.run(query);
   
-  console.log(<span class="c-str">'\nQuery Results (Singers):'</span>);
+  console.log(<span class="c-str">'\nQuery Results (TradingAccounts):'</span>);
   rows.forEach(row => {
-    <span class="c-kw">const</span> SingerId = row[0].value;
-    <span class="c-kw">const</span> FirstName = row[1].value;
-    <span class="c-kw">const</span> LastName = row[2].value;
-    console.log(`ID: ${SingerId}, Name: ${FirstName} ${LastName}`);
+    <span class="c-kw">const</span> AccountId = row[0].value;
+    <span class="c-kw">const</span> AccountName = row[1].value;
+    <span class="c-kw">const</span> FirmName = row[2].value;
+    console.log(`ID: ${AccountId}, Name: ${AccountName} (Firm: ${FirmName})`);
   });
 }</code></pre>
             </div>
@@ -1926,7 +1926,7 @@ main().catch(console.error);</code></pre>
             </div>
             <div class="task-content">
               <span class="task-label">SQL Query Formulated</span>
-              <span class="task-desc">Write the SQL SELECT statement targeting the Singers table columns.</span>
+              <span class="task-desc">Write the SQL SELECT statement targeting the TradingAccounts table columns.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t4_2">
@@ -1954,7 +1954,7 @@ main().catch(console.error);</code></pre>
           </div>
         </div>
 
-        <p>In this step, we implement a transaction block that reads the current <code>MarketingBudget</code> value for a specific album, adds a budget increase, and executes a database <code>UPDATE</code> using parameterized DML statements.</p>
+        <p>In this step, we implement a transaction block that reads the current <code>NotionalValue</code> value for a specific trade, adds value size adjustment, and executes a database <code>UPDATE</code> using parameterized DML statements.</p>
 
         <div class="tabs-wrapper">
           <div class="tabs-header">
@@ -1979,27 +1979,27 @@ main().catch(console.error);</code></pre>
               </div>
               <pre class="code-content"><code><span class="c-kw">def</span> <span class="c-var">run_transaction</span>(database):
     <span class="c-comment"># Define callback task function</span>
-    <span class="c-kw">def</span> <span class="c-var">update_album_budget</span>(transaction):
-        <span class="c-comment"># 1. Fetch current budget inside transaction scope</span>
+    <span class="c-kw">def</span> <span class="c-var">update_trade_value</span>(transaction):
+        <span class="c-comment"># 1. Fetch current NotionalValue inside transaction scope</span>
         results = transaction.execute_sql(
-            <span class="c-str">"SELECT MarketingBudget FROM Albums WHERE SingerId = 1 AND AlbumId = 1"</span>
+            <span class="c-str">"SELECT NotionalValue FROM Trades WHERE AccountId = 1 AND TradeId = 1"</span>
         )
         row = list(results)[0]
-        current_budget = row[0]
+        current_val = row[0]
         
         <span class="c-comment"># Compute adjustment</span>
-        new_budget = current_budget + 50000
+        new_val = current_val + 500000
         
         <span class="c-comment"># 2. Update database record using SQL DML</span>
         transaction.execute_update(
-            <span class="c-str">"UPDATE Albums SET MarketingBudget = @budget WHERE SingerId = 1 AND AlbumId = 1"</span>,
-            params={<span class="c-str">"budget"</span>: new_budget},
-            param_types={<span class="c-str">"budget"</span>: spanner.param_types.INT64}
+            <span class="c-str">"UPDATE Trades SET NotionalValue = @notional WHERE AccountId = 1 AND TradeId = 1"</span>,
+            params={<span class="c-str">"notional"</span>: new_val},
+            param_types={<span class="c-str">"notional"</span>: spanner.param_types.INT64}
         )
-        print(f<span class="c-str">"Transaction complete! Updated MarketingBudget from {current_budget} to {new_budget}"</span>)
+        print(f<span class="c-str">"Transaction complete! Updated NotionalValue from {current_val} to {new_val}"</span>)
 
     <span class="c-comment"># Run callback through helper which wraps transaction block</span>
-    database.run_in_transaction(update_album_budget)</code></pre>
+    database.run_in_transaction(update_trade_value)</code></pre>
             </div>
           </div>
 
@@ -2017,43 +2017,43 @@ main().catch(console.error);</code></pre>
                   <span class="tooltip">Copied!</span>
                 </div>
               </div>
-              <pre class="code-content"><code><span class="c-kw">func</span> runTransaction(ctx context.Context, client *spanner.Client) error {
-	_, err := client.ReadWriteTransaction(ctx, <span class="c-kw">func</span>(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
-		<span class="c-comment">// 1. Fetch current budget inside transaction</span>
+              <pre class="code-content"><code><span class="c-kw">func runTransaction(ctx context.Context, client *spanner.Client) error {
+	_, err := client.ReadWriteTransaction(ctx, func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
+		// 1. Fetch current NotionalValue inside transaction
 		stmt := spanner.Statement{
-			SQL: <span class="c-str">"SELECT MarketingBudget FROM Albums WHERE SingerId = 1 AND AlbumId = 1"</span>,
+			SQL: "SELECT NotionalValue FROM Trades WHERE AccountId = 1 AND TradeId = 1",
 		}
 		iter := txn.Query(ctx, stmt)
-		<span class="c-kw">defer</span> iter.Stop()
+		defer iter.Stop()
 
 		row, err := iter.Next()
-		<span class="c-kw">if</span> err != nil {
-			<span class="c-kw">return</span> err
+		if err != nil {
+			return err
 		}
 
-		<span class="c-kw">var</span> currentBudget int64
-		<span class="c-kw">if</span> err := row.Column(0, &currentBudget); err != nil {
-			<span class="c-kw">return</span> err
+		var currentVal int64
+		if err := row.Column(0, &currentVal); err != nil {
+			return err
 		}
-		newBudget := currentBudget + 50000
+		newVal := currentVal + 500000
 
-		<span class="c-comment">// 2. Update budget using database DML statement</span>
+		// 2. Update value using database DML statement
 		updateStmt := spanner.Statement{
-			SQL: <span class="c-str">"UPDATE Albums SET MarketingBudget = @budget WHERE SingerId = 1 AND AlbumId = 1"</span>,
+			SQL: "UPDATE Trades SET NotionalValue = @notional WHERE AccountId = 1 AND TradeId = 1",
 			Params: map[string]interface{}{
-				<span class="c-str">"budget"</span>: newBudget,
+				"notional": newVal,
 			},
 		}
 		_, err = txn.Update(ctx, updateStmt)
-		<span class="c-kw">if</span> err != nil {
-			<span class="c-kw">return</span> err
+		if err != nil {
+			return err
 		}
 
-		fmt.Printf(<span class="c-str">"Transaction complete! Updated MarketingBudget from %d to %d\n"</span>, currentBudget, newBudget)
-		<span class="c-kw">return</span> nil
+		fmt.Printf("Transaction complete! Updated NotionalValue from %d to %d\n", currentVal, newVal)
+		return nil
 	})
-	<span class="c-kw">return</span> err
-}</code></pre>
+	return err
+}</span></code></pre>
             </div>
           </div>
 
@@ -2071,29 +2071,29 @@ main().catch(console.error);</code></pre>
                   <span class="tooltip">Copied!</span>
                 </div>
               </div>
-              <pre class="code-content"><code><span class="c-kw">async</span> <span class="c-kw">function</span> <span class="c-var">runTransaction</span>(database) {
-  <span class="c-kw">await</span> database.runTransactionAsync(<span class="c-kw">async</span> (transaction) => {
-    <span class="c-comment">// 1. Fetch current budget inside transaction scope</span>
-    <span class="c-kw">const</span> [rows] = <span class="c-kw">await</span> transaction.run({
-      sql: <span class="c-str">'SELECT MarketingBudget FROM Albums WHERE SingerId = 1 AND AlbumId = 1'</span>
+              <pre class="code-content"><code>async function runTransaction(database) {
+  await database.runTransactionAsync(async (transaction) => {
+    // 1. Fetch current NotionalValue inside transaction scope
+    const [rows] = await transaction.run({
+      sql: 'SELECT NotionalValue FROM Trades WHERE AccountId = 1 AND TradeId = 1'
     });
 
-    <span class="c-kw">const</span> currentBudget = parseInt(rows[0][0].value);
-    <span class="c-kw">const</span> newBudget = currentBudget + 50000;
+    const currentVal = parseInt(rows[0][0].value);
+    const newVal = currentVal + 500000;
 
-    <span class="c-comment">// 2. Perform budget update using database DML statement</span>
-    <span class="c-kw">await</span> transaction.runUpdate({
-      sql: <span class="c-str">'UPDATE Albums SET MarketingBudget = @budget WHERE SingerId = 1 AND AlbumId = 1'</span>,
+    // 2. Perform value update using database DML statement
+    await transaction.runUpdate({
+      sql: 'UPDATE Trades SET NotionalValue = @notional WHERE AccountId = 1 AND TradeId = 1',
       params: {
-        budget: newBudget
+        notional: newVal
       },
       types: {
-        budget: <span class="c-str">'int64'</span>
+        notional: 'int64'
       }
     });
 
-    console.log(`Transaction complete! Updated MarketingBudget from ${currentBudget} to ${newBudget}`);
-    <span class="c-kw">await</span> transaction.commit();
+    console.log(`Transaction complete! Updated NotionalValue from ${currentVal} to ${newVal}`);
+    await transaction.commit();
   });
 }</code></pre>
             </div>

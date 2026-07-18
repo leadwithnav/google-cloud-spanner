@@ -1599,18 +1599,11 @@ gcloud spanner databases list --instance=test-instance</code></pre>
         </div>
 
         <h2>Designing the Schema</h2>
-        <p>We will create a parent table named <code>TradingAccounts</code> and an interleaved child table named <code>Trades</code>. Notice the primary key alignment and the <code>INTERLEAVE IN PARENT</code> clause:</p>
+        <p>We will create a parent table named <code>TradingAccounts</code> and an interleaved child table named <code>Trades</code>. Notice the primary key alignment and the <code>INTERLEAVE IN PARENT</code> clause (this block is for design reference; <strong>do not copy and paste this SQL directly into your terminal</strong>):</p>
 
         <div class="code-block-container">
           <div class="code-header">
-            <span class="code-lang-badge">SQL (Schema DDL)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
+            <span class="code-lang-badge">SQL (Schema DDL - Reference Only)</span>
           </div>
           <pre class="code-content"><code><span class="c-kw">CREATE TABLE</span> TradingAccounts (
   AccountId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
