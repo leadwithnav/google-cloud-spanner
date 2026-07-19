@@ -677,6 +677,54 @@
     .c-type { color: #4ec9b0 !important; }
     .c-flag { color: #9cdcfe !important; }
 
+    /* Tab Layout inside content */
+    .tabs-wrapper {
+      margin: 24px 0;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      background-color: var(--bg-secondary);
+    }
+
+    .tabs-header {
+      display: flex;
+      background-color: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab-btn {
+      padding: 14px 20px;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+      background-color: rgba(255, 255, 255, 0.01);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background-color: rgba(var(--accent-rgb), 0.03);
+    }
+
+    .tab-content {
+      padding: 24px;
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
     /* Page Navigation Footer */
     .page-navigation {
       display: flex;
@@ -1190,18 +1238,25 @@
             <span class="step-number">6</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Recover Database</span>
+          <span>Recover Current Database</span>
         </li>
         <li class="step-item" data-step="6">
           <span class="step-indicator">
             <span class="step-number">7</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Knowledge Check</span>
+          <span>Recover Database</span>
         </li>
         <li class="step-item" data-step="7">
           <span class="step-indicator">
             <span class="step-number">8</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Knowledge Check</span>
+        </li>
+        <li class="step-item" data-step="8">
+          <span class="step-indicator">
+            <span class="step-number">9</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
           <span>Get Certificate</span>
@@ -1276,6 +1331,136 @@
         <h2>Point-in-Time Recovery (PITR)</h2>
         <p>PITR allows you to query historical data in Spanner at a microsecond scale in the past. If a developer accidentally deletes a table's records, Spanner can restore or query the database as it existed *before* the deletion, up to a maximum retention period of <strong>7 days</strong>.</p>
 
+        <h2>Prerequisite: Connect to a Real Google Cloud Project</h2>
+        <p>By default, previous labs may have configured your local development environment to route Cloud Spanner API calls to the local emulator. To deploy a real multi-region instance and configure PITR on Google Cloud, you must connect to a live Google Cloud project.</p>
+
+        <h3>1. Authenticate the gcloud CLI</h3>
+        <p>Log in with your Google Cloud credentials to grant the SDK permission to access your project resource APIs:</p>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud auth login
+gcloud auth application-default login</code></pre>
+        </div>
+
+        <h3>2. Unset Spanner Emulator Overrides</h3>
+        <p>If you created a separate configurations profile for the emulator, you can switch back to your default configuration. Otherwise, remove the API endpoint overrides in your current active configuration:</p>
+        
+        <div class="tabs-wrapper">
+          <div class="tabs-header">
+            <button class="tab-btn active" data-tab-group="config-switch" data-tab="config-profile">Option A: Switch to Default Profile</button>
+            <button class="tab-btn" data-tab-group="config-switch" data-tab="config-unset">Option B: Unset Emulator in Active Profile</button>
+          </div>
+          
+          <div class="tab-content active" data-tab-group="config-switch" id="tab-config-profile">
+            <p>Switch back to your production/default <code>gcloud</code> configuration profile:</p>
+            <div class="code-block-container shell">
+              <div class="code-header">
+                <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+                <div class="copy-btn-wrapper">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    Copy
+                  </button>
+                  <span class="tooltip">Copied!</span>
+                </div>
+              </div>
+              <pre class="code-content"><code>gcloud config configurations activate default</code></pre>
+            </div>
+          </div>
+
+          <div class="tab-content" data-tab-group="config-switch" id="tab-config-unset">
+            <p>Manually clear the emulator endpoint override, re-enable credentials, and set your target Google Cloud billing project ID:</p>
+            <div class="code-block-container shell">
+              <div class="code-header">
+                <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+                <div class="copy-btn-wrapper">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    Copy
+                  </button>
+                  <span class="tooltip">Copied!</span>
+                </div>
+              </div>
+              <pre class="code-content"><code># Unset the emulator API endpoint override
+gcloud config unset api_endpoint_overrides/spanner
+
+# Re-enable credentials authentication
+gcloud config set auth/disable_credentials false
+
+# Set your active Google Cloud project ID
+gcloud config set project [YOUR_PROJECT_ID]</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <h3>3. Clear Emulator Environment Variables</h3>
+        <p>Ensure that the <code>SPANNER_EMULATOR_HOST</code> environment variable is cleared so client libraries and SDK scripts connect to production Cloud Spanner endpoints:</p>
+        
+        <div class="tabs-wrapper">
+          <div class="tabs-header">
+            <button class="tab-btn active" data-tab-group="env-clear" data-tab="env-linux">Linux / macOS</button>
+            <button class="tab-btn" data-tab-group="env-clear" data-tab="env-cmd">Windows (CMD)</button>
+            <button class="tab-btn" data-tab-group="env-clear" data-tab="env-ps">Windows (PowerShell)</button>
+          </div>
+          
+          <div class="tab-content active" data-tab-group="env-clear" id="tab-env-linux">
+            <div class="code-block-container shell">
+              <div class="code-header">
+                <span class="code-lang-badge">Terminal (Bash)</span>
+                <div class="copy-btn-wrapper">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    Copy
+                  </button>
+                  <span class="tooltip">Copied!</span>
+                </div>
+              </div>
+              <pre class="code-content"><code>unset SPANNER_EMULATOR_HOST</code></pre>
+            </div>
+          </div>
+
+          <div class="tab-content" data-tab-group="env-clear" id="tab-env-cmd">
+            <div class="code-block-container shell">
+              <div class="code-header">
+                <span class="code-lang-badge">Command Prompt</span>
+                <div class="copy-btn-wrapper">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    Copy
+                  </button>
+                  <span class="tooltip">Copied!</span>
+                </div>
+              </div>
+              <pre class="code-content"><code>set SPANNER_EMULATOR_HOST=</code></pre>
+            </div>
+          </div>
+
+          <div class="tab-content" data-tab-group="env-clear" id="tab-env-ps">
+            <div class="code-block-container shell">
+              <div class="code-header">
+                <span class="code-lang-badge">PowerShell</span>
+                <div class="copy-btn-wrapper">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    Copy
+                  </button>
+                  <span class="tooltip">Copied!</span>
+                </div>
+              </div>
+              <pre class="code-content"><code>Remove-Item Env:\SPANNER_EMULATOR_HOST</code></pre>
+            </div>
+          </div>
+        </div>
+
         <ul class="task-checklist">
           <li class="task-checkbox-container" data-task-id="t0_1">
             <div class="custom-checkbox">
@@ -1284,6 +1469,15 @@
             <div class="task-content">
               <span class="task-label">Understand disaster recovery concepts</span>
               <span class="task-desc">Review the difference between automatic Paxos failovers and logical data corruption recovery.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t0_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Configure connection to real Google Cloud project</span>
+              <span class="task-desc">Unset Spanner emulator overrides, configure gcloud credentials, and set your target project ID.</span>
             </div>
           </li>
         </ul>
@@ -1330,16 +1524,44 @@
           <pre class="code-content"><code><span class="c-comment"># Note: Running this command in production starts cloud billing costs</span>
 gcloud spanner instances create multi-region-spanner \
   --config=nam3 \
-  --description="HA Multi-Region Production Instance" \
-  --nodes=1</code></pre>
+  --description="HA Multi-Region Instance" \
+  --processing-units=100</code></pre>
         </div>
 
         <div class="callout callout-info">
           <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
           <div>
-            <div class="callout-title">Emulator Support Notice</div>
-            <div class="callout-content">Because the local Spanner emulator runs in-memory on port 9010, it replicates all database commands locally. For the remainder of this training lab, we will use our active <code>test-instance</code> on the local emulator.</div>
+            <div class="callout-title">Production Billing Warning</div>
+            <div class="callout-content">Deploying a multi-region instance on Google Cloud Spanner incurs billing charges. Ensure you clean up your resources (delete the instance) at the end of this lab to prevent unexpected costs.</div>
           </div>
+        </div>
+
+        <h2>3. Create the Lab Database and Schema</h2>
+        <p>Before configuring PITR or simulating failure, you must create the database and the <code>TradingAccounts</code> schema table within your new <code>multi-region-spanner</code> instance:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code># Create the test-database inside your multi-region instance
+gcloud spanner databases create test-database \
+  --instance=multi-region-spanner
+
+# Create the TradingAccounts schema table
+gcloud spanner databases ddl update test-database \
+  --instance=multi-region-spanner \
+  --ddl="CREATE TABLE TradingAccounts (
+    AccountId INT64 NOT NULL,
+    AccountName STRING(1024),
+    FirmName STRING(1024)
+  ) PRIMARY KEY (AccountId)"</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1391,7 +1613,7 @@ gcloud spanner instances create multi-region-spanner \
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=test-instance \
+  --instance=multi-region-spanner \
   --ddl="ALTER DATABASE \`test-database\` SET OPTIONS (version_retention_period = '3d')"</code></pre>
         </div>
 
@@ -1410,7 +1632,7 @@ gcloud spanner instances create multi-region-spanner \
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases describe test-database \
-  --instance=test-instance</code></pre>
+  --instance=multi-region-spanner</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1455,7 +1677,7 @@ gcloud spanner instances create multi-region-spanner \
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+  --instance=multi-region-spanner \
   --sql="INSERT INTO TradingAccounts (AccountId, AccountName, FirmName) VALUES (10, 'John', 'Doe_Trading'), (11, 'Jane', 'Smith_Trading')"</code></pre>
         </div>
 
@@ -1475,7 +1697,7 @@ gcloud spanner instances create multi-region-spanner \
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+  --instance=multi-region-spanner \
   --sql="SELECT CURRENT_TIMESTAMP()"</code></pre>
         </div>
 
@@ -1494,7 +1716,7 @@ gcloud spanner instances create multi-region-spanner \
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+  --instance=multi-region-spanner \
   --sql="DELETE FROM TradingAccounts WHERE 1=1"</code></pre>
         </div>
 
@@ -1512,7 +1734,7 @@ gcloud spanner instances create multi-region-spanner \
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+  --instance=multi-region-spanner \
   --sql="SELECT * FROM TradingAccounts"</code></pre>
         </div>
 
@@ -1562,7 +1784,7 @@ gcloud spanner instances create multi-region-spanner \
           </div>
           <pre class="code-content"><code><span class="c-comment"># Replace the timestamp below with the time you recorded in Step 3</span>
 gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+  --instance=multi-region-spanner \
   --read-timestamp="2026-07-17T13:05:00.123456Z" \
   --sql="SELECT * FROM TradingAccounts"</code></pre>
         </div>
@@ -1588,9 +1810,117 @@ gcloud spanner databases execute-sql test-database \
         </ul>
       </section>
 
-      <!-- STEP 6: Recover Database -->
+      <!-- STEP 6: Recover Current Database (Python SDK) -->
       <section class="content-panel" id="panel-5">
-        <h1>Step 5: Restoring the Database (PITR Backup/Restore)</h1>
+        <h1>Step 5: Recovering the Current Database (In-Place Python SDK)</h1>
+        <p>In addition to using full database backup and restore, you can perform an **in-place restoration** of your table records using the Google Cloud Spanner Python SDK. This approach reads a stale snapshot of the database at your pre-corruption timestamp and writes the records back to the active table in a read-write transaction.</p>
+
+        <h2>1. Configure the Python Script</h2>
+        <p>Open the Python restoration script located at <code>Lab2/restore.py</code>. Replace the placeholder value of <code>TIMESTAMP_STR</code> with the pre-corruption timestamp you recorded in Step 3:</p>
+        
+        <div class="code-block-container python">
+          <div class="code-header">
+            <span class="code-lang-badge">Python (Lab2/restore.py)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>import datetime
+from google.cloud import spanner
+
+# Configuration (using live multi-region instance details)
+INSTANCE_ID = "multi-region-spanner"
+DATABASE_ID = "test-database"
+TIMESTAMP_STR = "2026-07-19T17:02:09.247704144Z" # Replace with your noted pre-corruption timestamp
+
+# Initialize client
+client = spanner.Client()
+instance = client.instance(INSTANCE_ID)
+database = instance.database(DATABASE_ID)
+
+# Parse recovery timestamp (ISO format)
+recovery_time = datetime.datetime.fromisoformat(TIMESTAMP_STR.replace("Z", "+00:00"))
+
+print(f"Reading historical state as of {recovery_time}...")
+
+# 1. Read historical rows in a stale snapshot
+with database.snapshot(read_timestamp=recovery_time) as snapshot:
+    results = snapshot.execute_sql("SELECT AccountId, AccountName, FirmName FROM TradingAccounts")
+    rows_to_restore = list(results)
+
+print(f"Found {len(rows_to_restore)} rows to restore.")
+
+# 2. Write them back in a read-write transaction
+def restore_tx(transaction, rows):
+    transaction.insert_or_update(
+        table="TradingAccounts",
+        columns=["AccountId", "AccountName", "FirmName"],
+        values=rows
+    )
+
+if rows_to_restore:
+    database.run_in_transaction(restore_tx, rows_to_restore)
+    print("In-place restoration completed successfully!")
+else:
+    print("No rows found at the specified timestamp.")</code></pre>
+        </div>
+
+        <h2>2. Run the Python Script</h2>
+        <p>Execute the Python recovery script from your terminal to fetch the stale records and write them back into the active database:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>python Lab2/restore.py</code></pre>
+        </div>
+
+        <h2>3. Check the Table State</h2>
+        <p>Verify that your data has been restored back in-place into the active <code>TradingAccounts</code> table on the <code>multi-region-spanner</code> instance:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="SELECT * FROM TradingAccounts"</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t5_python">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Run in-place Python recovery script</span>
+              <span class="task-desc">Configure the timestamp in Lab2/restore.py, execute the script, and verify the table state.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 7: Recover Database -->
+      <section class="content-panel" id="panel-6">
+        <h1>Step 6: Restoring the Database (PITR Backup/Restore)</h1>
         <p>While stale reads are excellent for ad-hoc queries, full disaster recovery requires restoring the entire database to a clean state. We accomplish this by creating a backup from a historical `version-time` and restoring it.</p>
 
         <h2>1. Create a Backup from the Past</h2>
@@ -1609,13 +1939,48 @@ gcloud spanner databases execute-sql test-database \
           </div>
           <pre class="code-content"><code><span class="c-comment"># Replace version-time with your recorded pre-outage timestamp</span>
 gcloud spanner backups create test-database-backup \
-  --instance=test-instance \
+  --instance=multi-region-spanner \
   --database=test-database \
   --version-time="2026-07-17T13:05:00.123456Z" \
-  --retention-period=3d</code></pre>
+  --retention-period=3d --async</code></pre>
         </div>
 
-        <h2>2. Restore the Backup to a New Database</h2>
+        <h2>2. Check the Backup Status</h2>
+        <p>Creating a backup is an asynchronous operation. Because you specified the <code>--async</code> flag, the command returns immediately. To track its progress, describe the backup status or list the backups under your instance:</p>
+        
+        <p>Describe the backup to view its current state and progress percent:</p>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner backups describe test-database-backup \
+  --instance=multi-region-spanner</code></pre>
+        </div>
+
+        <p>Alternatively, list all backups within the instance to see their metadata:</p>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner backups list \
+  --instance=multi-region-spanner</code></pre>
+        </div>
+
+        <h2>3. Restore the Backup to a New Database</h2>
         <p>Now, restore the backup. We will restore it as a new database named <code>recovered-db</code>:</p>
 
         <div class="code-block-container shell">
@@ -1631,9 +1996,9 @@ gcloud spanner backups create test-database-backup \
           </div>
           <pre class="code-content"><code>gcloud spanner databases restore \
   --destination-database=recovered-db \
-  --destination-instance=test-instance \
+  --destination-instance=multi-region-spanner \
   --backup=test-database-backup \
-  --backup-instance=test-instance</code></pre>
+  --backup-instance=multi-region-spanner</code></pre>
         </div>
 
         <h2>3. Verify Recovery Results</h2>
@@ -1651,7 +2016,7 @@ gcloud spanner backups create test-database-backup \
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases execute-sql recovered-db \
-  --instance=test-instance \
+  --instance=multi-region-spanner \
   --sql="SELECT * FROM TradingAccounts"</code></pre>
         </div>
 
@@ -1661,8 +2026,8 @@ gcloud spanner backups create test-database-backup \
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Create a point-in-time backup</span>
-              <span class="task-desc">Generate backup using the --version-time flag pointing to the target state.</span>
+              <span class="task-label">Create a point-in-time backup and check status</span>
+              <span class="task-desc">Generate backup using the --version-time and --async flags, describe the backup to check status, and list all backups.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t5_2">
@@ -1677,9 +2042,9 @@ gcloud spanner backups create test-database-backup \
         </ul>
       </section>
 
-      <!-- STEP 7: Quiz / Knowledge Check -->
-      <section class="content-panel" id="panel-6">
-        <h1>Step 6: Knowledge Check</h1>
+      <!-- STEP 8: Quiz / Knowledge Check -->
+      <section class="content-panel" id="panel-7">
+        <h1>Step 7: Knowledge Check</h1>
         <p>Complete this self-check to evaluate your understanding of Spanner multi-region availability and recovery architectures.</p>
 
         <div class="quiz-container">
@@ -1757,8 +2122,8 @@ gcloud spanner backups create test-database-backup \
         </ul>
       </section>
 
-      <!-- STEP 8: Certificate of Completion -->
-      <section class="content-panel certificate-panel" id="panel-7">
+      <!-- STEP 9: Certificate of Completion -->
+      <section class="content-panel certificate-panel" id="panel-8">
         <h1>Lab Certificate of Completion</h1>
         <p class="subtitle">Once you complete the required tasks and pass the quiz, you can generate your certificate.</p>
 
@@ -1817,16 +2182,18 @@ gcloud spanner backups create test-database-backup \
 
   <script>
     // Constants & State
-    const totalSteps = 8;
+    const totalSteps = 9;
     let currentStep = 0;
     
     // Checklist configuration
     const taskStatus = {
       t0_1: false,
+      t0_2: false,
       t1_1: false, t1_2: false,
       t2_1: false, t2_2: false,
       t3_1: false, t3_2: false,
       t4_1: false,
+      t5_python: false,
       t5_1: false, t5_2: false,
       t6_1: false
     };
@@ -1842,6 +2209,7 @@ gcloud spanner backups create test-database-backup \
     document.addEventListener("DOMContentLoaded", () => {
       setupChecklistListeners();
       setupTheme();
+      setupTabListeners();
       updateProgress();
       decorateCodeBlocks();
     });
@@ -1903,6 +2271,22 @@ gcloud spanner backups create test-database-backup \
       showStep(currentStep + direction);
     }
 
+    // Interactive Tab switching
+    function setupTabListeners() {
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const group = btn.getAttribute("data-tab-group");
+          const targetTab = btn.getAttribute("data-tab");
+          
+          document.querySelectorAll(`.tab-btn[data-tab-group="${group}"]`).forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(`.tab-content[data-tab-group="${group}"]`).forEach(c => c.classList.remove("active"));
+          
+          btn.classList.add("active");
+          document.getElementById(`tab-${targetTab}`).classList.add("active");
+        });
+      });
+    }
+
     // Checklist Logic
     function setupChecklistListeners() {
       document.querySelectorAll(".task-checkbox-container").forEach(container => {
@@ -1924,13 +2308,14 @@ gcloud spanner backups create test-database-backup \
       document.getElementById("overallProgressBar").style.width = `${progressPercent}%`;
       document.getElementById("progressPercent").textContent = `${progressPercent}%`;
       
-      markStepCompletion("t0_1", 0);
+      markStepCompletion("t0_1", 0, ["t0_1", "t0_2"]);
       markStepCompletion("t1_1", 1, ["t1_1", "t1_2"]);
       markStepCompletion("t2_1", 2, ["t2_1", "t2_2"]);
       markStepCompletion("t3_1", 3, ["t3_1", "t3_2"]);
       markStepCompletion("t4_1", 4, ["t4_1"]);
-      markStepCompletion("t5_1", 5, ["t5_1", "t5_2"]);
-      markStepCompletion("t6_1", 6, ["t6_1"]);
+      markStepCompletion("t5_python", 5, ["t5_python"]);
+      markStepCompletion("t5_1", 6, ["t5_1", "t5_2"]);
+      markStepCompletion("t6_1", 7, ["t6_1"]);
       
       checkCertificateUnlock();
     }
@@ -2072,31 +2457,67 @@ gcloud spanner backups create test-database-backup \
     }
 
     function highlightSyntax(text, lang) {
-      let html = text
+      let escaped = text
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
         
-      if (lang === "python" || lang === "java" || lang === "javascript") {
-        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
-        html = html.replace(/(#.*|\/\/.*)$/g, '<span class="c-comment">$1</span>');
-        const keywords = ['import', 'from', 'def', 'if', 'else', 'with', 'as', 'print', 'list', 'return', 'in', 'class', 'public', 'private', 'static', 'void', 'new', 'const', 'let', 'var', 'function'];
-        keywords.forEach(kw => {
-          const regex = new RegExp(`\\b(${kw})\\b`, 'g');
-          html = html.replace(regex, '<span class="c-kw">$1</span>');
-        });
-        html = html.replace(/\b(\w+)(?=\()/g, '<span class="c-func">$1</span>');
-        html = html.replace(/\b(\d+)\b/g, '<span class="c-num">$1</span>');
-      } else if (lang === "shell" || lang === "sql") {
-        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
-        html = html.replace(/(#.*)$/g, '<span class="c-comment">$1</span>');
-        const sqlKeywords = ['CREATE', 'TABLE', 'ALTER', 'DATABASE', 'SET', 'OPTIONS', 'PRIMARY', 'KEY', 'INTERLEAVE', 'IN', 'PARENT', 'ON', 'DELETE', 'CASCADE', 'INSERT', 'INTO', 'VALUES', 'SELECT', 'FROM', 'WHERE', 'DROP', 'UPDATE', 'ROWS', 'DESCRIBE', 'RESTORE'];
-        sqlKeywords.forEach(kw => {
-          const regex = new RegExp(`\\b(${kw})\\b`, 'gi');
-          html = html.replace(regex, '<span class="c-kw">$1</span>');
-        });
+      const placeholders = [];
+      let placeholderCounter = 0;
+      
+      function addPlaceholder(value, className) {
+        const id = `___TOKEN_${placeholderCounter++}___`;
+        placeholders.push({ id, html: `<span class="${className}">${value}</span>` });
+        return id;
       }
-      return html;
+      
+      let processed = escaped;
+      
+      if (lang === "python" || lang === "java" || lang === "javascript") {
+        // Extract strings
+        processed = processed.replace(/(["'])(.*?)\1/g, (match) => {
+          return addPlaceholder(match, "c-str");
+        });
+        
+        // Extract comments
+        processed = processed.replace(/(#.*|\/\/.*)$/g, (match) => {
+          return addPlaceholder(match, "c-comment");
+        });
+        
+        // Highlight keywords
+        const keywords = ['import', 'from', 'def', 'if', 'else', 'with', 'as', 'print', 'list', 'return', 'in', 'class', 'public', 'private', 'static', 'void', 'new', 'const', 'let', 'var', 'function'];
+        const regex = new RegExp(`\\b(${keywords.join('|')})\\b`, 'g');
+        processed = processed.replace(regex, '<span class="c-kw">$1</span>');
+        
+        // Highlight functions
+        processed = processed.replace(/\b(\w+)(?=\()/g, '<span class="c-func">$1</span>');
+        
+        // Highlight numbers
+        processed = processed.replace(/\b(\d+)\b/g, '<span class="c-num">$1</span>');
+        
+      } else if (lang === "shell" || lang === "sql") {
+        // Extract strings
+        processed = processed.replace(/(["'])(.*?)\1/g, (match) => {
+          return addPlaceholder(match, "c-str");
+        });
+        
+        // Extract comments
+        processed = processed.replace(/(#.*)$/g, (match) => {
+          return addPlaceholder(match, "c-comment");
+        });
+        
+        // Highlight SQL keywords
+        const sqlKeywords = ['CREATE', 'TABLE', 'ALTER', 'DATABASE', 'SET', 'OPTIONS', 'PRIMARY', 'KEY', 'INTERLEAVE', 'IN', 'PARENT', 'ON', 'DELETE', 'CASCADE', 'INSERT', 'INTO', 'VALUES', 'SELECT', 'FROM', 'WHERE', 'DROP', 'UPDATE', 'ROWS', 'DESCRIBE', 'RESTORE'];
+        const sqlRegex = new RegExp(`\\b(${sqlKeywords.join('|')})\\b`, 'gi');
+        processed = processed.replace(sqlRegex, '<span class="c-kw">$1</span>');
+      }
+      
+      // Restore placeholders in reverse order
+      for (let i = placeholders.length - 1; i >= 0; i--) {
+        processed = processed.replace(placeholders[i].id, placeholders[i].html);
+      }
+      
+      return processed;
     }
 
     // Quiz evaluation

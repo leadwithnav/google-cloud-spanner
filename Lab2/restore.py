@@ -4,7 +4,7 @@ from google.cloud import spanner
 # Configuration (using live multi-region instance details)
 INSTANCE_ID = "multi-region-spanner"
 DATABASE_ID = "test-database"
-TIMESTAMP_STR = "2026-07-18T09:18:26.078381842Z" # Replace with your noted pre-corruption timestamp
+TIMESTAMP_STR = "2026-07-19T17:02:09.247704144Z" # Replace with your noted pre-corruption timestamp
 
 # Initialize client
 client = spanner.Client()
