@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 7: Spring Boot & Spring Data Spanner Integration. Configure maven dependencies, application properties, entity mappings, repository interfaces, and REST API controllers.">
-  <title>Cloud Spanner Lab: Spring Boot & Spring Data Spanner Integration</title>
+  <meta name="description" content="Lab 6: System Tables & Client Connection Pools. Query query/transaction stats in SPANNER_SYS, and configure client session pool limits in code (Go, Java, Node.js).">
+  <title>Cloud Spanner Lab: Built-in System Tables & Client Connection Pools</title>
   
   <!-- Typography & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -627,32 +627,56 @@
     }
 
     .code-content {
-      padding: 18px;
+      padding: 16px 0;
       overflow-x: auto;
       margin: 0;
+      background-color: #1e1e1e !important;
     }
 
-    .code-content code {
-      font-family: var(--font-mono);
-      font-size: 0.9rem;
-      line-height: 1.6;
-      color: #e2e8f0;
-      display: block;
+    .code-line {
+      display: flex;
+      padding: 0 16px;
+      transition: background-color 0.1s ease;
+    }
+
+    .code-line:hover {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .code-line.highlight-red {
+      background-color: rgba(239, 68, 68, 0.15) !important;
+      border-left: 3px solid #ff5f56;
+      padding-left: 13px !important;
+    }
+
+    .line-number {
+      color: #858585;
+      text-align: right;
+      width: 32px;
+      padding-right: 16px;
+      user-select: none;
+      font-size: 0.85rem;
+      border-right: 1px solid #2d2d2d;
+      margin-right: 16px;
+    }
+
+    .line-code {
+      color: #d4d4d4;
+      font-size: 0.85rem;
       white-space: pre;
+      font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Monaco, Consolas, monospace;
+      line-height: 1.6;
     }
 
-    /* Terminal Shell Styles */
-    .code-block-container.shell .code-header {
-      background-color: #0c0f16;
-    }
-    .code-block-container.shell code {
-      color: #38bdf8;
-    }
-    .c-comment { color: #64748b; font-style: italic; }
-    .c-kw { color: #f472b6; font-weight: 600; }
-    .c-val { color: #38bdf8; }
-    .c-str { color: #34d399; }
-    .c-prompt { color: #a78bfa; user-select: none; }
+    /* Syntax Highlighting Colors (VS Code Dark+ Style) */
+    .c-comment { color: #6a9955 !important; font-style: italic !important; }
+    .c-kw { color: #569cd6 !important; font-weight: 600 !important; }
+    .c-str { color: #ce9178 !important; }
+    .c-num { color: #b5cea8 !important; }
+    .c-func { color: #dcdcaa !important; }
+    .c-type { color: #4ec9b0 !important; }
+    .c-flag { color: #9cdcfe !important; }
+
 
     /* Page Navigation Footer */
     .page-navigation {
@@ -1139,35 +1163,35 @@
             <span class="step-number">2</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Java / Spring Stack</span>
+          <span>Built-in Systems Overview</span>
         </li>
         <li class="step-item" data-step="2">
           <span class="step-indicator">
             <span class="step-number">3</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Project Maven Setup</span>
+          <span>Query Execution Stats</span>
         </li>
         <li class="step-item" data-step="3">
           <span class="step-indicator">
             <span class="step-number">4</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>App Properties Setup</span>
+          <span>Transaction Commit Stats</span>
         </li>
         <li class="step-item" data-step="4">
           <span class="step-indicator">
             <span class="step-number">5</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Map Entity & Repo</span>
+          <span>Connection Pools Concept</span>
         </li>
         <li class="step-item" data-step="5">
           <span class="step-indicator">
             <span class="step-number">6</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Create REST API Controller</span>
+          <span>Configure Client Pools</span>
         </li>
         <li class="step-item" data-step="6">
           <span class="step-indicator">
@@ -1205,12 +1229,12 @@
       <header class="top-navbar">
         <div class="lab-badge">
           <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>
-          Lab 7: Spring Boot & Spanner
+          Lab 6: Systems & Pools
         </div>
         <div class="lab-meta">
           <div class="meta-item">
             <svg class="meta-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-            <span>Estimated Duration: <strong>45 mins</strong></span>
+            <span>Estimated Duration: <strong>40 mins</strong></span>
           </div>
           <div class="meta-item">
             <svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
@@ -1221,28 +1245,27 @@
 
       <!-- STEP 1: Overview -->
       <section class="content-panel active" id="panel-0">
-        <h1>Spring Boot & Spring Data Spanner Integration</h1>
-        <p class="subtitle">Welcome! In this hands-on lab, you will learn how to integrate Java applications with Cloud Spanner using Spring Boot and Spring Data Spanner, maps tables to Java classes, and configure session pools.</p>
+        <h1>Built-in System Tables & Client Connection Pools</h1>
+        <p class="subtitle">Welcome! In this hands-on lab, you will learn how to diagnose database activity using Spanner's built-in system tables (<code>SPANNER_SYS</code>) and configure client libraries to optimize connection pools and session management.</p>
         
-        <h2>The Integration Stack</h2>
-        <p>Developing enterprise microservices with Cloud Spanner is simplified by using the Spring Boot framework. Let's look at the component hierarchy of this stack:</p>
+        <h2>Why System Tables and Connection Pools?</h2>
+        <p>In high-traffic production environments, diagnosing slow queries and write lock conflicts cannot depend solely on external logging. Cloud Spanner exposes real-time statistics tables under the <strong>SPANNER_SYS</strong> metadata schema, capturing exact CPU utilization, query latencies, and commit statistics.</p>
+        <p>Additionally, client application performance depends heavily on connection management. Spanner does not use standard persistent socket connections; instead, the client library maintains a **Session Pool** of HTTP/2 gRPC channels. Under-allocating sessions causes requests to block, while over-allocating wastes resources. Configuring these pools correctly is essential for low-latency operations.</p>
 
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">Integration Stack Hierarchy</span>
+        <div class="callout callout-info">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">The Learning Objectives</div>
+            <div class="callout-content">In this lab, we will:
+              <ol>
+                <li>Inspect Spanner's diagnostic schemas using SQL queries.</li>
+                <li>Analyze high-CPU query shapes and commit latency details using system views.</li>
+                <li>Understand session pool parameters: Minimum/Maximum Sessions, Write Fractions, and Keep-Alives.</li>
+                <li>Review multi-language client setups (Go, Java, Node.js).</li>
+              </ol>
+            </div>
           </div>
-          <pre class="code-content"><code>      Spring Boot Application (Runtime & Web Rest Controller)
-                 │
-      Spring Data Spanner (Repository Mapping abstractions)
-                 │
-      Google Cloud Spanner Java Client (Native Under-the-Hood SDK)
-                 │
-      Session Pool (Local HTTP/2 gRPC Channel Manager)
-                 │
-      Cloud Spanner (Target Database Instance)</code></pre>
         </div>
-
-        <p>Spring Data Spanner acts as a mapping layer on top of the native **Google Cloud Spanner Java Client**. This client manages the **Session Pool** to coordinate transactions and queries. The configuration parameters we set in Spring Boot properties are mapped directly down to the session pool configuration class of the native client library.</p>
 
         <ul class="task-checklist">
           <li class="task-checkbox-container" data-task-id="t0_1">
@@ -1250,36 +1273,47 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Analyze integration components</span>
-              <span class="task-desc">Review the structural delegation from Rest Controllers down to gRPC session pools.</span>
+              <span class="task-label">Understand the systems & pools architecture</span>
+              <span class="task-desc">Review why built-in stats tables and session pools are critical for production tuning.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 2: Java / Spring Stack Concept -->
+      <!-- STEP 2: Built-in Systems Overview -->
       <section class="content-panel" id="panel-1">
-        <h1>Understanding Component Roles</h1>
-        <p>Let's examine the role of each layer in this integration:</p>
+        <h1>Built-in System Metadata Tables</h1>
+        <p>Cloud Spanner populates database metadata and runtime statistics inside a special schema named <code>SPANNER_SYS</code>. These views contain rolling statistics aggregated across all splits and nodes.</p>
 
+        <h2>Important Stat Views</h2>
         <div class="concept-grid">
           <div class="concept-card">
             <div class="concept-title">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 16H6v-2h5v2zm0-4H6v-2h5v2zm0-4H6V8h5v2zm0-4H6V4h5v2z"/></svg>
-              Spring Data Spanner
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>
+              Query Stats
             </div>
             <div class="concept-desc">
-              Maps database tables directly to Java objects using annotations (like <code>@Table</code>, <code>@PrimaryKey</code>). Provides CRUD repositories so developers can execute basic database operations without writing custom SQL.
+              Analyzes execution frequency, latency, CPU utilization, and data scanning metrics.<br>
+              <strong>Tables</strong>: <code>SPANNER_SYS.QUERY_STATS_TOP_MINUTE</code>, <code>TOP_10MINUTE</code>, <code>TOP_1HOUR</code>.
             </div>
           </div>
           <div class="concept-card">
             <div class="concept-title">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-              Google Cloud Java Client
+              Transaction Stats
             </div>
             <div class="concept-desc">
-              The underlying low-level Google Cloud SDK. It establishes HTTP/2 connections, handles authentication, routes gRPC requests to Spanner splits, and maintains the database session pool.
+              Tracks commit delays, lock wait times, and conflict abort rates.<br>
+              <strong>Tables</strong>: <code>SPANNER_SYS.TXN_STATS_TOP_10MINUTE</code>, <code>TOP_1HOUR</code>.
             </div>
+          </div>
+        </div>
+
+        <div class="callout callout-warning">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">Emulator Limitations</div>
+            <div class="callout-content">The local Spanner emulator supports basic system schemas to preserve query compatibility, but the metrics returned may be empty or mock values. In production, these tables update continuously as queries execute.</div>
           </div>
         </div>
 
@@ -1289,24 +1323,24 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Differentiate framework vs native layers</span>
-              <span class="task-desc">Understand how Spring Data delegates low-level connection management to the Google Cloud Java client.</span>
+              <span class="task-label">Review system schema tables</span>
+              <span class="task-desc">Verify the names and retention intervals (minute, 10-minute, hour) of system tables.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 3: Project Maven Setup -->
+      <!-- STEP 3: Query stats -->
       <section class="content-panel" id="panel-2">
-        <h1>Step 1: Project Maven Setup</h1>
-        <p>To integrate Spring with Spanner, we include the Spring Cloud GCP starter dependency in our project configuration.</p>
+        <h1>Step 2: Querying Query Statistics</h1>
+        <p>You can identify resource-heavy queries by sorting the system statistics by **CPU utilization** or **latency**.</p>
 
-        <h2>Add Starter Dependencies</h2>
-        <p>Add the following Bill-of-Materials (BOM) management and starter dependency definitions to your <code>pom.xml</code> file:</p>
+        <h2>1. Query Top CPU Queries</h2>
+        <p>Run this query using the gcloud CLI to retrieve the highest CPU-consuming queries executed over the last 10 minutes:</p>
 
-        <div class="code-block-container">
+        <div class="code-block-container shell">
           <div class="code-header">
-            <span class="code-lang-badge">pom.xml</span>
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1315,31 +1349,34 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>&lt;!-- Dependency Management for Spring Cloud GCP --&gt;
-&lt;dependencyManagement&gt;
-    &lt;dependencies&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;com.google.cloud&lt;/groupId&gt;
-            &lt;artifactId&gt;spring-cloud-gcp-dependencies&lt;/artifactId&gt;
-            &lt;version&gt;4.8.0&lt;/version&gt;
-            &lt;type&gt;pom&lt;/type&gt;
-            &lt;scope&gt;import&lt;/scope&gt;
-        &lt;/dependency&gt;
-    &lt;/dependencies&gt;
-&lt;/dependencyManagement&gt;
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="SELECT text, execution_count, avg_latency_u_sec, avg_cpu_u_sec
+         FROM SPANNER_SYS.QUERY_STATS_TOP_10MINUTE
+         ORDER BY avg_cpu_u_sec DESC 
+         LIMIT 5;"</code></pre>
+        </div>
 
-&lt;dependencies&gt;
-    &lt;!-- Spanner Spring Boot Starter --&gt;
-    &lt;dependency&gt;
-        &lt;groupId&gt;com.google.cloud&lt;/groupId&gt;
-        &lt;artifactId&gt;spring-cloud-gcp-starter-data-spanner&lt;/artifactId&gt;
-    &lt;/dependency&gt;
-    &lt;!-- Spring Boot Web Starter --&gt;
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
-    &lt;/dependency&gt;
-&lt;/dependencies&gt;</code></pre>
+        <h2>2. Query Data-Scanned Bottlenecks</h2>
+        <p>To identify queries running inefficient table scans instead of index scans, query the average bytes scanned metric:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="SELECT text, execution_count, avg_bytes, avg_rows
+         FROM SPANNER_SYS.QUERY_STATS_TOP_1HOUR
+         ORDER BY avg_bytes DESC 
+         LIMIT 5;"</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1348,24 +1385,33 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Configure pom.xml dependencies</span>
-              <span class="task-desc">Verify that the GCP starter for Spanner is configured in the Maven build.</span>
+              <span class="task-label">Query high-CPU query stats</span>
+              <span class="task-desc">Verify that querying SPANNER_SYS.QUERY_STATS_TOP_10MINUTE compiles.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t2_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Query data scan byte stats</span>
+              <span class="task-desc">Verify that querying SPANNER_SYS.QUERY_STATS_TOP_1HOUR compiles.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 4: App Properties Setup -->
+      <!-- STEP 4: Transaction Stats -->
       <section class="content-panel" id="panel-3">
-        <h1>Step 2: Configuring Database & Session Pools</h1>
-        <p>Configure database connection details and session pool configurations in your Spring Boot application properties file.</p>
+        <h1>Step 3: Querying Transaction Commit Statistics</h1>
+        <p>To diagnose lock contention, sequential hotspots, or transaction aborts, you can query transaction metrics.</p>
 
-        <h2>Configure application.properties</h2>
-        <p>Add these configuration keys to your <code>src/main/resources/application.properties</code> file. These settings direct Spring to connect to your local Spanner emulator and configure connection pool limits:</p>
+        <h2>1. Query Lock Wait Latency</h2>
+        <p>Retrieve transactions experiencing the longest lock waits over the last 10 minutes:</p>
 
-        <div class="code-block-container">
+        <div class="code-block-container shell">
           <div class="code-header">
-            <span class="code-lang-badge">application.properties</span>
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1374,19 +1420,32 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code># Google Cloud Spanner Target Setup
-spring.cloud.gcp.spanner.project-id=test-project
-spring.cloud.gcp.spanner.instance-id=test-instance
-spring.cloud.gcp.spanner.database=test-database
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="SELECT fpath_low_pct, avg_commit_latency_u_sec, avg_lock_wait_u_sec
+         FROM SPANNER_SYS.TXN_STATS_TOP_10MINUTE
+         ORDER BY avg_lock_wait_u_sec DESC;"</code></pre>
+        </div>
 
-# Emulator override (routes queries to the emulator on port 9010)
-spring.cloud.gcp.spanner.emulator-host=localhost:9010
+        <h2>2. Query Abort/Retry Rates</h2>
+        <p>If concurrent operations block one another, transactions will abort and retry. Find which transactions abort most frequently:</p>
 
-# Session Pool Configurations (mapped down to the Java client library)
-spring.cloud.gcp.spanner.session-pool.min-sessions=50
-spring.cloud.gcp.spanner.session-pool.max-sessions=200
-spring.cloud.gcp.spanner.session-pool.write-fraction=0.25
-spring.cloud.gcp.spanner.session-pool.keep-alive-interval-minutes=20</code></pre>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="SELECT fpath_low_pct, commit_abort_count, commit_attempt_count
+         FROM SPANNER_SYS.TXN_STATS_TOP_1HOUR
+         ORDER BY commit_abort_count DESC;"</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1395,99 +1454,59 @@ spring.cloud.gcp.spanner.session-pool.keep-alive-interval-minutes=20</code></pre
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Configure application properties</span>
-              <span class="task-desc">Verify that the database parameters, emulator host, and session pool limits are configured.</span>
+              <span class="task-label">Query lock wait transaction metrics</span>
+              <span class="task-desc">Verify that querying SPANNER_SYS.TXN_STATS_TOP_10MINUTE compiles.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t3_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Query commit abort rates</span>
+              <span class="task-desc">Verify that querying SPANNER_SYS.TXN_STATS_TOP_1HOUR compiles.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 5: Map Entity & Repo -->
+      <!-- STEP 5: Connection Pools Concept -->
       <section class="content-panel" id="panel-4">
-        <h1>Step 3: Creating Entities & Repositories</h1>
-        <p>Spring Data Spanner maps tables to Java classes using annotations, and handles database operations using repository interfaces.</p>
+        <h1>Client Connection & Session Pools</h1>
+        <p class="subtitle">Learn how Cloud Spanner manages database sessions and why client libraries require tuning.</p>
 
-        <h2>1. Define the Entity Class</h2>
-        <p>Create a class named <code>Customer.java</code> and map it to your database schema using Spring Data annotations:</p>
+        <h2>Session Pool Architecture</h2>
+        <p>In standard databases (like PostgreSQL or MySQL), a connection is a persistent TCP socket. In Spanner, all client communications run over HTTP/2 using gRPC channels. Spanner uses **Sessions** to track active client contexts and transaction states.</p>
+        <p>Because creating a session is expensive (requiring a round-trip to Spanner), client libraries maintain a local pool of sessions. If your pool is misconfigured, your application will suffer from performance bottlenecks.</p>
 
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">Customer.java</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
+        <div class="concept-grid">
+          <div class="concept-card">
+            <div class="concept-title">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 16H6v-2h5v2zm0-4H6v-2h5v2zm0-4H6V8h5v2zm0-4H6V4h5v2z"/></svg>
+              Min & Max Sessions
+            </div>
+            <div class="concept-desc">
+              <strong>MinSessions</strong>: Sessions kept pre-warmed. Prevents cold-start delays.<br>
+              <strong>MaxSessions</strong>: Peak concurrent limit. If exceeded, requests block until a session is released.
             </div>
           </div>
-          <pre class="code-content"><code>package com.example.spanner.model;
-
-import com.google.cloud.spring.data.spanner.core.mapping.Table;
-import com.google.cloud.spring.data.spanner.core.mapping.PrimaryKey;
-import com.google.cloud.spring.data.spanner.core.mapping.Column;
-
-@Table(name = "Customers")
-public class Customer {
-
-    @PrimaryKey
-    @Column(name = "CustomerId")
-    private Long customerId;
-
-    @Column(name = "Name")
-    private String name;
-
-    @Column(name = "Email")
-    private String email;
-
-    // Constructors
-    public Customer() {}
-    
-    public Customer(Long customerId, String name, String email) {
-        this.customerId = customerId;
-        this.name = name;
-        this.email = email;
-    }
-
-    // Getters and Setters
-    public Long getCustomerId() { return customerId; }
-    public void setCustomerId(Long customerId) { this.customerId = customerId; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-}</code></pre>
+          <div class="concept-card">
+            <div class="concept-title">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              Write Fraction
+            </div>
+            <div class="concept-desc">
+              The percentage of sessions to keep pre-prepared for writes. Writing requires transaction IDs from Spanner. Pre-preparing these sessions reduces write transaction latency.
+            </div>
+          </div>
         </div>
 
-        <h2>2. Declare the Repository Interface</h2>
-        <p>Create an interface named <code>CustomerRepository.java</code> extending <code>SpannerRepository</code>. This interface automatically provides standard CRUD methods (like <code>save()</code> and <code>findById()</code>) and generates custom query methods based on their signatures:</p>
-
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">CustomerRepository.java</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
+        <div class="callout callout-danger">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">Session Timeouts</div>
+            <div class="callout-content">Idle sessions in Spanner automatically time out after <strong>60 minutes</strong> of inactivity. Client libraries avoid this by running background keep-alive queries (e.g. <code>SELECT 1</code>) on idle sessions every 30 minutes to keep them warm.</div>
           </div>
-          <pre class="code-content"><code>package com.example.spanner.repository;
-
-import com.example.spanner.model.Customer;
-import com.google.cloud.spring.data.spanner.repository.SpannerRepository;
-import org.springframework.stereotype.Repository;
-import java.util.List;
-
-@Repository
-public interface CustomerRepository extends SpannerRepository&lt;Customer, Long&gt; {
-    
-    // Spring Data automatically generates the query logic based on this method name:
-    List&lt;Customer&gt; findByName(String name);
-}</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1496,33 +1515,24 @@ public interface CustomerRepository extends SpannerRepository&lt;Customer, Long&
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Implement Entity class</span>
-              <span class="task-desc">Verify that you mapped table names and column names correctly in the entity model.</span>
-            </div>
-          </li>
-          <li class="task-checkbox-container" data-task-id="t4_2">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Implement Repository interface</span>
-              <span class="task-desc">Extend SpannerRepository and define custom search queries.</span>
+              <span class="task-label">Understand session pool mechanics</span>
+              <span class="task-desc">Review the differences between standard DSN socket pools and session-based gRPC routing.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 6: Create REST API Controller -->
+      <!-- STEP 6: Configure Client Pools -->
       <section class="content-panel" id="panel-5">
-        <h1>Step 4: Exposing REST Endpoints</h1>
-        <p>Expose REST endpoints to perform write and read operations against the database.</p>
+        <h1>Step 5: Configuring Connection Pools in Code</h1>
+        <p>Let's review concrete session pool configuration examples across popular language SDKs.</p>
 
-        <h2>Create the Controller Class</h2>
-        <p>Create a class named <code>CustomerController.java</code> and wire in the repository:</p>
+        <h2>1. Go SDK Configuration</h2>
+        <p>Set session configurations in Go using `SessionPoolConfig` parameters:</p>
 
         <div class="code-block-container">
           <div class="code-header">
-            <span class="code-lang-badge">CustomerController.java</span>
+            <span class="code-lang-badge">Go</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1531,39 +1541,72 @@ public interface CustomerRepository extends SpannerRepository&lt;Customer, Long&
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>package com.example.spanner.controller;
+          <pre class="code-content"><code>import (
+	"context"
+	"cloud.google.com/go/spanner"
+)
 
-import com.example.spanner.model.Customer;
-import com.example.spanner.repository.CustomerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
+ctx := context.Background()
+client, err := spanner.NewClientWithConfig(ctx, db, spanner.ClientConfig{
+	SessionPoolConfig: spanner.SessionPoolConfig{
+		MinOpened:     100, // Pre-warm 100 sessions
+		MaxOpened:     400, // Upper limit of active sessions
+		WriteFraction: 0.2, // 20% of pool reserved for writes
+	},
+})</code></pre>
+        </div>
 
-@RestController
-@RequestMapping("/customers")
-public class CustomerController {
+        <h2>2. Java SDK Configuration</h2>
+        <p>Configure the session pool in Java using `SessionPoolOptions`:</p>
 
-    @Autowired
-    private CustomerRepository customerRepository;
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">Java</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>import com.google.cloud.spanner.SpannerOptions;
+import com.google.cloud.spanner.SessionPoolOptions;
 
-    @PostMapping
-    public String saveCustomer(@RequestBody Customer customer) {
-        // Saves the entity to Spanner. 
-        // Under the hood, this borrows a write-prepared session from the pool.
-        customerRepository.save(customer);
-        return "Customer successfully saved!";
-    }
+SessionPoolOptions sessionPoolOptions = SessionPoolOptions.newBuilder()
+    .setMinSessions(100)
+    .setMaxSessions(400)
+    .setWriteFraction(0.2f)
+    .build();
 
-    @GetMapping("/{id}")
-    public Customer getCustomer(@PathVariable Long id) {
-        return customerRepository.findById(id).orElse(null);
-    }
+SpannerOptions options = SpannerOptions.newBuilder()
+    .setSessionPoolOption(sessionPoolOptions)
+    .build();</code></pre>
+        </div>
 
-    @GetMapping("/search")
-    public List&lt;Customer&gt; getCustomersByName(@RequestParam String name) {
-        return customerRepository.findByName(name);
-    }
-}</code></pre>
+        <h2>3. Node.js SDK Configuration</h2>
+        <p>In Node.js, pass configuration options when creating the database client instance:</p>
+
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">Javascript (Node.js)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>const {Spanner} = require('@google-cloud/spanner');
+const spanner = new Spanner();
+
+const instance = spanner.instance('test-instance');
+const database = instance.database('test-database', {
+  max: 400,            // Max sessions
+  min: 100,            // Min sessions
+  incStep: 25,         // Scale step size
+});</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1572,8 +1615,8 @@ public class CustomerController {
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Implement REST Controller</span>
-              <span class="task-desc">Inject the repository and expose GET/POST mapping endpoints.</span>
+              <span class="task-label">Review Go/Java/Node SDK setups</span>
+              <span class="task-desc">Verify that you understand session pool configuration options in your language of choice.</span>
             </div>
           </li>
         </ul>
@@ -1581,25 +1624,25 @@ public class CustomerController {
 
       <!-- STEP 7: Quiz / Knowledge Check -->
       <section class="content-panel" id="panel-6">
-        <h1>Step 5: Knowledge Check</h1>
-        <p>Complete this quick self-check to evaluate your understanding of Spring Boot & Spanner SDK architectures.</p>
+        <h1>Step 6: Knowledge Check</h1>
+        <p>Complete this quick self-check to evaluate your understanding of Spanner diagnostics and session configuration parameters.</p>
 
         <div class="quiz-container">
           <!-- Question 1 -->
           <div class="quiz-card" data-question-id="q1">
-            <div class="quiz-question">1. Which interface does your custom data access interface extend to get CRUD operations in Spring Data Spanner?</div>
+            <div class="quiz-question">1. Which built-in metadata view would you query to identify the highest CPU-consuming queries executed over the last hour?</div>
             <div class="quiz-options">
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. CrudRepository
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                B. SpannerConnection
+                A. SPANNER_SYS.CPU_STATS
               </button>
               <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                C. SpannerRepository
+                B. SPANNER_SYS.QUERY_STATS_TOP_1HOUR
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. JpaRepository
+                C. SPANNER_SYS.TXN_STATS_TOP_1HOUR
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. INFORMATION_SCHEMA.QUERY_LOGS
               </button>
             </div>
             <div class="quiz-feedback"></div>
@@ -1607,19 +1650,19 @@ public class CustomerController {
 
           <!-- Question 2 -->
           <div class="quiz-card" data-question-id="q2">
-            <div class="quiz-question">2. How are custom session pool limits mapped to Spanner in a Spring Boot application?</div>
+            <div class="quiz-question">2. When does an idle Spanner session automatically time out and close if no keep-alive query is sent?</div>
             <div class="quiz-options">
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                A. After 5 minutes
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                B. After 30 minutes
+              </button>
               <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                A. By declaring properties under the 'spring.cloud.gcp.spanner.session-pool' namespace.
+                C. After 60 minutes
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                B. By running a gcloud CLI command before starting the application.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                C. By configuring the Docker database container environment variables.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. Using custom annotations on Entity classes.
+                D. Sessions never expire
               </button>
             </div>
             <div class="quiz-feedback"></div>
@@ -1627,19 +1670,19 @@ public class CustomerController {
 
           <!-- Question 3 -->
           <div class="quiz-card" data-question-id="q3">
-            <div class="quiz-question">3. Which layer in this integration stack is directly responsible for establishing connections and maintaining the session pool?</div>
+            <div class="quiz-question">3. What is the role of the Write Fraction config setting in Spanner session pools?</div>
             <div class="quiz-options">
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. Spring Boot Starter
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                B. Spring Data Repository abstraction
+                A. It prevents read queries from running.
               </button>
               <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                C. Google Cloud Spanner Java Client
+                B. It specifies the fraction of sessions to keep pre-prepared for write operations (with transaction IDs).
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. Spanner REST API Router
+                C. It limits write transaction sizes.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. It configures the ratio of read to write replicas.
               </button>
             </div>
             <div class="quiz-feedback"></div>
@@ -1678,7 +1721,7 @@ public class CustomerController {
           <div class="cert-input-card">
             <div class="input-group">
               <label for="studentName">Enter Your Name</label>
-              <input type="text" id="studentName" class="cert-name-input" placeholder="e.g. Jane Doe" value="Google Cloud Java Developer">
+              <input type="text" id="studentName" class="cert-name-input" placeholder="e.g. Jane Doe" value="Google Cloud DevOps Specialist">
             </div>
             <button class="generate-cert-btn" onclick="drawCertificate()">Generate Certificate</button>
           </div>
@@ -1687,7 +1730,7 @@ public class CustomerController {
           <canvas id="certificateCanvas" width="800" height="560"></canvas>
 
           <div class="cert-actions" id="certActions">
-            <a href="#" id="downloadBtn" class="cert-btn cert-btn-download" download="Cloud_Spanner_Lab7_Certificate.png">
+            <a href="#" id="downloadBtn" class="cert-btn cert-btn-download" download="Cloud_Spanner_Lab6_Certificate.png">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
               Download PNG
             </a>
@@ -1695,6 +1738,9 @@ public class CustomerController {
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
               Print Lab Guide
             </button>
+            <a href="Lab8.html" class="cert-btn" style="background-color: var(--success); color: white; border: none;">
+              Next: Go to Lab 7 →
+            </a>
           </div>
         </div>
       </section>
@@ -1723,9 +1769,9 @@ public class CustomerController {
     const taskStatus = {
       t0_1: false,
       t1_1: false,
-      t2_1: false,
-      t3_1: false,
-      t4_1: false, t4_2: false,
+      t2_1: false, t2_2: false,
+      t3_1: false, t3_2: false,
+      t4_1: false,
       t5_1: false,
       t6_1: false
     };
@@ -1742,6 +1788,7 @@ public class CustomerController {
       setupChecklistListeners();
       setupTheme();
       updateProgress();
+      decorateCodeBlocks();
     });
 
     // Theme toggle logic
@@ -1825,15 +1872,16 @@ public class CustomerController {
       
       markStepCompletion("t0_1", 0);
       markStepCompletion("t1_1", 1, ["t1_1"]);
-      markStepCompletion("t2_1", 2, ["t2_1"]);
-      markStepCompletion("t3_1", 3, ["t3_1"]);
-      markStepCompletion("t4_1", 4, ["t4_1", "t4_2"]);
+      markStepCompletion("t2_1", 2, ["t2_1", "t2_2"]);
+      markStepCompletion("t3_1", 3, ["t3_1", "t3_2"]);
+      markStepCompletion("t4_1", 4, ["t4_1"]);
       markStepCompletion("t5_1", 5, ["t5_1"]);
       markStepCompletion("t6_1", 6, ["t6_1"]);
       
       checkCertificateUnlock();
     }
 
+    // Mark step completion state
     function markStepCompletion(triggerKey, stepIdx, requiredKeys = [triggerKey]) {
       const stepItem = document.querySelector(`#stepsList .step-item[data-step="${stepIdx}"]`);
       const allDone = requiredKeys.every(k => taskStatus[k]);
@@ -1864,15 +1912,24 @@ public class CustomerController {
     // Copy Code Utility
     function copyCode(btn) {
       const container = btn.closest(".code-block-container");
-      const code = container.querySelector("code").innerText;
+      const lineCodes = container.querySelectorAll(".line-code");
       
-      navigator.clipboard.writeText(code).then(() => {
+      let textToCopy = "";
+      if (lineCodes.length > 0) {
+        textToCopy = Array.from(lineCodes).map(el => el.textContent).join("\n");
+      } else {
+        const codeEl = container.querySelector("code");
+        textToCopy = codeEl ? codeEl.textContent : "";
+      }
+      
+      navigator.clipboard.writeText(textToCopy).then(() => {
         const tooltip = btn.nextElementSibling;
-        tooltip.style.opacity = "1";
-        
-        setTimeout(() => {
-          tooltip.style.opacity = "0";
-        }, 1500);
+        if (tooltip) {
+          tooltip.style.opacity = "1";
+          setTimeout(() => {
+            tooltip.style.opacity = "0";
+          }, 1500);
+        }
       });
     }
 
@@ -1892,16 +1949,16 @@ public class CustomerController {
         feedback.className = "quiz-feedback show correct";
         
         const explanations = {
-          q1: "Correct! Your custom repository interface extends SpannerRepository to automatically inherit CRUD functionality and search patterns.",
-          q2: "Correct! Session pool properties are configured under the standard 'spring.cloud.gcp.spanner.session-pool' property namespace.",
-          q3: "Correct! Under the hood, Spring Data Spanner delegates connection creation, session management, and gRPC transactions to the Google Cloud Spanner Java Client library."
+          q1: "Correct! The 'SPANNER_SYS.QUERY_STATS_TOP_1HOUR' table compiles query statistics aggregated over a rolling 1-hour time window.",
+          q2: "Correct! Spanner idle sessions expire automatically after 60 minutes. Clients perform keep-alive pings (like 'SELECT 1') in the background to prevent expiration.",
+          q3: "Correct! WriteFraction allocates and warms up write-prepared transaction IDs on a specified percentage of sessions, accelerating write operations."
         };
         feedback.textContent = explanations[questionId];
         quizResults[questionId] = true;
       } else {
         optionBtn.classList.add("incorrect");
         feedback.className = "quiz-feedback show incorrect";
-        feedback.textContent = "Incorrect. Review the Spring Data Spanner mapping structure.";
+        feedback.textContent = "Incorrect. Review the system tables and pool specifications.";
         quizResults[questionId] = false;
       }
       
@@ -1912,7 +1969,7 @@ public class CustomerController {
     function drawCertificate() {
       const canvas = document.getElementById("certificateCanvas");
       const ctx = canvas.getContext("2d");
-      const name = document.getElementById("studentName").value.trim() || "Google Cloud Java Developer";
+      const name = document.getElementById("studentName").value.trim() || "Google Cloud DevOps Specialist";
       
       canvas.style.display = "block";
       ctx.clearRect(0, 0, 800, 560);
@@ -1986,7 +2043,7 @@ public class CustomerController {
       
       ctx.fillStyle = "#ffffff";
       ctx.font = "600 18px 'Outfit', 'Inter', sans-serif";
-      ctx.fillText("Cloud Spanner: Spring Boot & Spring Data Spanner Integration", 400, 375);
+      ctx.fillText("Cloud Spanner: System Metadata Tables & Session Pool Configuration", 400, 375);
       
       const dateStr = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
       ctx.fillStyle = "#64748b";
@@ -1994,7 +2051,7 @@ public class CustomerController {
       ctx.fillText(`Issued: ${dateStr}`, 400, 430);
       
       const randomId = Math.random().toString(36).substr(2, 9).toUpperCase();
-      ctx.fillText(`Verification ID: SPN-LAB7-${randomId}`, 400, 455);
+      ctx.fillText(`Verification ID: SPN-LAB6-${randomId}`, 400, 455);
       
       ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
       ctx.beginPath();
@@ -2015,6 +2072,118 @@ public class CustomerController {
       const downloadBtn = document.getElementById("downloadBtn");
       downloadBtn.href = canvas.toDataURL("image/png");
       document.getElementById("certActions").style.display = "flex";
+    }
+    // Decorate code blocks dynamically into VS Code Editors
+    function decorateCodeBlocks() {
+      const codeContainers = document.querySelectorAll(".code-block-container");
+      
+      codeContainers.forEach((container, idx) => {
+        const codeElement = container.querySelector("code");
+        if (!codeElement) return;
+        
+        let codeText = codeElement.textContent.trim();
+        
+        let lang = "shell";
+        let filename = "commands.sh";
+        let iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#858585" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        
+        if (container.classList.contains("python")) {
+          lang = "python";
+          filename = "restore.py";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#3572A5" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        } else if (container.classList.contains("java")) {
+          lang = "java";
+          filename = "App.java";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#b07219" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        } else if (container.classList.contains("javascript") || container.classList.contains("node")) {
+          lang = "javascript";
+          filename = "app.js";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#f1e05a" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        } else if (codeText.includes("CREATE TABLE") || codeText.includes("SELECT") || codeText.includes("INSERT") || codeText.includes("ALTER DATABASE") || codeText.includes("DROP TABLE")) {
+          lang = "sql";
+          filename = "schema.sql";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#f1e05a" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        }
+        
+        const header = document.createElement("div");
+        header.className = "code-header";
+        header.innerHTML = `
+          <div class="editor-left">
+            <div class="mac-dots">
+              <span class="mac-dot red"></span>
+              <span class="mac-dot yellow"></span>
+              <span class="mac-dot green"></span>
+            </div>
+            <div class="editor-tab">
+              <span class="tab-icon">${iconSvg}</span>
+              <span class="tab-filename">${filename}</span>
+            </div>
+          </div>
+          <div class="copy-btn-wrapper">
+            <button class="copy-btn" onclick="copyCode(this)">
+              <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+              Copy
+            </button>
+            <span class="tooltip">Copied!</span>
+          </div>
+        `;
+        
+        const oldHeader = container.querySelector(".code-header");
+        if (oldHeader) oldHeader.remove();
+        container.insertBefore(header, container.firstChild);
+        
+        const lines = codeText.split("\n");
+        const codePre = container.querySelector("pre");
+        if (codePre) {
+          codePre.className = "code-content";
+          codePre.innerHTML = "";
+          
+          lines.forEach((lineText, lineIdx) => {
+            const lineDiv = document.createElement("div");
+            lineDiv.className = "code-line";
+            
+            const lineNum = document.createElement("span");
+            lineNum.className = "line-number";
+            lineNum.textContent = lineIdx + 1;
+            
+            const lineCode = document.createElement("span");
+            lineCode.className = "line-code";
+            lineCode.innerHTML = highlightSyntax(lineText, lang);
+            
+            lineDiv.appendChild(lineNum);
+            lineDiv.appendChild(lineCode);
+            codePre.appendChild(lineDiv);
+          });
+        }
+      });
+    }
+
+    function highlightSyntax(text, lang) {
+      let html = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+        
+      if (lang === "python" || lang === "java" || lang === "javascript") {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/(#.*|\/\/.*)$/g, '<span class="c-comment">$1</span>');
+        const keywords = ['import', 'from', 'def', 'if', 'else', 'with', 'as', 'print', 'list', 'return', 'in', 'class', 'public', 'private', 'static', 'void', 'new', 'const', 'let', 'var', 'function'];
+        keywords.forEach(kw => {
+          const regex = new RegExp(`\\b(${kw})\\b`, 'g');
+          html = html.replace(regex, '<span class="c-kw">$1</span>');
+        });
+        html = html.replace(/\b(\w+)(?=\()/g, '<span class="c-func">$1</span>');
+        html = html.replace(/\b(\d+)\b/g, '<span class="c-num">$1</span>');
+      } else if (lang === "shell" || lang === "sql") {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/(#.*)$/g, '<span class="c-comment">$1</span>');
+        const sqlKeywords = ['CREATE', 'TABLE', 'ALTER', 'DATABASE', 'SET', 'OPTIONS', 'PRIMARY', 'KEY', 'INTERLEAVE', 'IN', 'PARENT', 'ON', 'DELETE', 'CASCADE', 'INSERT', 'INTO', 'VALUES', 'SELECT', 'FROM', 'WHERE', 'DROP', 'UPDATE', 'ROWS', 'DESCRIBE', 'RESTORE'];
+        sqlKeywords.forEach(kw => {
+          const regex = new RegExp(`\\b(${kw})\\b`, 'gi');
+          html = html.replace(regex, '<span class="c-kw">$1</span>');
+        });
+      }
+      return html;
     }
   </script>
 </body>

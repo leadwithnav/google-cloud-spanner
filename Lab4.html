@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 4: Query Analysis & Execution Plans. Learn how to profile queries using execute-sql profile mode, diagnose table scans, identify back-joins, and optimize performance using covered indexes.">
-  <title>Cloud Spanner Lab: Execution Plans & Storing Index Optimization</title>
+  <meta name="description" content="Lab 3: Refactoring Relational Schemas for Cloud Spanner. Learn how to optimize table structures using interleaving, secondary indexes, and STORING clauses.">
+  <title>Cloud Spanner Lab: Legacy Schema Refactoring & Index Optimization</title>
   
   <!-- Typography & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -677,7 +677,6 @@
     .c-type { color: #4ec9b0 !important; }
     .c-flag { color: #9cdcfe !important; }
 
-
     /* Page Navigation Footer */
     .page-navigation {
       display: flex;
@@ -1163,53 +1162,46 @@
             <span class="step-number">2</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Setup Test Tables</span>
+          <span>Analyze Legacy Schema</span>
         </li>
         <li class="step-item" data-step="2">
           <span class="step-indicator">
             <span class="step-number">3</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Profile Slow Query</span>
+          <span>Refactor Tables</span>
         </li>
         <li class="step-item" data-step="3">
           <span class="step-indicator">
             <span class="step-number">4</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Diagnose Back-Join</span>
+          <span>Optimize Indexes</span>
         </li>
         <li class="step-item" data-step="4">
           <span class="step-indicator">
             <span class="step-number">5</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Deploy Storing Index</span>
+          <span>Deploy Schema</span>
         </li>
         <li class="step-item" data-step="5">
           <span class="step-indicator">
             <span class="step-number">6</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Verify Optimization</span>
+          <span>Verify performance</span>
         </li>
         <li class="step-item" data-step="6">
           <span class="step-indicator">
             <span class="step-number">7</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Deep Dive: Key Visualizer</span>
+          <span>Knowledge Check</span>
         </li>
         <li class="step-item" data-step="7">
           <span class="step-indicator">
             <span class="step-number">8</span>
-            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          </span>
-          <span>Knowledge Check</span>
-        </li>
-        <li class="step-item" data-step="8">
-          <span class="step-indicator">
-            <span class="step-number">9</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
           <span>Get Certificate</span>
@@ -1235,13 +1227,13 @@
       <!-- Sticky Top Header -->
       <header class="top-navbar">
         <div class="lab-badge">
-          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>
-          Lab 4: Query Optimization
+          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0-2 .9-2-2V4c0-1.1-.9-2-2-2z"/></svg>
+          Lab 2: Schema Refactoring
         </div>
         <div class="lab-meta">
           <div class="meta-item">
             <svg class="meta-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-            <span>Estimated Duration: <strong>45 mins</strong></span>
+            <span>Estimated Duration: <strong>30 mins</strong></span>
           </div>
           <div class="meta-item">
             <svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
@@ -1252,20 +1244,30 @@
 
       <!-- STEP 1: Overview -->
       <section class="content-panel active" id="panel-0">
-        <h1>Profiling Query Executions & Optimizing with Covered Indexes</h1>
-        <p class="subtitle">Welcome! In this hands-on lab, you will learn how to analyze slow-running queries using Spanner's Query Execution Plan, identify performance bottlenecks like full table scans and back-joins, and optimize latency using storing secondary indexes.</p>
+        <h1>Refactoring a Legacy Schema for Spanner</h1>
+        <p class="subtitle">Welcome! In this hands-on lab, you will learn how to refactor a traditional relational database schema into an optimized schema built for Google Cloud Spanner's distributed architecture.</p>
         
-        <h2>What is an Execution Plan?</h2>
-        <p>Before running an SQL query, Google Cloud Spanner compiles it into an **Execution Plan**. The plan is a tree structure composed of database operators (like *Distributed Union*, *Index Scan*, or *Hash Join*). Examining this plan helps developers understand exactly how Spanner partitions and queries tables across servers.</p>
-        <p>Rather than guessing why a query runs slowly, we can profile it using the command-line flag <code>--query-mode=PROFILE</code>, which prints actual diagnostic statistics (CPU execution time, data rows scanned, and memory footprint) alongside the plan nodes.</p>
+        <h2>The Distributed Schema Challenge</h2>
+        <p>In a traditional relational database (like PostgreSQL or MySQL), you design schemas with normalized tables linked by foreign keys. In a single-instance database, joins across these tables are computationally cheap because all data resides on the same machine.</p>
+        <p>However, Spanner divides tables into chunks called <strong>splits</strong> and distributes them across multiple server nodes. In a naive schema, joining two tables (e.g. <code>Customers</code> and <code>Orders</code>) requires joining splits across different physical servers, which causes heavy network latency and slows down operations.</p>
 
         <div class="callout callout-info">
           <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
           <div>
-            <div class="callout-title">The Tuning Strategy</div>
-            <div class="callout-content">We will start with a query that triggers a slow **Full Table Scan**. We will then add a standard index and diagnose a secondary bottleneck: the **Back-Join** (or key lookup). Finally, we'll eliminate the back-join using a covered **Storing Index**, achieving sub-millisecond execution times.</div>
+            <div class="callout-title">The Spanner Optimization Strategy</div>
+            <div class="callout-content">To achieve maximum performance at scale in Spanner, you must design your schema to co-locate related data on the same physical split. We achieve this using <strong>Table Interleaving</strong> and covered secondary indexes (using the <strong>STORING</strong> clause).</div>
           </div>
         </div>
+
+        <h2>Lab Objectives</h2>
+        <p>In this lab, you will refactor a legacy database structure into an optimized Spanner design by doing the following:</p>
+        <ul>
+          <li>Analyze a legacy normalized schema containing <code>Customers</code>, <code>Orders</code>, and <code>OrderItems</code>.</li>
+          <li>Refactor the tables into a hierarchical, **interleaved structure**.</li>
+          <li>Design secondary indexes to handle query filtering.</li>
+          <li>Apply **Covered Indexes** (using the `STORING` option) to eliminate back-join latency.</li>
+          <li>Deploy the schema to your local emulator database and execute validation queries.</li>
+        </ul>
 
         <ul class="task-checklist">
           <li class="task-checkbox-container" data-task-id="t0_1">
@@ -1273,24 +1275,21 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Understand query tuning concepts</span>
-              <span class="task-desc">Review how query profiling highlights execution bottlenecks in distributed databases.</span>
+              <span class="task-label">Understand the goals of the lab</span>
+              <span class="task-desc">Review why traditional normalized database schemas are suboptimal in distributed environments.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 2: Setup Test Tables -->
+      <!-- STEP 2: Analyze Legacy Schema -->
       <section class="content-panel" id="panel-1">
-        <h1>Step 1: Setting Up the Test Scenario</h1>
-        <p>Let's define a new interleaved table named <code>Transactions</code> to record card purchases. Deploy this schema definition onto your active emulator instance.</p>
+        <h1>Step 1: Analyzing the Legacy Schema</h1>
+        <p>Let's study a typical e-commerce relational schema designed for a traditional single-instance database. Examine the SQL declarations below:</p>
 
-        <h2>1. Deploy the DDL Schema</h2>
-        <p>Execute the DDL update in your terminal to append the <code>Transactions</code> table to your database. Note that it is interleaved under <code>Customers</code> (reusing our Customer hierarchy from Lab 3):</p>
-
-        <div class="code-block-container shell">
+        <div class="code-block-container">
           <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <span class="code-lang-badge">SQL (Legacy Normalized Schema)</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1299,41 +1298,40 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=test-instance \
-  --ddl="CREATE TABLE Transactions (
-    CustomerId INT64 NOT NULL,
-    TransactionId INT64 NOT NULL,
-    TransactionDate DATE,
-    Amount NUMERIC,
-    Merchant STRING(255),
-    Status STRING(50)
-  ) PRIMARY KEY (CustomerId, TransactionId),
-  INTERLEAVE IN PARENT Customers ON DELETE CASCADE;"</code></pre>
+          <pre class="code-content"><code><span class="c-comment">-- Parent Customers table</span>
+<span class="c-kw">CREATE TABLE</span> Customers (
+  CustomerId <span class="c-val">INT</span> <span class="c-kw">PRIMARY KEY</span>,
+  Name <span class="c-val">VARCHAR</span>(255),
+  Email <span class="c-val">VARCHAR</span>(255),
+  Country <span class="c-val">VARCHAR</span>(100)
+);
+
+<span class="c-comment">-- Orders table linked by foreign key</span>
+<span class="c-kw">CREATE TABLE</span> Orders (
+  OrderId <span class="c-val">INT</span> <span class="c-kw">PRIMARY KEY</span>,
+  CustomerId <span class="c-val">INT</span>,
+  OrderDate <span class="c-val">DATE</span>,
+  TotalAmount <span class="c-val">DECIMAL</span>(10, 2),
+  <span class="c-kw">FOREIGN KEY</span> (CustomerId) <span class="c-kw">REFERENCES</span> Customers(CustomerId)
+);
+
+<span class="c-comment">-- OrderItems table linked by foreign key to Orders</span>
+<span class="c-kw">CREATE TABLE</span> OrderItems (
+  OrderItemId <span class="c-val">INT</span> <span class="c-kw">PRIMARY KEY</span>,
+  OrderId <span class="c-val">INT</span>,
+  ProductId <span class="c-val">INT</span>,
+  Quantity <span class="c-val">INT</span>,
+  Price <span class="c-val">DECIMAL</span>(10, 2),
+  <span class="c-kw">FOREIGN KEY</span> (OrderId) <span class="c-kw">REFERENCES</span> Orders(OrderId)
+);</code></pre>
         </div>
 
-        <h2>2. Populate Transaction Records</h2>
-        <p>Let's add test transactions to query against:</p>
-
-        <div class="code-block-container shell">
-          <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
-          </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
-  --sql="INSERT INTO Transactions (CustomerId, TransactionId, TransactionDate, Amount, Merchant, Status) VALUES
-  (101, 8001, '2026-07-17', 24.50, 'Cloud Cafe', 'COMPLETED'),
-  (101, 8002, '2026-07-17', 120.00, 'Cloud Cafe', 'COMPLETED'),
-  (101, 8003, '2026-07-16', 55.00, 'GCP Shop', 'COMPLETED'),
-  (101, 8004, '2026-07-15', 10.00, 'Cloud Cafe', 'FAILED')"</code></pre>
-        </div>
+        <h3>Why this underperforms on Spanner:</h3>
+        <ol>
+          <li><strong>Data Scattering</strong>: Rows for Customer `101`, their Orders, and their Order Items will likely be stored on different physical servers.</li>
+          <li><strong>Distributed Joins</strong>: Running a query to calculate order totals with customer information requires gathering rows from separate splits over the network, causing latency.</li>
+          <li><strong>Index Inefficiencies</strong>: Querying orders by `OrderDate` requires scanning the entire `Orders` table, or incurring distributed secondary index updates.</li>
+        </ol>
 
         <ul class="task-checklist">
           <li class="task-checkbox-container" data-task-id="t1_1">
@@ -1341,34 +1339,40 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Deploy the Transactions table</span>
-              <span class="task-desc">Configure the interleaved transactions schema using the DDL tool.</span>
-            </div>
-          </li>
-          <li class="task-checkbox-container" data-task-id="t1_2">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Populate sample transactions</span>
-              <span class="task-desc">Insert rows into the Transactions table linked to Customer 101.</span>
+              <span class="task-label">Identify schema design pain points</span>
+              <span class="task-desc">Analyze how foreign key relationships partition data in a distributed network.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 3: Profile Slow Query -->
+      <!-- STEP 3: Refactor Tables -->
       <section class="content-panel" id="panel-2">
-        <h1>Step 2: Profiling the Naive Query</h1>
-        <p>Imagine your user dashboard queries the transactions table to list all successful purchases at `'Cloud Cafe'` on a specific date:</p>
-        <p><code>SELECT CustomerId, Amount, Status FROM Transactions WHERE Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17'</code></p>
+        <h1>Step 2: Refactoring with Table Interleaving</h1>
+        <p>To optimize the legacy schema, we will define a parent-child relationship in Spanner's storage configuration using the <strong>INTERLEAVE IN PARENT</strong> clause.</p>
 
-        <h2>1. Run the Profile Command</h2>
-        <p>Profile the execution of this query by adding the <code>--query-mode=PROFILE</code> option. This tells Spanner to capture query execution statistics and output the query execution plan:</p>
+        <h2>Designing Interleaved Primary Keys</h2>
+        <p>For Spanner to co-locate child records, <strong>the Primary Key of the child table must start with the Primary Key of the parent table</strong>. Observe the structural mapping:</p>
+        <ul>
+          <li><strong>Customers</strong> (Root Parent): PK is <code>(CustomerId)</code></li>
+          <li><strong>Orders</strong> (Child of Customers): PK is <code>(CustomerId, OrderId)</code></li>
+          <li><strong>OrderItems</strong> (Grandchild / Child of Orders): PK is <code>(CustomerId, OrderId, OrderItemId)</code></li>
+        </ul>
 
-        <div class="code-block-container shell">
+        <div class="callout callout-warning">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">Primary Key Implication</div>
+            <div class="callout-content">Notice that <code>OrderId</code> alone is no longer the primary key of the Orders table. The compound key <code>(CustomerId, OrderId)</code> is required. If your application queries orders by <code>OrderId</code> without knowing the <code>CustomerId</code>, you will need a secondary index. We will design this index in the next step.</div>
+          </div>
+        </div>
+
+        <h2>The Refactored DDL</h2>
+        <p>Here is the refactored schema. Notice how the primary keys are configured and how the <code>INTERLEAVE</code> and <code>ON DELETE CASCADE</code> options are applied:</p>
+
+        <div class="code-block-container">
           <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <span class="code-lang-badge">SQL (Interleaved Schema DDL)</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1377,30 +1381,30 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
-  --query-mode=PROFILE \
-  --sql="SELECT CustomerId, Amount, Status FROM Transactions WHERE Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17'"</code></pre>
-        </div>
+          <pre class="code-content"><code><span class="c-kw">CREATE TABLE</span> Customers (
+  CustomerId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
+  Name <span class="c-val">STRING</span>(255),
+  Email <span class="c-val">STRING</span>(255),
+  Country <span class="c-val">STRING</span>(100),
+) <span class="c-kw">PRIMARY KEY</span> (CustomerId);
 
-        <h2>2. Analyze the Output Plan</h2>
-        <p>Review the printed plan output in your terminal. You will notice plan operators similar to this:</p>
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">Execution Plan Concept</span>
-          </div>
-          <pre class="code-content"><code>Distributed Union
-└── Local Distributed Union
-    └── Filter (Condition: Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17')
-        └── <span class="c-kw">Table Scan</span> (Table: Transactions)</code></pre>
-        </div>
+<span class="c-kw">CREATE TABLE</span> Orders (
+  CustomerId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
+  OrderId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
+  OrderDate <span class="c-val">DATE</span>,
+  TotalAmount <span class="c-val">NUMERIC</span>,
+) <span class="c-kw">PRIMARY KEY</span> (CustomerId, OrderId),
+<span class="c-kw">INTERLEAVE IN PARENT</span> Customers <span class="c-kw">ON DELETE CASCADE</span>;
 
-        <div class="callout callout-danger">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">Bottleneck: Table Scan Operator</div>
-            <div class="callout-content">Because there is no index on <code>Merchant</code> or <code>TransactionDate</code>, Spanner must read every single row in the <code>Transactions</code> table to check if it matches the filter. In a database with millions of rows, this full table scan causes heavy CPU load and high latency.</div>
-          </div>
+<span class="c-kw">CREATE TABLE</span> OrderItems (
+  CustomerId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
+  OrderId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
+  OrderItemId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
+  ProductId <span class="c-val">INT64</span>,
+  Quantity <span class="c-val">INT64</span>,
+  Price <span class="c-val">NUMERIC</span>,
+) <span class="c-kw">PRIMARY KEY</span> (CustomerId, OrderId, OrderItemId),
+<span class="c-kw">INTERLEAVE IN PARENT</span> Orders <span class="c-kw">ON DELETE CASCADE</span>;</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1409,8 +1413,8 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Run the query with profile enabled</span>
-              <span class="task-desc">Verify that the gcloud CLI outputs the execution plan and run statistics.</span>
+              <span class="task-label">Design compound primary keys</span>
+              <span class="task-desc">Verify that child tables inherit the primary keys of parent tables.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t2_2">
@@ -1418,74 +1422,51 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Identify the Table Scan operator</span>
-              <span class="task-desc">Locate the Table Scan step in the output plan.</span>
+              <span class="task-label">Understand cascade behaviors</span>
+              <span class="task-desc">Verify how 'ON DELETE CASCADE' affects child records during deletion.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 4: Diagnose Back-Join -->
+      <!-- STEP 4: Optimize Indexes -->
       <section class="content-panel" id="panel-3">
-        <h1>Step 3: Diagnosing Back-Join Bottlenecks</h1>
-        <p>Let's add a standard secondary index to speed up the query filtering. We will then analyze the new execution plan to identify any remaining bottlenecks.</p>
+        <h1>Step 3: Optimizing Indexes & covered columns</h1>
+        <p>In Spanner, secondary indexes are structured as tables behind the scenes. When you query using an index, Spanner searches the index table for the key, fetches the corresponding primary key, and then queries the primary table to get other requested columns. This second fetch is called a **back-join**.</p>
 
-        <h2>1. Create a Standard Secondary Index</h2>
-        <p>Deploy a standard index on <code>Merchant</code> and <code>TransactionDate</code>:</p>
-
-        <div class="code-block-container shell">
-          <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
-          </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=test-instance \
-  --ddl="CREATE INDEX TransactionsByMerchantDate ON Transactions(Merchant, TransactionDate);"</code></pre>
-        </div>
-
-        <h2>2. Profile the Query Again</h2>
-        <p>Run the profile command a second time to see how the plan has changed:</p>
-
-        <div class="code-block-container shell">
-          <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
-          </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
-  --query-mode=PROFILE \
-  --sql="SELECT CustomerId, Amount, Status FROM Transactions WHERE Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17'"</code></pre>
-        </div>
-
-        <h2>3. Examine the Back-Join (Key Lookup) Plan</h2>
-        <p>The output plan tree should look similar to this:</p>
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">Execution Plan Concept</span>
-          </div>
-          <pre class="code-content"><code>Distributed Cross Apply
-├── <span class="c-kw">Index Scan</span> (Index: TransactionsByMerchantDate, Condition: Merchant = 'Cloud Cafe')
-└── <span class="c-val">Key Lookup</span> (Table: Transactions, Fetch: Amount, Status)</code></pre>
-        </div>
-
-        <div class="callout callout-warning">
+        <div class="callout callout-info">
           <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
           <div>
-            <div class="callout-title">Bottleneck: Key Lookup (Back-Join)</div>
-            <div class="callout-content">Spanner uses the index to quickly find rows matching <code>Merchant = 'Cloud Cafe'</code>. However, because the index table does not contain the <code>Amount</code> and <code>Status</code> columns, Spanner must perform a back-join to fetch those values from the primary table. At scale, this back-join cross-network lookup becomes a major performance bottleneck.</div>
+            <div class="callout-title">Deep Dive: Covered Indexes with STORING</div>
+            <div class="callout-content">To prevent back-joins, you can duplicate columns from the main table directly into the index using the <code>STORING</code> clause. When a query requests stored columns, Spanner returns them directly from the index, eliminating the back-join entirely and improving read performance.</div>
           </div>
+        </div>
+
+        <h2>Designing the Index</h2>
+        <p>We want to support two queries efficiently:</p>
+        <ol>
+          <li>Find all orders made on a specific date: <code>SELECT CustomerId, OrderId FROM Orders WHERE OrderDate = '2026-07-17'</code></li>
+          <li>Find total sales on a date without back-joining the main table: <code>SELECT CustomerId, TotalAmount FROM Orders WHERE OrderDate = '2026-07-17'</code></li>
+        </ol>
+        
+        <p>Let's write DDL statements to create these indexes:</p>
+
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">SQL (Index DDL)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code><span class="c-comment">-- Standard index on OrderDate (creates back-joins for TotalAmount query)</span>
+<span class="c-kw">CREATE INDEX</span> OrdersByDate <span class="c-kw">ON</span> Orders(OrderDate);
+
+<span class="c-comment">-- Optimized covered index storing TotalAmount</span>
+<span class="c-kw">CREATE INDEX</span> OrdersByDateCovered <span class="c-kw">ON</span> Orders(OrderDate) <span class="c-kw">STORING</span> (TotalAmount);</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1494,8 +1475,8 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Deploy the standard index</span>
-              <span class="task-desc">Verify that the standard index on Merchant and TransactionDate is created.</span>
+              <span class="task-label">Analyze back-join latency</span>
+              <span class="task-desc">Verify how back-joins impact query speed in distributed clusters.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t3_2">
@@ -1503,20 +1484,20 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Identify the Key Lookup step</span>
-              <span class="task-desc">Locate the Distributed Cross Apply and Key Lookup operators in the query profile output.</span>
+              <span class="task-label">Incorporate STORING clauses</span>
+              <span class="task-desc">Determine which fields should be stored in the index based on common query patterns.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 5: Deploy Storing Index -->
+      <!-- STEP 5: Deploy Schema -->
       <section class="content-panel" id="panel-4">
-        <h1>Step 4: Deploying a Storing Covered Index</h1>
-        <p>To eliminate the back-join, we will replace the standard index with a **Storing Covered Index**. This copies the query's returned columns directly into the secondary index table.</p>
+        <h1>Step 4: Deploying the Schema</h1>
+        <p>Now, let's deploy the refactored schema and indexes to our local database emulator using the <code>gcloud spanner databases ddl update</code> tool.</p>
 
-        <h2>1. Drop the Standard Index</h2>
-        <p>Remove the suboptimal standard index first:</p>
+        <h2>Execute the DDL Update</h2>
+        <p>Run the following command in your terminal to create the tables and secondary indexes:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1531,11 +1512,11 @@
           </div>
           <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
   --instance=test-instance \
-  --ddl="DROP INDEX TransactionsByMerchantDate;"</code></pre>
+  --ddl='CREATE TABLE Customers (CustomerId INT64 NOT NULL, Name STRING(255), Email STRING(255), Country STRING(100)) PRIMARY KEY (CustomerId); CREATE TABLE Orders (CustomerId INT64 NOT NULL, OrderId INT64 NOT NULL, OrderDate DATE, TotalAmount NUMERIC) PRIMARY KEY (CustomerId, OrderId), INTERLEAVE IN PARENT Customers ON DELETE CASCADE; CREATE TABLE OrderItems (CustomerId INT64 NOT NULL, OrderId INT64 NOT NULL, OrderItemId INT64 NOT NULL, ProductId INT64, Quantity INT64, Price NUMERIC) PRIMARY KEY (CustomerId, OrderId, OrderItemId), INTERLEAVE IN PARENT Orders ON DELETE CASCADE; CREATE INDEX OrdersByDate ON Orders(OrderDate); CREATE INDEX OrdersByDateCovered ON Orders(OrderDate) STORING (TotalAmount);'</code></pre>
         </div>
 
-        <h2>2. Create the Storing Covered Index</h2>
-        <p>Create a new index on the filter columns <code>(Merchant, TransactionDate)</code> and store the returned columns <code>Amount</code> and <code>Status</code> using the <strong>STORING</strong> clause:</p>
+        <h2>Verify Schema Registration</h2>
+        <p>Verify that all tables and indexes are successfully registered in the database metadata:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1548,11 +1529,8 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=test-instance \
-  --ddl="CREATE INDEX TransactionsByMerchantDateCovered 
-         ON Transactions(Merchant, TransactionDate) 
-         STORING (Amount, Status);"</code></pre>
+          <pre class="code-content"><code>gcloud spanner databases ddl describe test-database \
+  --instance=test-instance</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1561,8 +1539,8 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Drop the standard index</span>
-              <span class="task-desc">Remove the TransactionsByMerchantDate index.</span>
+              <span class="task-label">Deploy the schema update</span>
+              <span class="task-desc">Deploy the refactored schema and indexes to the local emulator.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t4_2">
@@ -1570,20 +1548,50 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Deploy the Storing Covered Index</span>
-              <span class="task-desc">Deploy the new index using the STORING clause to include Amount and Status values.</span>
+              <span class="task-label">Verify table structure creation</span>
+              <span class="task-desc">Inspect metadata definitions to confirm indexes and interleaving properties are active.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 6: Verify Optimization -->
+      <!-- STEP 6: Verify Performance -->
       <section class="content-panel" id="panel-5">
-        <h1>Step 5: Verifying the Optimization</h1>
-        <p>Now, let's profile the query again to verify that the back-join is gone and the execution plan is optimized.</p>
+        <h1>Step 5: Verifying performance and local joins</h1>
+        <p>Let's insert sample records and examine how queries leverage table interleaving and stored indexes.</p>
 
-        <h2>1. Profile the Query a Third Time</h2>
-        <p>Run the query profile command one last time:</p>
+        <h2>1. Populate Sample Records</h2>
+        <p>Populate the database tables using DML statements:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code><span class="c-comment"># Insert Customer</span>
+gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="INSERT INTO Customers (CustomerId, Name, Email, Country) VALUES (101, 'Alice Smith', 'alice@email.com', 'Germany')"
+
+<span class="c-comment"># Insert Interleaved Order</span>
+gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="INSERT INTO Orders (CustomerId, OrderId, OrderDate, TotalAmount) VALUES (101, 5001, '2026-07-17', 150.00)"
+
+<span class="c-comment"># Insert Interleaved Item</span>
+gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="INSERT INTO OrderItems (CustomerId, OrderId, OrderItemId, ProductId, Quantity, Price) VALUES (101, 5001, 1, 9901, 2, 75.00)"</code></pre>
+        </div>
+
+        <h2>2. Run Co-located Join Query</h2>
+        <p>Run a query that joins Customers, Orders, and OrderItems. Because the schema is interleaved, Spanner can evaluate this join locally on a single server split without network hops:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1598,27 +1606,26 @@
           </div>
           <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
   --instance=test-instance \
-  --query-mode=PROFILE \
-  --sql="SELECT CustomerId, Amount, Status FROM Transactions WHERE Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17'"</code></pre>
+  --sql="SELECT c.Name, o.OrderId, o.OrderDate, i.ProductId, i.Quantity, i.Price FROM Customers c JOIN Orders o ON c.CustomerId = o.CustomerId JOIN OrderItems i ON o.CustomerId = i.CustomerId AND o.OrderId = i.OrderId WHERE c.CustomerId = 101"</code></pre>
         </div>
 
-        <h2>2. Analyze the Final Covered Plan</h2>
-        <p>The output plan tree should look similar to this:</p>
-        <div class="code-block-container">
+        <h2>3. Force the Covered Index</h2>
+        <p>Run a query targeting `OrderDate`. Use a query hint to force Spanner to run the query using our index. The database will return the `TotalAmount` directly from the index table without performing a back-join:</p>
+
+        <div class="code-block-container shell">
           <div class="code-header">
-            <span class="code-lang-badge">Execution Plan Concept</span>
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
           </div>
-          <pre class="code-content"><code>Distributed Union
-└── Local Distributed Union
-    └── <span class="c-kw">Index Scan</span> (Index: TransactionsByMerchantDateCovered, Condition: Merchant = 'Cloud Cafe')</code></pre>
-        </div>
-
-        <div class="callout callout-success">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-          <div>
-            <div class="callout-title">Success: No Key Lookup Operator!</div>
-            <div class="callout-content">Observe that the **Key Lookup** step is gone. Spanner retrieved all requested fields directly from the index, achieving sub-millisecond query latency.</div>
-          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="SELECT CustomerId, TotalAmount FROM Orders@{FORCE_INDEX=OrdersByDateCovered} WHERE OrderDate = '2026-07-17'"</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1627,8 +1634,8 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Profile the optimized query</span>
-              <span class="task-desc">Verify that the execution plan uses Index Scan and has no Key Lookup step.</span>
+              <span class="task-label">Insert sample records</span>
+              <span class="task-desc">Verify that data is correctly inserted into the interleaved database structure.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t5_2">
@@ -1636,87 +1643,77 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Compare performance stats</span>
-              <span class="task-desc">Review the reduction in CPU execution time and rows scanned.</span>
+              <span class="task-label">Test index performance</span>
+              <span class="task-desc">Verify that queries using stored index values return correctly.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 7: Deep Dive: Key Visualizer -->
+      <!-- STEP 7: Quiz / Knowledge Check -->
       <section class="content-panel" id="panel-6">
-        <h1>Step 6: Deep Dive: Spanner Key Visualizer</h1>
-        <p class="subtitle">Learn how to read Spanner's graphical Key Visualizer heatmaps to diagnose distributed bottlenecks like key hotspots and lock contention.</p>
+        <h1>Step 6: Knowledge Check</h1>
+        <p>Complete this quick self-check to evaluate your understanding of Spanner schema refactoring and index optimization.</p>
 
-        <h2>What is Key Visualizer?</h2>
-        <p>Google Cloud Spanner automatically shards tables and indexes into physical splits based on load and key ranges. If an application concentrates high throughput on a single range of keys, that split's hosting server becomes overloaded. <strong>Key Visualizer</strong> is a console diagnostic tool that renders interactive heatmaps of database traffic over time, helping developers locate these bottlenecks.</p>
-
-        <div class="concept-grid">
-          <div class="concept-card">
-            <div class="concept-title">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 16H6v-2h5v2zm0-4H6v-2h5v2zm0-4H6V8h5v2zm0-4H6V4h5v2z"/></svg>
-              Heatmap Layout
+        <div class="quiz-container">
+          <!-- Question 1 -->
+          <div class="quiz-card" data-question-id="q1">
+            <div class="quiz-question">1. In a child table interleaved inside a parent table, what is the requirement for the child table's primary key?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                A. It must match the parent's primary key name exactly, with no additional columns.
+              </button>
+              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
+                B. It must start with the parent table's primary key columns.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                C. It cannot contain integers.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. It must be generated using an autoincrement sequence.
+              </button>
             </div>
-            <div class="concept-desc">
-              <strong>X-Axis (Time)</strong>: Shows hours or days of execution.<br>
-              <strong>Y-Axis (Key Space)</strong>: Shows table, index, and row primary key ranges sorted lexicographically.<br>
-              <strong>Brightness/Color</strong>: Represents traffic intensity (darker is quiet, bright red/white is heavy traffic).
-            </div>
+            <div class="quiz-feedback"></div>
           </div>
-          <div class="concept-card">
-            <div class="concept-title">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-              Metrics Visualized
+
+          <!-- Question 2 -->
+          <div class="quiz-card" data-question-id="q2">
+            <div class="quiz-question">2. What is a "back-join" in the context of secondary indexes in Spanner?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
+                A. An extra fetch from the primary table to get columns that are not stored in the index.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                B. A join that combines data in reverse alphabetical order.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                C. An error that occurs when an index table is split.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. A database process that rolls back uncommitted index modifications.
+              </button>
             </div>
-            <div class="concept-desc">
-              <strong>Ops/second</strong>: Shows read/write request density.<br>
-              <strong>CPU utilization</strong>: Highlights nodes running hot.<br>
-              <strong>Lock conflicts</strong>: Pinpoints lock wait times and write contention bottlenecks.
-            </div>
+            <div class="quiz-feedback"></div>
           </div>
-        </div>
 
-        <h2>1. Identifying Row & Key Hotspots</h2>
-        <p>A **hotspot** occurs when reads or writes concentrate in a tight key range. Because Spanner is distributed, this overloads a single node while others remain idle.</p>
-        
-        <h3>Visual Signature</h3>
-        <p>Hotspots appear as bright horizontal bands or diagonal streaks on heatmaps:</p>
-        <ul>
-          <li><strong>Bright Horizontal Line</strong>: Indicates constant high CPU or writes to a single row (e.g., a global database counter or single record updated continuously).</li>
-          <li><strong>Diagonal Streak (Staircase)</strong>: Indicates monotonically increasing primary keys (e.g., sequential integer IDs or timestamps). As new keys are inserted, the active split location shifts linearly, leaving a bright trail.</li>
-        </ul>
-
-        <div class="callout callout-warning">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">Hotspotting Mitigation</div>
-            <div class="callout-content">Avoid sequential primary keys. Instead:
-              <ol>
-                <li>Use universally unique identifiers (e.g. <code>UUIDv4</code>) to distribute writes.</li>
-                <li>Hash monotonically increasing keys before insertion.</li>
-                <li>Shard keys by prepending a calculated shard ID (e.g. <code>hash(id) % SHARD_COUNT</code>).</li>
-              </ol>
+          <!-- Question 3 -->
+          <div class="quiz-card" data-question-id="q3">
+            <div class="quiz-question">3. How does the `STORING` clause optimize secondary index queries?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                A. It compresses the index to occupy less disk space.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                B. It automatically deletes older index entries.
+              </button>
+              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
+                C. It stores copy columns directly in the index, allowing queries to avoid back-joins.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. It prevents the index table from split-routing.
+              </button>
             </div>
-          </div>
-        </div>
-
-        <h2>2. Identifying Lock Contention</h2>
-        <p>When multiple parallel transactions try to write to the same rows, Spanner serializes them using locks. If transactions take too long or compete heavily, you will experience **Lock Contention** (resulting in high abort/retry counts and latency spikes).</p>
-
-        <h3>Visual Signature</h3>
-        <p>In Key Visualizer, switch the metric filter to <strong>Lock conflicts</strong>. Contention will highlight as bright horizontal stripes covering the specific hot keys range during high transaction concurrency.</p>
-
-        <div class="callout callout-info">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">Lock Contention Mitigation</div>
-            <div class="callout-content">
-              <ul>
-                <li><strong>Use Read-Only Transactions</strong>: Read-only transactions do not take locks and run lock-free across replicas.</li>
-                <li><strong>Optimize Write Scope</strong>: Keep read-write transactions small and avoid long-running calculations within transaction callbacks.</li>
-                <li><strong>Batch Updates</strong>: Batch mutations where possible to minimize lock holds.</li>
-              </ul>
-            </div>
+            <div class="quiz-feedback"></div>
           </div>
         </div>
 
@@ -1726,124 +1723,15 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Analyze Key Visualizer layouts</span>
-              <span class="task-desc">Understand how key spaces and timestamps map to heatmap axes.</span>
-            </div>
-          </li>
-          <li class="task-checkbox-container" data-task-id="t6_2">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Learn hotspot & lock contention patterns</span>
-              <span class="task-desc">Review visual patterns of sequential primary keys and transaction serialization contention.</span>
-            </div>
-          </li>
-        </ul>
-      </section>
-
-      <!-- STEP 8: Quiz / Knowledge Check -->
-      <section class="content-panel" id="panel-7">
-        <h1>Step 7: Knowledge Check</h1>
-        <p>Complete this quick self-check to evaluate your understanding of query profiling, covered index optimization, and Key Visualizer diagnostics.</p>
-
-        <div class="quiz-container">
-          <!-- Question 1 -->
-          <div class="quiz-card" data-question-id="q1">
-            <div class="quiz-question">1. Which command option tells Spanner to return query execution statistics and the execution plan?</div>
-            <div class="quiz-options">
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. --query-mode=PLAN
-              </button>
-              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                B. --query-mode=PROFILE
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                C. --explain-query
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. --stats-only
-              </button>
-            </div>
-            <div class="quiz-feedback"></div>
-          </div>
-
-          <!-- Question 2 -->
-          <div class="quiz-card" data-question-id="q2">
-            <div class="quiz-question">2. In Spanner query tuning, what does a "Key Lookup" operator indicate?</div>
-            <div class="quiz-options">
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. The table doesn't have a primary key.
-              </button>
-              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                B. An extra query back-join to fetch columns not stored in the secondary index.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                C. A lock contention error during writes.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. A database split routing event.
-              </button>
-            </div>
-            <div class="quiz-feedback"></div>
-          </div>
-
-          <!-- Question 3 -->
-          <div class="quiz-card" data-question-id="q3">
-            <div class="quiz-question">3. What is the trade-off of using a Storing Index instead of a standard index?</div>
-            <div class="quiz-options">
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. Storing indexes make reads slower.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                B. Storing indexes cannot be interleaved.
-              </button>
-              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                C. Increased storage consumption and minor write overhead to keep stored columns in sync.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. It requires disabling primary keys.
-              </button>
-            </div>
-            <div class="quiz-feedback"></div>
-          </div>
-
-          <!-- Question 4 -->
-          <div class="quiz-card" data-question-id="q4">
-            <div class="quiz-question">4. You open Spanner Key Visualizer and notice a bright diagonal line in the CPU heatmap. What does this pattern typically indicate?</div>
-            <div class="quiz-options">
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. High lock contention on a single global counter row.
-              </button>
-              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                B. Monotonically increasing primary keys (hotspotting) as new data is inserted.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                C. Efficient parallel range scans across multiple splits.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. An index back-join occurring on the primary table.
-              </button>
-            </div>
-            <div class="quiz-feedback"></div>
-          </div>
-        </div>
-
-        <ul class="task-checklist">
-          <li class="task-checkbox-container" data-task-id="t7_1">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
               <span class="task-label">Complete all quiz questions</span>
-              <span class="task-desc">Answer all four multiple-choice questions correctly to unlock the certificate screen.</span>
+              <span class="task-desc">Answer all three multiple-choice questions correctly to unlock the certificate screen.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 9: Certificate of Completion -->
-      <section class="content-panel certificate-panel" id="panel-8">
+      <!-- STEP 8: Certificate of Completion -->
+      <section class="content-panel certificate-panel" id="panel-7">
         <h1>Lab Certificate of Completion</h1>
         <p class="subtitle">Once you complete the required tasks and pass the quiz, you can generate your certificate.</p>
 
@@ -1861,7 +1749,7 @@
           <div class="cert-input-card">
             <div class="input-group">
               <label for="studentName">Enter Your Name</label>
-              <input type="text" id="studentName" class="cert-name-input" placeholder="e.g. Jane Doe" value="Google Cloud Developer">
+              <input type="text" id="studentName" class="cert-name-input" placeholder="e.g. Jane Doe" value="Google Cloud Architect">
             </div>
             <button class="generate-cert-btn" onclick="drawCertificate()">Generate Certificate</button>
           </div>
@@ -1870,7 +1758,7 @@
           <canvas id="certificateCanvas" width="800" height="560"></canvas>
 
           <div class="cert-actions" id="certActions">
-            <a href="#" id="downloadBtn" class="cert-btn cert-btn-download" download="Cloud_Spanner_Lab4_Certificate.png">
+            <a href="#" id="downloadBtn" class="cert-btn cert-btn-download" download="Cloud_Spanner_Lab3_Certificate.png">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
               Download PNG
             </a>
@@ -1879,7 +1767,7 @@
               Print Lab Guide
             </button>
             <a href="Lab5.html" class="cert-btn" style="background-color: var(--success); color: white; border: none;">
-              Next: Go to Lab 5 →
+              Next: Go to Lab 4 →
             </a>
           </div>
         </div>
@@ -1902,27 +1790,25 @@
 
   <script>
     // Constants & State
-    const totalSteps = 9;
+    const totalSteps = 8;
     let currentStep = 0;
     
     // Checklist configuration
     const taskStatus = {
       t0_1: false,
-      t1_1: false, t1_2: false,
+      t1_1: false,
       t2_1: false, t2_2: false,
       t3_1: false, t3_2: false,
       t4_1: false, t4_2: false,
       t5_1: false, t5_2: false,
-      t6_1: false, t6_2: false,
-      t7_1: false
+      t6_1: false
     };
 
     // Quiz score trackers
     const quizResults = {
       q1: false,
       q2: false,
-      q3: false,
-      q4: false
+      q3: false
     };
 
     // Initialize Page
@@ -1963,7 +1849,6 @@
       });
     });
 
-    // Show step logic
     function showStep(stepIndex) {
       if (stepIndex < 0 || stepIndex >= totalSteps) return;
       
@@ -2014,13 +1899,12 @@
       document.getElementById("progressPercent").textContent = `${progressPercent}%`;
       
       markStepCompletion("t0_1", 0);
-      markStepCompletion("t1_1", 1, ["t1_1", "t1_2"]);
+      markStepCompletion("t1_1", 1, ["t1_1"]);
       markStepCompletion("t2_1", 2, ["t2_1", "t2_2"]);
       markStepCompletion("t3_1", 3, ["t3_1", "t3_2"]);
       markStepCompletion("t4_1", 4, ["t4_1", "t4_2"]);
       markStepCompletion("t5_1", 5, ["t5_1", "t5_2"]);
-      markStepCompletion("t6_1", 6, ["t6_1", "t6_2"]);
-      markStepCompletion("t7_1", 7, ["t7_1"]);
+      markStepCompletion("t6_1", 6, ["t6_1"]);
       
       checkCertificateUnlock();
     }
@@ -2076,147 +1960,6 @@
       });
     }
 
-    // Quiz evaluation
-    function checkAnswer(optionBtn) {
-      const card = optionBtn.closest(".quiz-card");
-      const questionId = card.getAttribute("data-question-id");
-      const isCorrect = optionBtn.getAttribute("data-correct") === "true";
-      const feedback = card.querySelector(".quiz-feedback");
-      
-      card.querySelectorAll(".quiz-option").forEach(opt => {
-        opt.classList.remove("correct", "incorrect");
-      });
-      
-      if (isCorrect) {
-        optionBtn.classList.add("correct");
-        feedback.className = "quiz-feedback show correct";
-        
-        const explanations = {
-          q1: "Correct! The '--query-mode=PROFILE' option instructs Spanner to execute the query and return the execution statistics alongside the query plan.",
-          q2: "Correct! A Key Lookup (back-join) occurs when Spanner scans a secondary index to resolve filters, but must query the main table to retrieve other selected columns.",
-          q3: "Correct! Storing indexes copy additional columns into the index table, which avoids back-joins but increases storage footprints and adds slight write latency to keep values synced.",
-          q4: "Correct! Monotonically increasing primary keys (like sequences or timestamps) result in sequential splits writing to a single node, shifting the active hotspot linearly over time."
-        };
-        feedback.textContent = explanations[questionId];
-        quizResults[questionId] = true;
-      } else {
-        optionBtn.classList.add("incorrect");
-        feedback.className = "quiz-feedback show incorrect";
-        feedback.textContent = "Incorrect. Review the query execution concepts or check the previous steps.";
-        quizResults[questionId] = false;
-      }
-      
-      checkCertificateUnlock();
-    }
-
-    // Canvas Certificate generator
-    function drawCertificate() {
-      const canvas = document.getElementById("certificateCanvas");
-      const ctx = canvas.getContext("2d");
-      const name = document.getElementById("studentName").value.trim() || "Google Cloud Developer";
-      
-      canvas.style.display = "block";
-      ctx.clearRect(0, 0, 800, 560);
-      
-      const bgGrad = ctx.createLinearGradient(0, 0, 800, 560);
-      bgGrad.addColorStop(0, "#080c14");
-      bgGrad.addColorStop(1, "#121a2d");
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, 800, 560);
-      
-      ctx.lineWidth = 16;
-      ctx.strokeStyle = "#38bdf8"; 
-      ctx.strokeRect(16, 16, 768, 528);
-      
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-      ctx.strokeRect(26, 26, 748, 508);
-      
-      ctx.fillStyle = "rgba(56, 189, 248, 0.05)";
-      ctx.beginPath(); ctx.moveTo(28, 28); ctx.lineTo(120, 28); ctx.lineTo(28, 120); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(772, 28); ctx.lineTo(680, 28); ctx.lineTo(772, 120); ctx.fill();
-      
-      // Hexagon logo
-      ctx.save();
-      ctx.translate(400, 100);
-      ctx.strokeStyle = "#38bdf8";
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      for (let i = 0; i < 6; i++) {
-        const angle = (i * Math.PI) / 3 - Math.PI / 6;
-        const x = 32 * Math.cos(angle);
-        const y = 32 * Math.sin(angle);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-      ctx.stroke();
-      
-      ctx.strokeStyle = "rgba(56, 189, 248, 0.5)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(-16, -27); ctx.lineTo(16, 27);
-      ctx.moveTo(-32, 0); ctx.lineTo(32, 0);
-      ctx.moveTo(-16, 27); ctx.lineTo(16, -27);
-      ctx.stroke();
-      ctx.restore();
-      
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 32px 'Outfit', 'Inter', sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("CERTIFICATE OF COMPLETION", 400, 185);
-      
-      ctx.fillStyle = "#94a3b8";
-      ctx.font = "italic 16px 'Inter', sans-serif";
-      ctx.fillText("This is proudly awarded to", 400, 230);
-      
-      ctx.fillStyle = "#38bdf8";
-      ctx.font = "bold 38px 'Outfit', 'Inter', sans-serif";
-      ctx.fillText(name, 400, 290);
-      
-      ctx.strokeStyle = "rgba(56, 189, 248, 0.4)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(250, 305);
-      ctx.lineTo(550, 305);
-      ctx.stroke();
-      
-      ctx.fillStyle = "#e2e8f0";
-      ctx.font = "15px 'Inter', sans-serif";
-      ctx.fillText("for successfully completing the training walkthrough:", 400, 345);
-      
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "600 18px 'Outfit', 'Inter', sans-serif";
-      ctx.fillText("Cloud Spanner: Execution Plans & Covered Index Optimization", 400, 375);
-      
-      const dateStr = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
-      ctx.fillStyle = "#64748b";
-      ctx.font = "13px 'Inter', sans-serif";
-      ctx.fillText(`Issued: ${dateStr}`, 400, 430);
-      
-      const randomId = Math.random().toString(36).substr(2, 9).toUpperCase();
-      ctx.fillText(`Verification ID: SPN-LAB4-${randomId}`, 400, 455);
-      
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-      ctx.beginPath();
-      ctx.moveTo(100, 480);
-      ctx.lineTo(260, 480);
-      ctx.stroke();
-      ctx.fillStyle = "#94a3b8";
-      ctx.fillText("Google Cloud Spanner Coach", 180, 500);
-      
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-      ctx.beginPath();
-      ctx.moveTo(540, 480);
-      ctx.lineTo(700, 480);
-      ctx.stroke();
-      ctx.fillStyle = "#94a3b8";
-      ctx.fillText("Verified Lab Assessor", 620, 500);
-      
-      const downloadBtn = document.getElementById("downloadBtn");
-      downloadBtn.href = canvas.toDataURL("image/png");
-      document.getElementById("certActions").style.display = "flex";
-    }
     // Decorate code blocks dynamically into VS Code Editors
     function decorateCodeBlocks() {
       const codeContainers = document.querySelectorAll(".code-block-container");
@@ -2328,6 +2071,147 @@
         });
       }
       return html;
+    }
+
+    // Quiz evaluation
+    function checkAnswer(optionBtn) {
+      const card = optionBtn.closest(".quiz-card");
+      const questionId = card.getAttribute("data-question-id");
+      const isCorrect = optionBtn.getAttribute("data-correct") === "true";
+      const feedback = card.querySelector(".quiz-feedback");
+      
+      card.querySelectorAll(".quiz-option").forEach(opt => {
+        opt.classList.remove("correct", "incorrect");
+      });
+      
+      if (isCorrect) {
+        optionBtn.classList.add("correct");
+        feedback.className = "quiz-feedback show correct";
+        
+        const explanations = {
+          q1: "Correct! Spanner writes transactions to multiple nodes synchronously using Paxos consensus to prevent data loss or service disruption during regional failure.",
+          q2: "Correct! Spanner limits retention of older data modifications to 7 days max.",
+          q3: "Correct! The '--version-time' option creates a backup as of the exact snapshot in the past, recovering deleted records."
+        };
+        feedback.textContent = explanations[questionId];
+        quizResults[questionId] = true;
+      } else {
+        optionBtn.classList.add("incorrect");
+        feedback.className = "quiz-feedback show incorrect";
+        feedback.textContent = "Incorrect. Check your configurations or review the instructions in previous steps.";
+        quizResults[questionId] = false;
+      }
+      
+      checkCertificateUnlock();
+    }
+
+    // Canvas Certificate generator
+    function drawCertificate() {
+      const canvas = document.getElementById("certificateCanvas");
+      const ctx = canvas.getContext("2d");
+      const name = document.getElementById("studentName").value.trim() || "Google Cloud Architect";
+      
+      canvas.style.display = "block";
+      ctx.clearRect(0, 0, 800, 560);
+      
+      const bgGrad = ctx.createLinearGradient(0, 0, 800, 560);
+      bgGrad.addColorStop(0, "#080c14");
+      bgGrad.addColorStop(1, "#121a2d");
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, 800, 560);
+      
+      ctx.lineWidth = 16;
+      ctx.strokeStyle = "#38bdf8"; 
+      ctx.strokeRect(16, 16, 768, 528);
+      
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.strokeRect(26, 26, 748, 508);
+      
+      ctx.fillStyle = "rgba(56, 189, 248, 0.05)";
+      ctx.beginPath(); ctx.moveTo(28, 28); ctx.lineTo(120, 28); ctx.lineTo(28, 120); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(772, 28); ctx.lineTo(680, 28); ctx.lineTo(772, 120); ctx.fill();
+      
+      // Hexagon emblem
+      ctx.save();
+      ctx.translate(400, 100);
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const angle = (i * Math.PI) / 3 - Math.PI / 6;
+        const x = 32 * Math.cos(angle);
+        const y = 32 * Math.sin(angle);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+      
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.5)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-16, -27); ctx.lineTo(16, 27);
+      ctx.moveTo(-32, 0); ctx.lineTo(32, 0);
+      ctx.moveTo(-16, 27); ctx.lineTo(16, -27);
+      ctx.stroke();
+      ctx.restore();
+      
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 32px 'Outfit', 'Inter', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("CERTIFICATE OF COMPLETION", 400, 185);
+      
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "italic 16px 'Inter', sans-serif";
+      ctx.fillText("This is proudly awarded to", 400, 230);
+      
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "bold 38px 'Outfit', 'Inter', sans-serif";
+      ctx.fillText(name, 400, 290);
+      
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.4)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(250, 305);
+      ctx.lineTo(550, 305);
+      ctx.stroke();
+      
+      ctx.fillStyle = "#e2e8f0";
+      ctx.font = "15px 'Inter', sans-serif";
+      ctx.fillText("for successfully completing the training walkthrough:", 400, 345);
+      
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "600 18px 'Outfit', 'Inter', sans-serif";
+      ctx.fillText("Cloud Spanner: Multi-Region Outages & Point-in-Time Recovery", 400, 375);
+      
+      const dateStr = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+      ctx.fillStyle = "#64748b";
+      ctx.font = "13px 'Inter', sans-serif";
+      ctx.fillText(`Issued: ${dateStr}`, 400, 430);
+      
+      const randomId = Math.random().toString(36).substr(2, 9).toUpperCase();
+      ctx.fillText(`Verification ID: SPN-LAB3-${randomId}`, 400, 455);
+      
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+      ctx.beginPath();
+      ctx.moveTo(100, 480);
+      ctx.lineTo(260, 480);
+      ctx.stroke();
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillText("Google Cloud Spanner Coach", 180, 500);
+      
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+      ctx.beginPath();
+      ctx.moveTo(540, 480);
+      ctx.lineTo(700, 480);
+      ctx.stroke();
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillText("Verified Lab Assessor", 620, 500);
+      
+      const downloadBtn = document.getElementById("downloadBtn");
+      downloadBtn.href = canvas.toDataURL("image/png");
+      document.getElementById("certActions").style.display = "flex";
     }
   </script>
 </body>

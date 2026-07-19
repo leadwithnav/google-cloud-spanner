@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 5: Fine-Grained Access Control (FGAC). Learn how to declare database roles, restrict column privileges, design row-level security (RLS) policies, and test access control.">
-  <title>Cloud Spanner Lab: Fine-Grained Access Control (FGAC)</title>
+  <meta name="description" content="Lab 4: Query Analysis & Execution Plans. Learn how to profile queries using execute-sql profile mode, diagnose table scans, identify back-joins, and optimize performance using covered indexes.">
+  <title>Cloud Spanner Lab: Execution Plans & Storing Index Optimization</title>
   
   <!-- Typography & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -627,32 +627,56 @@
     }
 
     .code-content {
-      padding: 18px;
+      padding: 16px 0;
       overflow-x: auto;
       margin: 0;
+      background-color: #1e1e1e !important;
     }
 
-    .code-content code {
-      font-family: var(--font-mono);
-      font-size: 0.9rem;
-      line-height: 1.6;
-      color: #e2e8f0;
-      display: block;
+    .code-line {
+      display: flex;
+      padding: 0 16px;
+      transition: background-color 0.1s ease;
+    }
+
+    .code-line:hover {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .code-line.highlight-red {
+      background-color: rgba(239, 68, 68, 0.15) !important;
+      border-left: 3px solid #ff5f56;
+      padding-left: 13px !important;
+    }
+
+    .line-number {
+      color: #858585;
+      text-align: right;
+      width: 32px;
+      padding-right: 16px;
+      user-select: none;
+      font-size: 0.85rem;
+      border-right: 1px solid #2d2d2d;
+      margin-right: 16px;
+    }
+
+    .line-code {
+      color: #d4d4d4;
+      font-size: 0.85rem;
       white-space: pre;
+      font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Monaco, Consolas, monospace;
+      line-height: 1.6;
     }
 
-    /* Terminal Shell Styles */
-    .code-block-container.shell .code-header {
-      background-color: #0c0f16;
-    }
-    .code-block-container.shell code {
-      color: #38bdf8;
-    }
-    .c-comment { color: #64748b; font-style: italic; }
-    .c-kw { color: #f472b6; font-weight: 600; }
-    .c-val { color: #38bdf8; }
-    .c-str { color: #34d399; }
-    .c-prompt { color: #a78bfa; user-select: none; }
+    /* Syntax Highlighting Colors (VS Code Dark+ Style) */
+    .c-comment { color: #6a9955 !important; font-style: italic !important; }
+    .c-kw { color: #569cd6 !important; font-weight: 600 !important; }
+    .c-str { color: #ce9178 !important; }
+    .c-num { color: #b5cea8 !important; }
+    .c-func { color: #dcdcaa !important; }
+    .c-type { color: #4ec9b0 !important; }
+    .c-flag { color: #9cdcfe !important; }
+
 
     /* Page Navigation Footer */
     .page-navigation {
@@ -1101,7 +1125,7 @@
     }
   </style>
 </head>
-<body>
+<body class="light-theme">
 
   <div class="app-container">
     
@@ -1139,46 +1163,53 @@
             <span class="step-number">2</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Create Table & Data</span>
+          <span>Setup Test Tables</span>
         </li>
         <li class="step-item" data-step="2">
           <span class="step-indicator">
             <span class="step-number">3</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Define Roles</span>
+          <span>Profile Slow Query</span>
         </li>
         <li class="step-item" data-step="3">
           <span class="step-indicator">
             <span class="step-number">4</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Column-Level Setup</span>
+          <span>Diagnose Back-Join</span>
         </li>
         <li class="step-item" data-step="4">
           <span class="step-indicator">
             <span class="step-number">5</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Row-Level (RLS) Setup</span>
+          <span>Deploy Storing Index</span>
         </li>
         <li class="step-item" data-step="5">
           <span class="step-indicator">
             <span class="step-number">6</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Verify & Test Roles</span>
+          <span>Verify Optimization</span>
         </li>
         <li class="step-item" data-step="6">
           <span class="step-indicator">
             <span class="step-number">7</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Knowledge Check</span>
+          <span>Deep Dive: Key Visualizer</span>
         </li>
         <li class="step-item" data-step="7">
           <span class="step-indicator">
             <span class="step-number">8</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Knowledge Check</span>
+        </li>
+        <li class="step-item" data-step="8">
+          <span class="step-indicator">
+            <span class="step-number">9</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
           <span>Get Certificate</span>
@@ -1187,13 +1218,13 @@
       
       <div class="sidebar-footer">
         <button class="theme-toggle-btn" id="themeToggleBtn">
-          <svg class="theme-toggle-icon" id="themeSunIcon" style="display:none;" viewBox="0 0 24 24">
+          <svg class="theme-toggle-icon" id="themeSunIcon" viewBox="0 0 24 24">
             <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.01c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
           </svg>
-          <svg class="theme-toggle-icon" id="themeMoonIcon" viewBox="0 0 24 24">
+          <svg class="theme-toggle-icon" id="themeMoonIcon" style="display:none;" viewBox="0 0 24 24">
             <path d="M12.3 22h-.1c-5.5 0-10-4.5-10-10 0-4.8 3.5-8.9 8.2-9.8.6-.1 1.2.3 1.3.9.1.6-.3 1.2-.9 1.3-3.7.7-6.5 3.9-6.5 7.7 0 4.4 3.6 8 8 8 3.8 0 7-2.8 7.7-6.5.1-.6.7-1 1.3-.9.6.1 1 .7.9 1.3-.9 4.7-5 8.2-9.9 8.2z"/>
           </svg>
-          <span id="themeToggleText">Light Mode</span>
+          <span id="themeToggleText">Dark Mode</span>
         </button>
       </div>
     </aside>
@@ -1204,8 +1235,8 @@
       <!-- Sticky Top Header -->
       <header class="top-navbar">
         <div class="lab-badge">
-          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-          Lab 5: Fine-Grained Access Control (FGAC)
+          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>
+          Lab 4: Query Optimization
         </div>
         <div class="lab-meta">
           <div class="meta-item">
@@ -1221,23 +1252,18 @@
 
       <!-- STEP 1: Overview -->
       <section class="content-panel active" id="panel-0">
-        <h1>Implementing Fine-Grained Access Control (FGAC)</h1>
-        <p class="subtitle">Welcome! In this hands-on lab, you will learn how to secure table resources in Google Cloud Spanner using Fine-Grained Access Control (FGAC) by declaring database roles, column-level select limits, and row-level security (RLS) policies.</p>
+        <h1>Profiling Query Executions & Optimizing with Covered Indexes</h1>
+        <p class="subtitle">Welcome! In this hands-on lab, you will learn how to analyze slow-running queries using Spanner's Query Execution Plan, identify performance bottlenecks like full table scans and back-joins, and optimize latency using storing secondary indexes.</p>
         
-        <h2>Why Do We Need FGAC?</h2>
-        <p>In standard enterprise deployments, Google Cloud IAM manages database access at the resource level (e.g. assigning the <code>roles/spanner.databaseUser</code> role grants full select/write access to all tables in the database). However, modern security architectures demand the **Principle of Least Privilege**, restricting users or client microservices to specific rows and columns.</p>
-        <p>Spanner supports this using **Fine-Grained Access Control (FGAC)**. With FGAC, you define custom **Database Roles** in the schema. You then grant privileges (like <code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>) to these roles for specific tables, views, or subsets of columns. You can also configure **Row-Level Security (RLS)** filters using conditions that restrict query scopes dynamically.</p>
+        <h2>What is an Execution Plan?</h2>
+        <p>Before running an SQL query, Google Cloud Spanner compiles it into an **Execution Plan**. The plan is a tree structure composed of database operators (like *Distributed Union*, *Index Scan*, or *Hash Join*). Examining this plan helps developers understand exactly how Spanner partitions and queries tables across servers.</p>
+        <p>Rather than guessing why a query runs slowly, we can profile it using the command-line flag <code>--query-mode=PROFILE</code>, which prints actual diagnostic statistics (CPU execution time, data rows scanned, and memory footprint) alongside the plan nodes.</p>
 
         <div class="callout callout-info">
           <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
           <div>
-            <div class="callout-title">The Scenario</div>
-            <div class="callout-content">We have a table storing employee records. We will create two database roles:
-              <ul>
-                <li><strong>hr_role</strong>: Can view all fields and all rows.</li>
-                <li><strong>staff_role</strong>: Can only view standard columns (excluding sensitive data like Salary and SSN), and is restricted to viewing rows belonging to their own department (Engineering).</li>
-              </ul>
-            </div>
+            <div class="callout-title">The Tuning Strategy</div>
+            <div class="callout-content">We will start with a query that triggers a slow **Full Table Scan**. We will then add a standard index and diagnose a secondary bottleneck: the **Back-Join** (or key lookup). Finally, we'll eliminate the back-join using a covered **Storing Index**, achieving sub-millisecond execution times.</div>
           </div>
         </div>
 
@@ -1247,20 +1273,20 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Understand FGAC objectives</span>
-              <span class="task-desc">Review the security scenarios for the hr_role and staff_role definitions.</span>
+              <span class="task-label">Understand query tuning concepts</span>
+              <span class="task-desc">Review how query profiling highlights execution bottlenecks in distributed databases.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 2: Create Table -->
+      <!-- STEP 2: Setup Test Tables -->
       <section class="content-panel" id="panel-1">
-        <h1>Step 1: Creating the Employees Schema</h1>
-        <p>First, we will deploy the core `Employees` table containing salary and SSN fields, and populate it with sample department records.</p>
+        <h1>Step 1: Setting Up the Test Scenario</h1>
+        <p>Let's define a new interleaved table named <code>Transactions</code> to record card purchases. Deploy this schema definition onto your active emulator instance.</p>
 
         <h2>1. Deploy the DDL Schema</h2>
-        <p>Deploy the DDL update on your emulator instance:</p>
+        <p>Execute the DDL update in your terminal to append the <code>Transactions</code> table to your database. Note that it is interleaved under <code>Customers</code> (reusing our Customer hierarchy from Lab 3):</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1275,18 +1301,19 @@
           </div>
           <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
   --instance=test-instance \
-  --ddl="CREATE TABLE Employees (
-    EmployeeId INT64 NOT NULL,
-    Name STRING(255),
-    Email STRING(255),
-    Department STRING(100),
-    Salary NUMERIC,
-    SSN STRING(50)
-  ) PRIMARY KEY (EmployeeId);"</code></pre>
+  --ddl="CREATE TABLE Transactions (
+    CustomerId INT64 NOT NULL,
+    TransactionId INT64 NOT NULL,
+    TransactionDate DATE,
+    Amount NUMERIC,
+    Merchant STRING(255),
+    Status STRING(50)
+  ) PRIMARY KEY (CustomerId, TransactionId),
+  INTERLEAVE IN PARENT Customers ON DELETE CASCADE;"</code></pre>
         </div>
 
-        <h2>2. Insert Sample Records</h2>
-        <p>Add employees belonging to the `Engineering` and `Sales` departments:</p>
+        <h2>2. Populate Transaction Records</h2>
+        <p>Let's add test transactions to query against:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1301,10 +1328,11 @@
           </div>
           <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
   --instance=test-instance \
-  --sql="INSERT INTO Employees (EmployeeId, Name, Email, Department, Salary, SSN) VALUES
-  (201, 'Bob Miller', 'bob@company.com', 'Engineering', 95000, 'SSN-999-11'),
-  (202, 'Alice Croft', 'alice@company.com', 'Engineering', 105000, 'SSN-999-22'),
-  (203, 'Charlie Dave', 'charlie@company.com', 'Sales', 80000, 'SSN-999-33')"</code></pre>
+  --sql="INSERT INTO Transactions (CustomerId, TransactionId, TransactionDate, Amount, Merchant, Status) VALUES
+  (101, 8001, '2026-07-17', 24.50, 'Cloud Cafe', 'COMPLETED'),
+  (101, 8002, '2026-07-17', 120.00, 'Cloud Cafe', 'COMPLETED'),
+  (101, 8003, '2026-07-16', 55.00, 'GCP Shop', 'COMPLETED'),
+  (101, 8004, '2026-07-15', 10.00, 'Cloud Cafe', 'FAILED')"</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1313,8 +1341,8 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Deploy Employees table</span>
-              <span class="task-desc">Verify that the target table DDL compiles correctly.</span>
+              <span class="task-label">Deploy the Transactions table</span>
+              <span class="task-desc">Configure the interleaved transactions schema using the DDL tool.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t1_2">
@@ -1322,20 +1350,21 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Insert sample employees</span>
-              <span class="task-desc">Populate Bobs, Alices, and Charlies into the employee records.</span>
+              <span class="task-label">Populate sample transactions</span>
+              <span class="task-desc">Insert rows into the Transactions table linked to Customer 101.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 3: Define Roles -->
+      <!-- STEP 3: Profile Slow Query -->
       <section class="content-panel" id="panel-2">
-        <h1>Step 2: Defining Database Roles</h1>
-        <p>Database roles are defined directly inside the database schema. Unlike cloud roles, these roles are product-specific and are packaged inside your DDL migrations.</p>
+        <h1>Step 2: Profiling the Naive Query</h1>
+        <p>Imagine your user dashboard queries the transactions table to list all successful purchases at `'Cloud Cafe'` on a specific date:</p>
+        <p><code>SELECT CustomerId, Amount, Status FROM Transactions WHERE Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17'</code></p>
 
-        <h2>Create Roles</h2>
-        <p>We will create the <code>hr_role</code> and <code>staff_role</code> database roles. Run the DDL command:</p>
+        <h2>1. Run the Profile Command</h2>
+        <p>Profile the execution of this query by adding the <code>--query-mode=PROFILE</code> option. This tells Spanner to capture query execution statistics and output the query execution plan:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1348,9 +1377,30 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
   --instance=test-instance \
-  --ddl="CREATE ROLE hr_role; CREATE ROLE staff_role;"</code></pre>
+  --query-mode=PROFILE \
+  --sql="SELECT CustomerId, Amount, Status FROM Transactions WHERE Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17'"</code></pre>
+        </div>
+
+        <h2>2. Analyze the Output Plan</h2>
+        <p>Review the printed plan output in your terminal. You will notice plan operators similar to this:</p>
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">Execution Plan Concept</span>
+          </div>
+          <pre class="code-content"><code>Distributed Union
+└── Local Distributed Union
+    └── Filter (Condition: Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17')
+        └── <span class="c-kw">Table Scan</span> (Table: Transactions)</code></pre>
+        </div>
+
+        <div class="callout callout-danger">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">Bottleneck: Table Scan Operator</div>
+            <div class="callout-content">Because there is no index on <code>Merchant</code> or <code>TransactionDate</code>, Spanner must read every single row in the <code>Transactions</code> table to check if it matches the filter. In a database with millions of rows, this full table scan causes heavy CPU load and high latency.</div>
+          </div>
         </div>
 
         <ul class="task-checklist">
@@ -1359,26 +1409,30 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Create database roles</span>
-              <span class="task-desc">Run DDL statements to initialize 'hr_role' and 'staff_role'.</span>
+              <span class="task-label">Run the query with profile enabled</span>
+              <span class="task-desc">Verify that the gcloud CLI outputs the execution plan and run statistics.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t2_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Identify the Table Scan operator</span>
+              <span class="task-desc">Locate the Table Scan step in the output plan.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 4: Column-Level Setup -->
+      <!-- STEP 4: Diagnose Back-Join -->
       <section class="content-panel" id="panel-3">
-        <h1>Step 3: Column-Level Access Control</h1>
-        <p>Column-level access control restricts database roles to querying a specific subset of columns in a table. If a role attempts to query a restricted column, Spanner blocks the request.</p>
+        <h1>Step 3: Diagnosing Back-Join Bottlenecks</h1>
+        <p>Let's add a standard secondary index to speed up the query filtering. We will then analyze the new execution plan to identify any remaining bottlenecks.</p>
 
-        <h2>Grant Select Permissions</h2>
-        <p>We want to configure the following permissions:</p>
-        <ol>
-          <li><strong>hr_role</strong>: Grant read permissions on all columns in the <code>Employees</code> table.</li>
-          <li><strong>staff_role</strong>: Grant read permissions <strong>only</strong> on non-sensitive columns: <code>EmployeeId</code>, <code>Name</code>, <code>Email</code>, and <code>Department</code>.</li>
-        </ol>
+        <h2>1. Create a Standard Secondary Index</h2>
+        <p>Deploy a standard index on <code>Merchant</code> and <code>TransactionDate</code>:</p>
 
-        <p>Run the DDL command to apply these permissions:</p>
         <div class="code-block-container shell">
           <div class="code-header">
             <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
@@ -1392,8 +1446,46 @@
           </div>
           <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
   --instance=test-instance \
-  --ddl="GRANT SELECT ON TABLE Employees TO ROLE hr_role; 
-         GRANT SELECT (EmployeeId, Name, Email, Department) ON TABLE Employees TO ROLE staff_role;"</code></pre>
+  --ddl="CREATE INDEX TransactionsByMerchantDate ON Transactions(Merchant, TransactionDate);"</code></pre>
+        </div>
+
+        <h2>2. Profile the Query Again</h2>
+        <p>Run the profile command a second time to see how the plan has changed:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --query-mode=PROFILE \
+  --sql="SELECT CustomerId, Amount, Status FROM Transactions WHERE Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17'"</code></pre>
+        </div>
+
+        <h2>3. Examine the Back-Join (Key Lookup) Plan</h2>
+        <p>The output plan tree should look similar to this:</p>
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">Execution Plan Concept</span>
+          </div>
+          <pre class="code-content"><code>Distributed Cross Apply
+├── <span class="c-kw">Index Scan</span> (Index: TransactionsByMerchantDate, Condition: Merchant = 'Cloud Cafe')
+└── <span class="c-val">Key Lookup</span> (Table: Transactions, Fetch: Amount, Status)</code></pre>
+        </div>
+
+        <div class="callout callout-warning">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">Bottleneck: Key Lookup (Back-Join)</div>
+            <div class="callout-content">Spanner uses the index to quickly find rows matching <code>Merchant = 'Cloud Cafe'</code>. However, because the index table does not contain the <code>Amount</code> and <code>Status</code> columns, Spanner must perform a back-join to fetch those values from the primary table. At scale, this back-join cross-network lookup becomes a major performance bottleneck.</div>
+          </div>
         </div>
 
         <ul class="task-checklist">
@@ -1402,20 +1494,29 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Apply column-level grants</span>
-              <span class="task-desc">Grant SELECT permissions to hr_role (all columns) and staff_role (specific columns).</span>
+              <span class="task-label">Deploy the standard index</span>
+              <span class="task-desc">Verify that the standard index on Merchant and TransactionDate is created.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t3_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Identify the Key Lookup step</span>
+              <span class="task-desc">Locate the Distributed Cross Apply and Key Lookup operators in the query profile output.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 5: Row-Level Setup -->
+      <!-- STEP 5: Deploy Storing Index -->
       <section class="content-panel" id="panel-4">
-        <h1>Step 4: Row-Level Security (RLS) Policies</h1>
-        <p>Row-Level Security (RLS) allows you to define filter conditions on tables for specific database roles. When users query a table with an active RLS policy, Spanner automatically filters the returned rows to match the policy's conditions.</p>
+        <h1>Step 4: Deploying a Storing Covered Index</h1>
+        <p>To eliminate the back-join, we will replace the standard index with a **Storing Covered Index**. This copies the query's returned columns directly into the secondary index table.</p>
 
-        <h2>Create an RLS Policy</h2>
-        <p>We want to restrict <code>staff_role</code> to only see employee records belonging to the <strong>Engineering</strong> department. We define this policy using a DDL statement:</p>
+        <h2>1. Drop the Standard Index</h2>
+        <p>Remove the suboptimal standard index first:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1430,18 +1531,28 @@
           </div>
           <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
   --instance=test-instance \
-  --ddl="CREATE POLICY engineering_only_policy ON Employees
-         FOR SELECT
-         TO ROLE staff_role
-         USING (Department = 'Engineering');"</code></pre>
+  --ddl="DROP INDEX TransactionsByMerchantDate;"</code></pre>
         </div>
 
-        <div class="callout callout-info">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">Multiple Policies</div>
-            <div class="callout-content">You can attach multiple RLS policies to a table. Spanner combines policies using logical <strong>OR</strong> operators. If no RLS policies are defined for a role, that role can access all rows (assuming they have table-level permissions).</div>
+        <h2>2. Create the Storing Covered Index</h2>
+        <p>Create a new index on the filter columns <code>(Merchant, TransactionDate)</code> and store the returned columns <code>Amount</code> and <code>Status</code> using the <strong>STORING</strong> clause:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
           </div>
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+  --instance=test-instance \
+  --ddl="CREATE INDEX TransactionsByMerchantDateCovered 
+         ON Transactions(Merchant, TransactionDate) 
+         STORING (Amount, Status);"</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1450,20 +1561,29 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Deploy the RLS Policy</span>
-              <span class="task-desc">Deploy the CREATE POLICY statement to restrict row visibility for staff_role.</span>
+              <span class="task-label">Drop the standard index</span>
+              <span class="task-desc">Remove the TransactionsByMerchantDate index.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t4_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Deploy the Storing Covered Index</span>
+              <span class="task-desc">Deploy the new index using the STORING clause to include Amount and Status values.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 6: Verify & Test Roles -->
+      <!-- STEP 6: Verify Optimization -->
       <section class="content-panel" id="panel-5">
-        <h1>Step 5: Testing and Verifying FGAC Rules</h1>
-        <p>Let's verify that the access control rules are working as expected by querying the database using different active roles.</p>
+        <h1>Step 5: Verifying the Optimization</h1>
+        <p>Now, let's profile the query again to verify that the back-join is gone and the execution plan is optimized.</p>
 
-        <h2>1. Test hr_role Access</h2>
-        <p>Run a query as `hr_role` by passing the database role using the <code>--database-role</code> flag. The HR role should see all columns and all rows:</p>
+        <h2>1. Profile the Query a Third Time</h2>
+        <p>Run the query profile command one last time:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1478,49 +1598,27 @@
           </div>
           <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
   --instance=test-instance \
-  --database-role=hr_role \
-  --sql="SELECT * FROM Employees"</code></pre>
+  --query-mode=PROFILE \
+  --sql="SELECT CustomerId, Amount, Status FROM Transactions WHERE Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17'"</code></pre>
         </div>
 
-        <h2>2. Test staff_role Restricted Column Access</h2>
-        <p>Run a query as `staff_role` requesting all columns: <code>SELECT * FROM Employees</code>. This query should fail because `staff_role` does not have access to the `Salary` or `SSN` columns:</p>
-
-        <div class="code-block-container shell">
+        <h2>2. Analyze the Final Covered Plan</h2>
+        <p>The output plan tree should look similar to this:</p>
+        <div class="code-block-container">
           <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
+            <span class="code-lang-badge">Execution Plan Concept</span>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
-  --database-role=staff_role \
-  --sql="SELECT * FROM Employees"</code></pre>
+          <pre class="code-content"><code>Distributed Union
+└── Local Distributed Union
+    └── <span class="c-kw">Index Scan</span> (Index: TransactionsByMerchantDateCovered, Condition: Merchant = 'Cloud Cafe')</code></pre>
         </div>
-        <p>Confirm that Spanner blocks the request, returning a permission denied error.</p>
 
-        <h2>3. Test staff_role Allowed Column & Row Access</h2>
-        <p>Run a query as `staff_role` requesting only the permitted columns. The query should succeed, and the results should be filtered to only show employees in the **Engineering** department (filtering out Sales employees):</p>
-
-        <div class="code-block-container shell">
-          <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
+        <div class="callout callout-success">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          <div>
+            <div class="callout-title">Success: No Key Lookup Operator!</div>
+            <div class="callout-content">Observe that the **Key Lookup** step is gone. Spanner retrieved all requested fields directly from the index, achieving sub-millisecond query latency.</div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
-  --database-role=staff_role \
-  --sql="SELECT EmployeeId, Name, Email, Department FROM Employees"</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1529,8 +1627,8 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Test the HR role permissions</span>
-              <span class="task-desc">Verify that hr_role can view all fields and all rows.</span>
+              <span class="task-label">Profile the optimized query</span>
+              <span class="task-desc">Verify that the execution plan uses Index Scan and has no Key Lookup step.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t5_2">
@@ -1538,77 +1636,87 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Test the Staff role permissions</span>
-              <span class="task-desc">Verify that staff_role is blocked from viewing sensitive columns, and restricted to Engineering rows.</span>
+              <span class="task-label">Compare performance stats</span>
+              <span class="task-desc">Review the reduction in CPU execution time and rows scanned.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 7: Quiz / Knowledge Check -->
+      <!-- STEP 7: Deep Dive: Key Visualizer -->
       <section class="content-panel" id="panel-6">
-        <h1>Step 6: Knowledge Check</h1>
-        <p>Complete this quick self-check to evaluate your understanding of Spanner FGAC configurations.</p>
+        <h1>Step 6: Deep Dive: Spanner Key Visualizer</h1>
+        <p class="subtitle">Learn how to read Spanner's graphical Key Visualizer heatmaps to diagnose distributed bottlenecks like key hotspots and lock contention.</p>
 
-        <div class="quiz-container">
-          <!-- Question 1 -->
-          <div class="quiz-card" data-question-id="q1">
-            <div class="quiz-question">1. How are Fine-Grained Access Control database roles defined in Google Cloud Spanner?</div>
-            <div class="quiz-options">
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. Using the Google Cloud Console IAM permissions manager.
-              </button>
-              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                B. Using DDL schema migration statements (CREATE ROLE).
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                C. By configuring the Docker container environment variables.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. Using client application configuration files.
-              </button>
+        <h2>What is Key Visualizer?</h2>
+        <p>Google Cloud Spanner automatically shards tables and indexes into physical splits based on load and key ranges. If an application concentrates high throughput on a single range of keys, that split's hosting server becomes overloaded. <strong>Key Visualizer</strong> is a console diagnostic tool that renders interactive heatmaps of database traffic over time, helping developers locate these bottlenecks.</p>
+
+        <div class="concept-grid">
+          <div class="concept-card">
+            <div class="concept-title">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 16H6v-2h5v2zm0-4H6v-2h5v2zm0-4H6V8h5v2zm0-4H6V4h5v2z"/></svg>
+              Heatmap Layout
             </div>
-            <div class="quiz-feedback"></div>
+            <div class="concept-desc">
+              <strong>X-Axis (Time)</strong>: Shows hours or days of execution.<br>
+              <strong>Y-Axis (Key Space)</strong>: Shows table, index, and row primary key ranges sorted lexicographically.<br>
+              <strong>Brightness/Color</strong>: Represents traffic intensity (darker is quiet, bright red/white is heavy traffic).
+            </div>
           </div>
-
-          <!-- Question 2 -->
-          <div class="quiz-card" data-question-id="q2">
-            <div class="quiz-question">2. Which clause is used to define filter conditions for Row-Level Security (RLS) policies?</div>
-            <div class="quiz-options">
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. WHERE
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                B. FILTER BY
-              </button>
-              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                C. USING
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. CHECK
-              </button>
+          <div class="concept-card">
+            <div class="concept-title">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              Metrics Visualized
             </div>
-            <div class="quiz-feedback"></div>
+            <div class="concept-desc">
+              <strong>Ops/second</strong>: Shows read/write request density.<br>
+              <strong>CPU utilization</strong>: Highlights nodes running hot.<br>
+              <strong>Lock conflicts</strong>: Pinpoints lock wait times and write contention bottlenecks.
+            </div>
           </div>
+        </div>
 
-          <!-- Question 3 -->
-          <div class="quiz-card" data-question-id="q3">
-            <div class="quiz-question">3. How do you specify which database role to run a query under using the gcloud CLI?</div>
-            <div class="quiz-options">
-              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                A. By passing the --database-role flag.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                B. By passing the --iam-account flag.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                C. By defining it in the SQL query USING clause.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. By running gcloud config set database_role.
-              </button>
+        <h2>1. Identifying Row & Key Hotspots</h2>
+        <p>A **hotspot** occurs when reads or writes concentrate in a tight key range. Because Spanner is distributed, this overloads a single node while others remain idle.</p>
+        
+        <h3>Visual Signature</h3>
+        <p>Hotspots appear as bright horizontal bands or diagonal streaks on heatmaps:</p>
+        <ul>
+          <li><strong>Bright Horizontal Line</strong>: Indicates constant high CPU or writes to a single row (e.g., a global database counter or single record updated continuously).</li>
+          <li><strong>Diagonal Streak (Staircase)</strong>: Indicates monotonically increasing primary keys (e.g., sequential integer IDs or timestamps). As new keys are inserted, the active split location shifts linearly, leaving a bright trail.</li>
+        </ul>
+
+        <div class="callout callout-warning">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">Hotspotting Mitigation</div>
+            <div class="callout-content">Avoid sequential primary keys. Instead:
+              <ol>
+                <li>Use universally unique identifiers (e.g. <code>UUIDv4</code>) to distribute writes.</li>
+                <li>Hash monotonically increasing keys before insertion.</li>
+                <li>Shard keys by prepending a calculated shard ID (e.g. <code>hash(id) % SHARD_COUNT</code>).</li>
+              </ol>
             </div>
-            <div class="quiz-feedback"></div>
+          </div>
+        </div>
+
+        <h2>2. Identifying Lock Contention</h2>
+        <p>When multiple parallel transactions try to write to the same rows, Spanner serializes them using locks. If transactions take too long or compete heavily, you will experience **Lock Contention** (resulting in high abort/retry counts and latency spikes).</p>
+
+        <h3>Visual Signature</h3>
+        <p>In Key Visualizer, switch the metric filter to <strong>Lock conflicts</strong>. Contention will highlight as bright horizontal stripes covering the specific hot keys range during high transaction concurrency.</p>
+
+        <div class="callout callout-info">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">Lock Contention Mitigation</div>
+            <div class="callout-content">
+              <ul>
+                <li><strong>Use Read-Only Transactions</strong>: Read-only transactions do not take locks and run lock-free across replicas.</li>
+                <li><strong>Optimize Write Scope</strong>: Keep read-write transactions small and avoid long-running calculations within transaction callbacks.</li>
+                <li><strong>Batch Updates</strong>: Batch mutations where possible to minimize lock holds.</li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -1618,15 +1726,124 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Complete all quiz questions</span>
-              <span class="task-desc">Answer all three multiple-choice questions correctly to unlock the certificate screen.</span>
+              <span class="task-label">Analyze Key Visualizer layouts</span>
+              <span class="task-desc">Understand how key spaces and timestamps map to heatmap axes.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t6_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Learn hotspot & lock contention patterns</span>
+              <span class="task-desc">Review visual patterns of sequential primary keys and transaction serialization contention.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 8: Certificate of Completion -->
-      <section class="content-panel certificate-panel" id="panel-7">
+      <!-- STEP 8: Quiz / Knowledge Check -->
+      <section class="content-panel" id="panel-7">
+        <h1>Step 7: Knowledge Check</h1>
+        <p>Complete this quick self-check to evaluate your understanding of query profiling, covered index optimization, and Key Visualizer diagnostics.</p>
+
+        <div class="quiz-container">
+          <!-- Question 1 -->
+          <div class="quiz-card" data-question-id="q1">
+            <div class="quiz-question">1. Which command option tells Spanner to return query execution statistics and the execution plan?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                A. --query-mode=PLAN
+              </button>
+              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
+                B. --query-mode=PROFILE
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                C. --explain-query
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. --stats-only
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="quiz-card" data-question-id="q2">
+            <div class="quiz-question">2. In Spanner query tuning, what does a "Key Lookup" operator indicate?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                A. The table doesn't have a primary key.
+              </button>
+              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
+                B. An extra query back-join to fetch columns not stored in the secondary index.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                C. A lock contention error during writes.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. A database split routing event.
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="quiz-card" data-question-id="q3">
+            <div class="quiz-question">3. What is the trade-off of using a Storing Index instead of a standard index?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                A. Storing indexes make reads slower.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                B. Storing indexes cannot be interleaved.
+              </button>
+              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
+                C. Increased storage consumption and minor write overhead to keep stored columns in sync.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. It requires disabling primary keys.
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <!-- Question 4 -->
+          <div class="quiz-card" data-question-id="q4">
+            <div class="quiz-question">4. You open Spanner Key Visualizer and notice a bright diagonal line in the CPU heatmap. What does this pattern typically indicate?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                A. High lock contention on a single global counter row.
+              </button>
+              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
+                B. Monotonically increasing primary keys (hotspotting) as new data is inserted.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                C. Efficient parallel range scans across multiple splits.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. An index back-join occurring on the primary table.
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t7_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Complete all quiz questions</span>
+              <span class="task-desc">Answer all four multiple-choice questions correctly to unlock the certificate screen.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 9: Certificate of Completion -->
+      <section class="content-panel certificate-panel" id="panel-8">
         <h1>Lab Certificate of Completion</h1>
         <p class="subtitle">Once you complete the required tasks and pass the quiz, you can generate your certificate.</p>
 
@@ -1644,7 +1861,7 @@
           <div class="cert-input-card">
             <div class="input-group">
               <label for="studentName">Enter Your Name</label>
-              <input type="text" id="studentName" class="cert-name-input" placeholder="e.g. Jane Doe" value="Google Cloud Security Engineer">
+              <input type="text" id="studentName" class="cert-name-input" placeholder="e.g. Jane Doe" value="Google Cloud Developer">
             </div>
             <button class="generate-cert-btn" onclick="drawCertificate()">Generate Certificate</button>
           </div>
@@ -1653,7 +1870,7 @@
           <canvas id="certificateCanvas" width="800" height="560"></canvas>
 
           <div class="cert-actions" id="certActions">
-            <a href="#" id="downloadBtn" class="cert-btn cert-btn-download" download="Cloud_Spanner_Lab5_Certificate.png">
+            <a href="#" id="downloadBtn" class="cert-btn cert-btn-download" download="Cloud_Spanner_Lab4_Certificate.png">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
               Download PNG
             </a>
@@ -1662,7 +1879,7 @@
               Print Lab Guide
             </button>
             <a href="Lab6.html" class="cert-btn" style="background-color: var(--success); color: white; border: none;">
-              Next: Go to Lab 6 →
+              Next: Go to Lab 5 →
             </a>
           </div>
         </div>
@@ -1685,25 +1902,27 @@
 
   <script>
     // Constants & State
-    const totalSteps = 8;
+    const totalSteps = 9;
     let currentStep = 0;
     
     // Checklist configuration
     const taskStatus = {
       t0_1: false,
       t1_1: false, t1_2: false,
-      t2_1: false,
-      t3_1: false,
-      t4_1: false,
+      t2_1: false, t2_2: false,
+      t3_1: false, t3_2: false,
+      t4_1: false, t4_2: false,
       t5_1: false, t5_2: false,
-      t6_1: false
+      t6_1: false, t6_2: false,
+      t7_1: false
     };
 
     // Quiz score trackers
     const quizResults = {
       q1: false,
       q2: false,
-      q3: false
+      q3: false,
+      q4: false
     };
 
     // Initialize Page
@@ -1711,6 +1930,7 @@
       setupChecklistListeners();
       setupTheme();
       updateProgress();
+      decorateCodeBlocks();
     });
 
     // Theme toggle logic
@@ -1743,6 +1963,7 @@
       });
     });
 
+    // Show step logic
     function showStep(stepIndex) {
       if (stepIndex < 0 || stepIndex >= totalSteps) return;
       
@@ -1794,11 +2015,12 @@
       
       markStepCompletion("t0_1", 0);
       markStepCompletion("t1_1", 1, ["t1_1", "t1_2"]);
-      markStepCompletion("t2_1", 2, ["t2_1"]);
-      markStepCompletion("t3_1", 3, ["t3_1"]);
-      markStepCompletion("t4_1", 4, ["t4_1"]);
+      markStepCompletion("t2_1", 2, ["t2_1", "t2_2"]);
+      markStepCompletion("t3_1", 3, ["t3_1", "t3_2"]);
+      markStepCompletion("t4_1", 4, ["t4_1", "t4_2"]);
       markStepCompletion("t5_1", 5, ["t5_1", "t5_2"]);
-      markStepCompletion("t6_1", 6, ["t6_1"]);
+      markStepCompletion("t6_1", 6, ["t6_1", "t6_2"]);
+      markStepCompletion("t7_1", 7, ["t7_1"]);
       
       checkCertificateUnlock();
     }
@@ -1833,15 +2055,24 @@
     // Copy Code Utility
     function copyCode(btn) {
       const container = btn.closest(".code-block-container");
-      const code = container.querySelector("code").innerText;
+      const lineCodes = container.querySelectorAll(".line-code");
       
-      navigator.clipboard.writeText(code).then(() => {
+      let textToCopy = "";
+      if (lineCodes.length > 0) {
+        textToCopy = Array.from(lineCodes).map(el => el.textContent).join("\n");
+      } else {
+        const codeEl = container.querySelector("code");
+        textToCopy = codeEl ? codeEl.textContent : "";
+      }
+      
+      navigator.clipboard.writeText(textToCopy).then(() => {
         const tooltip = btn.nextElementSibling;
-        tooltip.style.opacity = "1";
-        
-        setTimeout(() => {
-          tooltip.style.opacity = "0";
-        }, 1500);
+        if (tooltip) {
+          tooltip.style.opacity = "1";
+          setTimeout(() => {
+            tooltip.style.opacity = "0";
+          }, 1500);
+        }
       });
     }
 
@@ -1861,16 +2092,17 @@
         feedback.className = "quiz-feedback show correct";
         
         const explanations = {
-          q1: "Correct! FGAC roles and permissions are defined directly in the database DDL using schema syntax. This allows security rules to be tracked alongside table migrations.",
-          q2: "Correct! RLS policies use the 'USING' clause to specify the boolean expression that rows must satisfy to be visible to the role.",
-          q3: "Correct! You assume a database role by passing the '--database-role' parameter to gcloud CLI commands."
+          q1: "Correct! The '--query-mode=PROFILE' option instructs Spanner to execute the query and return the execution statistics alongside the query plan.",
+          q2: "Correct! A Key Lookup (back-join) occurs when Spanner scans a secondary index to resolve filters, but must query the main table to retrieve other selected columns.",
+          q3: "Correct! Storing indexes copy additional columns into the index table, which avoids back-joins but increases storage footprints and adds slight write latency to keep values synced.",
+          q4: "Correct! Monotonically increasing primary keys (like sequences or timestamps) result in sequential splits writing to a single node, shifting the active hotspot linearly over time."
         };
         feedback.textContent = explanations[questionId];
         quizResults[questionId] = true;
       } else {
         optionBtn.classList.add("incorrect");
         feedback.className = "quiz-feedback show incorrect";
-        feedback.textContent = "Incorrect. Review the role declarations and RLS syntax descriptions.";
+        feedback.textContent = "Incorrect. Review the query execution concepts or check the previous steps.";
         quizResults[questionId] = false;
       }
       
@@ -1881,7 +2113,7 @@
     function drawCertificate() {
       const canvas = document.getElementById("certificateCanvas");
       const ctx = canvas.getContext("2d");
-      const name = document.getElementById("studentName").value.trim() || "Google Cloud Security Engineer";
+      const name = document.getElementById("studentName").value.trim() || "Google Cloud Developer";
       
       canvas.style.display = "block";
       ctx.clearRect(0, 0, 800, 560);
@@ -1955,7 +2187,7 @@
       
       ctx.fillStyle = "#ffffff";
       ctx.font = "600 18px 'Outfit', 'Inter', sans-serif";
-      ctx.fillText("Cloud Spanner: Fine-Grained Access Control (FGAC) Security", 400, 375);
+      ctx.fillText("Cloud Spanner: Execution Plans & Covered Index Optimization", 400, 375);
       
       const dateStr = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
       ctx.fillStyle = "#64748b";
@@ -1963,7 +2195,7 @@
       ctx.fillText(`Issued: ${dateStr}`, 400, 430);
       
       const randomId = Math.random().toString(36).substr(2, 9).toUpperCase();
-      ctx.fillText(`Verification ID: SPN-LAB5-${randomId}`, 400, 455);
+      ctx.fillText(`Verification ID: SPN-LAB4-${randomId}`, 400, 455);
       
       ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
       ctx.beginPath();
@@ -1984,6 +2216,118 @@
       const downloadBtn = document.getElementById("downloadBtn");
       downloadBtn.href = canvas.toDataURL("image/png");
       document.getElementById("certActions").style.display = "flex";
+    }
+    // Decorate code blocks dynamically into VS Code Editors
+    function decorateCodeBlocks() {
+      const codeContainers = document.querySelectorAll(".code-block-container");
+      
+      codeContainers.forEach((container, idx) => {
+        const codeElement = container.querySelector("code");
+        if (!codeElement) return;
+        
+        let codeText = codeElement.textContent.trim();
+        
+        let lang = "shell";
+        let filename = "commands.sh";
+        let iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#858585" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        
+        if (container.classList.contains("python")) {
+          lang = "python";
+          filename = "restore.py";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#3572A5" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        } else if (container.classList.contains("java")) {
+          lang = "java";
+          filename = "App.java";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#b07219" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        } else if (container.classList.contains("javascript") || container.classList.contains("node")) {
+          lang = "javascript";
+          filename = "app.js";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#f1e05a" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        } else if (codeText.includes("CREATE TABLE") || codeText.includes("SELECT") || codeText.includes("INSERT") || codeText.includes("ALTER DATABASE") || codeText.includes("DROP TABLE")) {
+          lang = "sql";
+          filename = "schema.sql";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#f1e05a" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        }
+        
+        const header = document.createElement("div");
+        header.className = "code-header";
+        header.innerHTML = `
+          <div class="editor-left">
+            <div class="mac-dots">
+              <span class="mac-dot red"></span>
+              <span class="mac-dot yellow"></span>
+              <span class="mac-dot green"></span>
+            </div>
+            <div class="editor-tab">
+              <span class="tab-icon">${iconSvg}</span>
+              <span class="tab-filename">${filename}</span>
+            </div>
+          </div>
+          <div class="copy-btn-wrapper">
+            <button class="copy-btn" onclick="copyCode(this)">
+              <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+              Copy
+            </button>
+            <span class="tooltip">Copied!</span>
+          </div>
+        `;
+        
+        const oldHeader = container.querySelector(".code-header");
+        if (oldHeader) oldHeader.remove();
+        container.insertBefore(header, container.firstChild);
+        
+        const lines = codeText.split("\n");
+        const codePre = container.querySelector("pre");
+        if (codePre) {
+          codePre.className = "code-content";
+          codePre.innerHTML = "";
+          
+          lines.forEach((lineText, lineIdx) => {
+            const lineDiv = document.createElement("div");
+            lineDiv.className = "code-line";
+            
+            const lineNum = document.createElement("span");
+            lineNum.className = "line-number";
+            lineNum.textContent = lineIdx + 1;
+            
+            const lineCode = document.createElement("span");
+            lineCode.className = "line-code";
+            lineCode.innerHTML = highlightSyntax(lineText, lang);
+            
+            lineDiv.appendChild(lineNum);
+            lineDiv.appendChild(lineCode);
+            codePre.appendChild(lineDiv);
+          });
+        }
+      });
+    }
+
+    function highlightSyntax(text, lang) {
+      let html = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+        
+      if (lang === "python" || lang === "java" || lang === "javascript") {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/(#.*|\/\/.*)$/g, '<span class="c-comment">$1</span>');
+        const keywords = ['import', 'from', 'def', 'if', 'else', 'with', 'as', 'print', 'list', 'return', 'in', 'class', 'public', 'private', 'static', 'void', 'new', 'const', 'let', 'var', 'function'];
+        keywords.forEach(kw => {
+          const regex = new RegExp(`\\b(${kw})\\b`, 'g');
+          html = html.replace(regex, '<span class="c-kw">$1</span>');
+        });
+        html = html.replace(/\b(\w+)(?=\()/g, '<span class="c-func">$1</span>');
+        html = html.replace(/\b(\d+)\b/g, '<span class="c-num">$1</span>');
+      } else if (lang === "shell" || lang === "sql") {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/(#.*)$/g, '<span class="c-comment">$1</span>');
+        const sqlKeywords = ['CREATE', 'TABLE', 'ALTER', 'DATABASE', 'SET', 'OPTIONS', 'PRIMARY', 'KEY', 'INTERLEAVE', 'IN', 'PARENT', 'ON', 'DELETE', 'CASCADE', 'INSERT', 'INTO', 'VALUES', 'SELECT', 'FROM', 'WHERE', 'DROP', 'UPDATE', 'ROWS', 'DESCRIBE', 'RESTORE'];
+        sqlKeywords.forEach(kw => {
+          const regex = new RegExp(`\\b(${kw})\\b`, 'gi');
+          html = html.replace(regex, '<span class="c-kw">$1</span>');
+        });
+      }
+      return html;
     }
   </script>
 </body>

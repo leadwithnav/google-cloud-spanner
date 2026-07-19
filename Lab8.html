@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 8: Integrate applications with Google Cloud Spanner using Python, Go, and Node.js SDKs. Select your preferred language, configure the emulator connection, and execute database operations.">
-  <title>Cloud Spanner Lab: Multi-SDK Application Integration (Python, Go, Node.js)</title>
+  <meta name="description" content="Lab 7: Spring Boot & Spring Data Spanner Integration. Configure maven dependencies, application properties, entity mappings, repository interfaces, and REST API controllers.">
+  <title>Cloud Spanner Lab: Spring Boot & Spring Data Spanner Integration</title>
   
   <!-- Typography & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -396,6 +396,15 @@
       border-radius: 2px;
     }
 
+    h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
     p {
       font-size: 1rem;
       color: var(--text-secondary);
@@ -406,6 +415,17 @@
     strong {
       color: var(--text-primary);
       font-weight: 600;
+    }
+
+    ul {
+      margin-left: 24px;
+      margin-bottom: 20px;
+      color: var(--text-secondary);
+    }
+
+    li {
+      margin-bottom: 6px;
+      line-height: 1.6;
     }
 
     /* Callout Boxes */
@@ -467,6 +487,7 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+      margin-left: 0;
     }
 
     .task-checkbox-container {
@@ -631,56 +652,7 @@
     .c-kw { color: #f472b6; font-weight: 600; }
     .c-val { color: #38bdf8; }
     .c-str { color: #34d399; }
-    .c-var { color: #fb7185; }
     .c-prompt { color: #a78bfa; user-select: none; }
-
-    /* Tab Layout inside content */
-    .tabs-wrapper {
-      margin: 24px 0;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      overflow: hidden;
-      background-color: var(--bg-secondary);
-    }
-
-    .tabs-header {
-      display: flex;
-      background-color: rgba(255, 255, 255, 0.02);
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .tab-btn {
-      padding: 14px 20px;
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      font-family: var(--font-sans);
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: all 0.2s ease;
-    }
-
-    .tab-btn:hover {
-      color: var(--text-primary);
-      background-color: rgba(255, 255, 255, 0.01);
-    }
-
-    .tab-btn.active {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-      background-color: rgba(var(--accent-rgb), 0.03);
-    }
-
-    .tab-content {
-      padding: 24px;
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
 
     /* Page Navigation Footer */
     .page-navigation {
@@ -1167,35 +1139,35 @@
             <span class="step-number">2</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Project Setup</span>
+          <span>Java / Spring Stack</span>
         </li>
         <li class="step-item" data-step="2">
           <span class="step-indicator">
             <span class="step-number">3</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Boilerplate Connection</span>
+          <span>Project Maven Setup</span>
         </li>
         <li class="step-item" data-step="3">
           <span class="step-indicator">
             <span class="step-number">4</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Writing Mutations</span>
+          <span>App Properties Setup</span>
         </li>
         <li class="step-item" data-step="4">
           <span class="step-indicator">
             <span class="step-number">5</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>SQL Query Execution</span>
+          <span>Map Entity & Repo</span>
         </li>
         <li class="step-item" data-step="5">
           <span class="step-indicator">
             <span class="step-number">6</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Transactions Management</span>
+          <span>Create REST API Controller</span>
         </li>
         <li class="step-item" data-step="6">
           <span class="step-indicator">
@@ -1215,11 +1187,9 @@
       
       <div class="sidebar-footer">
         <button class="theme-toggle-btn" id="themeToggleBtn">
-          <!-- Light Mode Icon -->
           <svg class="theme-toggle-icon" id="themeSunIcon" style="display:none;" viewBox="0 0 24 24">
             <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.01c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
           </svg>
-          <!-- Dark Mode Icon -->
           <svg class="theme-toggle-icon" id="themeMoonIcon" viewBox="0 0 24 24">
             <path d="M12.3 22h-.1c-5.5 0-10-4.5-10-10 0-4.8 3.5-8.9 8.2-9.8.6-.1 1.2.3 1.3.9.1.6-.3 1.2-.9 1.3-3.7.7-6.5 3.9-6.5 7.7 0 4.4 3.6 8 8 8 3.8 0 7-2.8 7.7-6.5.1-.6.7-1 1.3-.9.6.1 1 .7.9 1.3-.9 4.7-5 8.2-9.9 8.2z"/>
           </svg>
@@ -1235,60 +1205,44 @@
       <header class="top-navbar">
         <div class="lab-badge">
           <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>
-          Lab 8: Application Integration
+          Lab 7: Spring Boot & Spanner
         </div>
         <div class="lab-meta">
           <div class="meta-item">
             <svg class="meta-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-            <span>Estimated Duration: <strong>50 mins</strong></span>
+            <span>Estimated Duration: <strong>45 mins</strong></span>
           </div>
           <div class="meta-item">
             <svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            <span>Difficulty: <strong>Advanced</strong></span>
+            <span>Difficulty: <strong>Intermediate</strong></span>
           </div>
         </div>
       </header>
 
       <!-- STEP 1: Overview -->
       <section class="content-panel active" id="panel-0">
-        <h1>Lab 8: Application Integration with Spanner</h1>
-        <p class="subtitle">Learn how to connect console applications to a Google Cloud Spanner instance and perform programmatic reads, writes, and transaction routines.</p>
+        <h1>Spring Boot & Spring Data Spanner Integration</h1>
+        <p class="subtitle">Welcome! In this hands-on lab, you will learn how to integrate Java applications with Cloud Spanner using Spring Boot and Spring Data Spanner, maps tables to Java classes, and configure session pools.</p>
+        
+        <h2>The Integration Stack</h2>
+        <p>Developing enterprise microservices with Cloud Spanner is simplified by using the Spring Boot framework. Let's look at the component hierarchy of this stack:</p>
 
-        <h2>Introduction</h2>
-        <p>In preceding labs, you provisioned a Cloud Spanner instance and database, updated DDL schemas, and analyzed queries using command-line tools. In this hands-on lab, you will transition to writing application code using the official client libraries.</p>
-        <p>Google Cloud Spanner client SDKs handle the complex aspects of cloud databases for you, including: session pool management, high-performance gRPC connection pooling, automated query routing to splits, transaction retry logic for aborted operations, and emulator detection.</p>
-
-        <h2>Core Objectives</h2>
-        <div class="concept-grid">
-          <div class="concept-card">
-            <div class="concept-title">
-              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-              1. Local Emulator Routing
-            </div>
-            <div class="concept-desc">Configure the application SDK client to bypass real GCP authentication and route all gRPC calls directly to the local emulator container.</div>
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">Integration Stack Hierarchy</span>
           </div>
-          <div class="concept-card">
-            <div class="concept-title">
-              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2c-5.52 0-10 4.48-10 10s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zm1 15h-2v-6h2v6zm0-8h-2v-2h2v2z"/></svg>
-              2. Mutations vs. DML
-            </div>
-            <div class="concept-desc">Understand when to utilize the high-speed Mutation API for database edits versus traditional SQL DML commands.</div>
-          </div>
-          <div class="concept-card">
-            <div class="concept-title">
-              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
-              3. Read-Write Transactions
-            </div>
-            <div class="concept-desc">Write robust transactions that coordinate read dependencies and perform consistent modifications while automatically handling transaction aborts.</div>
-          </div>
-          <div class="concept-card">
-            <div class="concept-title">
-              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-11v6h2v-6h-2zm0-4v2h2V7h-2z"/></svg>
-              4. Language Options
-            </div>
-            <div class="concept-desc">Work in the language of your choice: Python, Go, or Node.js. Select your SDK and toggle step instructions interactively.</div>
-          </div>
+          <pre class="code-content"><code>      Spring Boot Application (Runtime & Web Rest Controller)
+                 │
+      Spring Data Spanner (Repository Mapping abstractions)
+                 │
+      Google Cloud Spanner Java Client (Native Under-the-Hood SDK)
+                 │
+      Session Pool (Local HTTP/2 gRPC Channel Manager)
+                 │
+      Cloud Spanner (Target Database Instance)</code></pre>
         </div>
+
+        <p>Spring Data Spanner acts as a mapping layer on top of the native **Google Cloud Spanner Java Client**. This client manages the **Session Pool** to coordinate transactions and queries. The configuration parameters we set in Spring Boot properties are mapped directly down to the session pool configuration class of the native client library.</p>
 
         <ul class="task-checklist">
           <li class="task-checkbox-container" data-task-id="t0_1">
@@ -1296,177 +1250,37 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Acknowledge Lab Objectives</span>
-              <span class="task-desc">I understand the targets of this lab and am ready to write Spanner client code.</span>
+              <span class="task-label">Analyze integration components</span>
+              <span class="task-desc">Review the structural delegation from Rest Controllers down to gRPC session pools.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 2: Project Setup -->
+      <!-- STEP 2: Java / Spring Stack Concept -->
       <section class="content-panel" id="panel-1">
-        <h1>Step 1: Project Setup & Package Installation</h1>
-        <p>Before coding, initialize your workspace folder, install the official Google Cloud Spanner client library, and configure the necessary environment variable for emulator redirect.</p>
+        <h1>Understanding Component Roles</h1>
+        <p>Let's examine the role of each layer in this integration:</p>
 
-        <div class="callout callout-warning">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">SDK Choice Selection</div>
-            <div class="callout-content">Use the selector below to toggle instructions for your chosen language. The same language should be selected for the subsequent steps.</div>
-          </div>
-        </div>
-
-        <!-- Tab Selector Component -->
-        <div class="tabs-wrapper">
-          <div class="tabs-header">
-            <button class="tab-btn active" data-tab-group="lang" data-tab="py1">Python</button>
-            <button class="tab-btn" data-tab-group="lang" data-tab="go1">Go</button>
-            <button class="tab-btn" data-tab-group="lang" data-tab="node1">Node.js</button>
-          </div>
-
-          <!-- Python Tab Content -->
-          <div class="tab-content active" id="tab-py1" data-tab-group="lang">
-            <p>1. Create and change into a new project directory:</p>
-            <div class="code-block-container shell">
-              <div class="code-header">
-                <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code>mkdir spanner-python-app
-cd spanner-python-app</code></pre>
+        <div class="concept-grid">
+          <div class="concept-card">
+            <div class="concept-title">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 16H6v-2h5v2zm0-4H6v-2h5v2zm0-4H6V8h5v2zm0-4H6V4h5v2z"/></svg>
+              Spring Data Spanner
             </div>
-
-            <p>2. Initialize a virtual environment and install the <code>google-cloud-spanner</code> library:</p>
-            <div class="code-block-container shell">
-              <div class="code-header">
-                <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-comment"># Create virtual environment</span>
-python -m venv venv
-
-<span class="c-comment"># Activate virtual environment (Windows)</span>
-.\venv\Scripts\activate
-
-<span class="c-comment"># Activate virtual environment (macOS/Linux)</span>
-source venv/bin/activate
-
-<span class="c-comment"># Install Cloud Spanner Client Library</span>
-pip install google-cloud-spanner</code></pre>
+            <div class="concept-desc">
+              Maps database tables directly to Java objects using annotations (like <code>@Table</code>, <code>@PrimaryKey</code>). Provides CRUD repositories so developers can execute basic database operations without writing custom SQL.
             </div>
           </div>
-
-          <!-- Go Tab Content -->
-          <div class="tab-content" id="tab-go1" data-tab-group="lang">
-            <p>1. Create and change into a new project directory:</p>
-            <div class="code-block-container shell">
-              <div class="code-header">
-                <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code>mkdir spanner-go-app
-cd spanner-go-app</code></pre>
+          <div class="concept-card">
+            <div class="concept-title">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              Google Cloud Java Client
             </div>
-
-            <p>2. Initialize a Go module and fetch the Cloud Spanner Go client:</p>
-            <div class="code-block-container shell">
-              <div class="code-header">
-                <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-comment"># Initialize module</span>
-go mod init spanner-go-app
-
-<span class="c-comment"># Get the Spanner client package</span>
-go get cloud.google.com/go/spanner</code></pre>
+            <div class="concept-desc">
+              The underlying low-level Google Cloud SDK. It establishes HTTP/2 connections, handles authentication, routes gRPC requests to Spanner splits, and maintains the database session pool.
             </div>
           </div>
-
-          <!-- Node.js Tab Content -->
-          <div class="tab-content" id="tab-node1" data-tab-group="lang">
-            <p>1. Create and change into a new project directory:</p>
-            <div class="code-block-container shell">
-              <div class="code-header">
-                <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code>mkdir spanner-nodejs-app
-cd spanner-nodejs-app</code></pre>
-            </div>
-
-            <p>2. Initialize npm package descriptor and install the Node.js SDK module:</p>
-            <div class="code-block-container shell">
-              <div class="code-header">
-                <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-comment"># Create default package.json</span>
-npm init -y
-
-<span class="c-comment"># Install official Google Cloud Spanner client</span>
-npm install @google-cloud/spanner</code></pre>
-            </div>
-          </div>
-        </div>
-
-        <h2>Configure Emulator Environment Variables</h2>
-        <p>The standard way to instruct client SDKs to redirect traffic from standard Google Cloud production endpoints to your local running emulator container is using the <code>SPANNER_EMULATOR_HOST</code> environment variable. Ensure this is set in your current console session:</p>
-
-        <div class="code-block-container shell">
-          <div class="code-header">
-            <span class="code-lang-badge">Terminal (OS Specific Settings)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
-          </div>
-          <pre class="code-content"><code><span class="c-comment"># PowerShell (Windows)</span>
-$env:SPANNER_EMULATOR_HOST="localhost:9010"
-
-<span class="c-comment"># Windows Command Prompt (CMD)</span>
-set SPANNER_EMULATOR_HOST=localhost:9010
-
-<span class="c-comment"># Linux / macOS Shell</span>
-export SPANNER_EMULATOR_HOST=localhost:9010</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1475,152 +1289,57 @@ export SPANNER_EMULATOR_HOST=localhost:9010</code></pre>
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Project Folders & SDK Installed</span>
-              <span class="task-desc">Create your app directory and execute the appropriate package manager installation command.</span>
-            </div>
-          </li>
-          <li class="task-checkbox-container" data-task-id="t1_2">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Emulator Host Configured</span>
-              <span class="task-desc">Set the SPANNER_EMULATOR_HOST environment variable to direct calls to localhost:9010.</span>
+              <span class="task-label">Differentiate framework vs native layers</span>
+              <span class="task-desc">Understand how Spring Data delegates low-level connection management to the Google Cloud Java client.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 3: Boilerplate Connection -->
+      <!-- STEP 3: Project Maven Setup -->
       <section class="content-panel" id="panel-2">
-        <h1>Step 2: Boilerplate Client Connection</h1>
-        <p>In this step, establish the connection client instance. We target project ID <code>emulator-project</code>, instance ID <code>test-instance</code>, and database ID <code>test-database</code> (matching resources provisioned in Lab 1).</p>
+        <h1>Step 1: Project Maven Setup</h1>
+        <p>To integrate Spring with Spanner, we include the Spring Cloud GCP starter dependency in our project configuration.</p>
 
-        <div class="tabs-wrapper">
-          <div class="tabs-header">
-            <button class="tab-btn active" data-tab-group="lang" data-tab="py2">Python</button>
-            <button class="tab-btn" data-tab-group="lang" data-tab="go2">Go</button>
-            <button class="tab-btn" data-tab-group="lang" data-tab="node2">Node.js</button>
-          </div>
+        <h2>Add Starter Dependencies</h2>
+        <p>Add the following Bill-of-Materials (BOM) management and starter dependency definitions to your <code>pom.xml</code> file:</p>
 
-          <!-- Python Tab Content -->
-          <div class="tab-content active" id="tab-py2" data-tab-group="lang">
-            <p>Create a file named <code>main.py</code> and add the following connection boilerplate code:</p>
-            <div class="code-block-container">
-              <div class="code-header">
-                <span class="code-lang-badge">main.py</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-kw">import</span> os
-<span class="c-kw">from</span> google.cloud <span class="c-kw">import</span> spanner
-
-<span class="c-comment"># Ensure emulator host is set in application scope</span>
-os.environ.setdefault(<span class="c-str">"SPANNER_EMULATOR_HOST"</span>, <span class="c-str">"localhost:9010"</span>)
-
-<span class="c-kw">def</span> <span class="c-var">main</span>():
-    <span class="c-comment"># Instantiate Spanner Client</span>
-    client = spanner.Client(project=<span class="c-str">"emulator-project"</span>)
-    
-    <span class="c-comment"># Retrieve handles to Instance and Database</span>
-    instance = client.instance(<span class="c-str">"test-instance"</span>)
-    database = instance.database(<span class="c-str">"test-database"</span>)
-
-    print(<span class="c-str">"Successfully connected to Cloud Spanner!"</span>)
-
-<span class="c-kw">if</span> __name__ == <span class="c-str">"__main__"</span>:
-    main()</code></pre>
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">pom.xml</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
             </div>
           </div>
+          <pre class="code-content"><code>&lt;!-- Dependency Management for Spring Cloud GCP --&gt;
+&lt;dependencyManagement&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.google.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-gcp-dependencies&lt;/artifactId&gt;
+            &lt;version&gt;4.8.0&lt;/version&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+            &lt;scope&gt;import&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/dependencyManagement&gt;
 
-          <!-- Go Tab Content -->
-          <div class="tab-content" id="tab-go2" data-tab-group="lang">
-            <p>Create a file named <code>main.go</code> and add the following connection boilerplate code:</p>
-            <div class="code-block-container">
-              <div class="code-header">
-                <span class="code-lang-badge">main.go</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-kw">package</span> main
-
-<span class="c-kw">import</span> (
-	<span class="c-str">"context"</span>
-	<span class="c-str">"fmt"</span>
-	<span class="c-str">"log"</span>
-	<span class="c-str">"os"</span>
-
-	<span class="c-str">"cloud.google.com/go/spanner"</span>
-)
-
-<span class="c-kw">func</span> main() {
-	ctx := context.Background()
-
-	<span class="c-comment">// Explicitly set emulator environment fallback</span>
-	<span class="c-kw">if</span> os.Getenv(<span class="c-str">"SPANNER_EMULATOR_HOST"</span>) == <span class="c-str">""</span> {
-		os.Setenv(<span class="c-str">"SPANNER_EMULATOR_HOST"</span>, <span class="c-str">"localhost:9010"</span>)
-	}
-
-	<span class="c-comment">// Format connection string URI: projects/{project}/instances/{instance}/databases/{db}</span>
-	dbPath := <span class="c-str">"projects/emulator-project/instances/test-instance/databases/test-database"</span>
-	
-	<span class="c-comment">// Initialize Client</span>
-	client, err := spanner.NewClient(ctx, dbPath)
-	<span class="c-kw">if</span> err != nil {
-		log.Fatalf(<span class="c-str">"Failed to create Spanner client: %v"</span>, err)
-	}
-	<span class="c-kw">defer</span> client.Close()
-
-	fmt.Println(<span class="c-str">"Successfully connected to Cloud Spanner!"</span>)
-}</code></pre>
-            </div>
-          </div>
-
-          <!-- Node.js Tab Content -->
-          <div class="tab-content" id="tab-node2" data-tab-group="lang">
-            <p>Create a file named <code>index.js</code> and add the following connection boilerplate code:</p>
-            <div class="code-block-container">
-              <div class="code-header">
-                <span class="code-lang-badge">index.js</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-kw">const</span> { Spanner } = require(<span class="c-str">'@google-cloud/spanner'</span>);
-
-<span class="c-comment">// Default emulator routing</span>
-process.env.SPANNER_EMULATOR_HOST = process.env.SPANNER_EMULATOR_HOST || <span class="c-str">'localhost:9010'</span>;
-
-<span class="c-kw">async</span> <span class="c-kw">function</span> <span class="c-var">main</span>() {
-  <span class="c-comment">// Instantiate Spanner module targeting emulator project</span>
-  <span class="c-kw">const spannerClient = <span class="c-kw">new</span> Spanner({ projectId: <span class="c-str">'emulator-project'</span> });
-  
-  <span class="c-comment">// Get db and instance representations</span>
-  <span class="c-kw">const</span> instance = spannerClient.instance(<span class="c-str">'test-instance'</span>);
-  <span class="c-kw">const</span> database = instance.database(<span class="c-str">'test-database'</span>);
-
-  console.log(<span class="c-str">"Successfully connected to Cloud Spanner!"</span>);
-  
-  <span class="c-kw">await</span> database.close();
-}
-
-main().catch(console.error);</code></pre>
-            </div>
-          </div>
+&lt;dependencies&gt;
+    &lt;!-- Spanner Spring Boot Starter --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.google.cloud&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-cloud-gcp-starter-data-spanner&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;!-- Spring Boot Web Starter --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1629,156 +1348,45 @@ main().catch(console.error);</code></pre>
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Boilerplate Connection Established</span>
-              <span class="task-desc">Write the file containing connection variables and verify execution reports success message.</span>
+              <span class="task-label">Configure pom.xml dependencies</span>
+              <span class="task-desc">Verify that the GCP starter for Spanner is configured in the Maven build.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 4: Writing Mutations -->
+      <!-- STEP 4: App Properties Setup -->
       <section class="content-panel" id="panel-3">
-        <h1>Step 3: Programmatic Writes using Mutations</h1>
-        <p>In Cloud Spanner, there are two primary APIs for modifying database state: <strong>Mutations</strong> and <strong>DML (Data Manipulation Language)</strong> statements.</p>
+        <h1>Step 2: Configuring Database & Session Pools</h1>
+        <p>Configure database connection details and session pool configurations in your Spring Boot application properties file.</p>
 
-        <div class="callout callout-info">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">Deep Dive: Mutations vs DML</div>
-            <div class="callout-content">
-              <strong>Mutations</strong> bypass the server-side SQL compiler and parser entirely. They write values directly to storage partition splits, which makes them faster and more lightweight. However, you cannot read mutations in-flight inside the same transaction before a commit. 
-              <br><strong>DML</strong> statements (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>) run via the SQL compilation engine and can participate interactively inside a transaction, allowing you to read database rows that were modified earlier in the transaction block.
+        <h2>Configure application.properties</h2>
+        <p>Add these configuration keys to your <code>src/main/resources/application.properties</code> file. These settings direct Spring to connect to your local Spanner emulator and configure connection pool limits:</p>
+
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">application.properties</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
             </div>
           </div>
-        </div>
+          <pre class="code-content"><code># Google Cloud Spanner Target Setup
+spring.cloud.gcp.spanner.project-id=test-project
+spring.cloud.gcp.spanner.instance-id=test-instance
+spring.cloud.gcp.spanner.database=test-database
 
-        <p>In this step, we use the highly optimized Mutation API to write data into the interleaved <code>TradingAccounts</code> and <code>Trades</code> tables.</p>
+# Emulator override (routes queries to the emulator on port 9010)
+spring.cloud.gcp.spanner.emulator-host=localhost:9010
 
-        <div class="tabs-wrapper">
-          <div class="tabs-header">
-            <button class="tab-btn active" data-tab-group="lang" data-tab="py3">Python</button>
-            <button class="tab-btn" data-tab-group="lang" data-tab="go3">Go</button>
-            <button class="tab-btn" data-tab-group="lang" data-tab="node3">Node.js</button>
-          </div>
-
-          <!-- Python Tab Content -->
-          <div class="tab-content active" id="tab-py3" data-tab-group="lang">
-            <p>Append this helper function to your code and invoke it inside <code>main()</code>:</p>
-            <div class="code-block-container">
-              <div class="code-header">
-                <span class="code-lang-badge">main.py (Additions)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-kw">def</span> <span class="c-var">write_mutations</span>(database):
-    <span class="c-comment"># Mutations are applied atomically in a batch</span>
-    <span class="c-kw">with</span> database.batch() <span class="c-kw">as</span> batch:
-        <span class="c-comment"># Write to parent table</span>
-        batch.insert_or_update(
-            table=<span class="c-str">"TradingAccounts"</span>,
-            columns=(<span class="c-str">"AccountId"</span>, <span class="c-str">"AccountName"</span>, <span class="c-str">"FirmName"</span>),
-            values=[
-                (1, <span class="c-str">"CME_MAIN_ACC"</span>, <span class="c-str">"CME Group Client Services"</span>),
-                (2, <span class="c-str">"CME_RISK_ACC"</span>, <span class="c-str">"Clearing Risk Management"</span>),
-                (3, <span class="c-str">"CME_TEST_ACC"</span>, <span class="c-str">"API SandBox Firm"</span>),
-            ],
-        )
-        
-        <span class="c-comment"># Write to interleaved child table</span>
-        batch.insert_or_update(
-            table=<span class="c-str">"Trades"</span>,
-            columns=(<span class="c-str">"AccountId"</span>, <span class="c-str">"TradeId"</span>, <span class="c-str">"ProductSymbol"</span>, <span class="c-str">"NotionalValue"</span>),
-            values=[
-                (1, 1, <span class="c-str">"ESU6 (E-mini S&P 500 Futures)"</span>, 5000000),
-                (1, 2, <span class="c-str">"CLU6 (Crude Oil Futures)"</span>, 2500000),
-                (2, 1, <span class="c-str">"GCU6 (Gold Futures)"</span>, 3500000),
-            ],
-        )
-    print(<span class="c-str">"Inserted rows using Mutations successfully!"</span>)</code></pre>
-            </div>
-          </div>
-
-          <!-- Go Tab Content -->
-          <div class="tab-content" id="tab-go3" data-tab-group="lang">
-            <p>Create a helper function in <code>main.go</code> and invoke it from <code>main()</code>:</p>
-            <div class="code-block-container">
-              <div class="code-header">
-                <span class="code-lang-badge">main.go (Additions)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-kw">func</span> writeMutations(ctx context.Context, client *spanner.Client) error {
-	accountCols := []string{<span class="c-str">"AccountId"</span>, <span class="c-str">"AccountName"</span>, <span class="c-str">"FirmName"</span>}
-	tradeCols := []string{<span class="c-str">"AccountId"</span>, <span class="c-str">"TradeId"</span>, <span class="c-str">"ProductSymbol"</span>, <span class="c-str">"NotionalValue"</span>}
-
-	mutations := []*spanner.Mutation{
-		<span class="c-comment">// Insert or Update parent records</span>
-		spanner.InsertOrUpdate(<span class="c-str">"TradingAccounts"</span>, accountCols, []interface{}{1, <span class="c-str">"CME_MAIN_ACC"</span>, <span class="c-str">"CME Group Client Services"</span>}),
-		spanner.InsertOrUpdate(<span class="c-str">"TradingAccounts"</span>, accountCols, []interface{}{2, <span class="c-str">"CME_RISK_ACC"</span>, <span class="c-str">"Clearing Risk Management"</span>}),
-		spanner.InsertOrUpdate(<span class="c-str">"TradingAccounts"</span>, accountCols, []interface{}{3, <span class="c-str">"CME_TEST_ACC"</span>, <span class="c-str">"API SandBox Firm"</span>}),
-		
-		<span class="c-comment">// Insert or Update interleaved child records</span>
-		spanner.InsertOrUpdate(<span class="c-str">"Trades"</span>, tradeCols, []interface{}{1, 1, <span class="c-str">"ESU6 (E-mini S&P 500 Futures)"</span>, 5000000}),
-		spanner.InsertOrUpdate(<span class="c-str">"Trades"</span>, tradeCols, []interface{}{1, 2, <span class="c-str">"CLU6 (Crude Oil Futures)"</span>, 2500000}),
-		spanner.InsertOrUpdate(<span class="c-str">"Trades"</span>, tradeCols, []interface{}{2, 1, <span class="c-str">"GCU6 (Gold Futures)"</span>, 3500000}),
-	}
-
-	<span class="c-comment">// Apply mutations batch atomically</span>
-	_, err := client.Apply(ctx, mutations)
-	<span class="c-kw">if</span> err == nil {
-		fmt.Println(<span class="c-str">"Inserted rows using Mutations successfully!"</span>)
-	}
-	<span class="c-kw">return</span> err
-}</code></pre>
-            </div>
-          </div>
-
-          <!-- Node.js Tab Content -->
-          <div class="tab-content" id="tab-node3" data-tab-group="lang">
-            <p>Add a helper function in <code>index.js</code> and invoke it from <code>main()</code>:</p>
-            <div class="code-block-container">
-              <div class="code-header">
-                <span class="code-lang-badge">index.js (Additions)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-kw">async</span> <span class="c-kw">function</span> <span class="c-var">writeMutations</span>(database) {
-  <span class="c-kw">const</span> accountsTable = database.table(<span class="c-str">'TradingAccounts'</span>);
-  <span class="c-kw">const</span> tradesTable = database.table(<span class="c-str">'Trades'</span>);
-
-  <span class="c-comment">// Write parent mutations</span>
-  <span class="c-kw">await</span> accountsTable.insert([
-    { AccountId: <span class="c-str">'1'</span>, AccountName: <span class="c-str">'CME_MAIN_ACC'</span>, FirmName: <span class="c-str">'CME Group Client Services'</span> },
-    { AccountId: <span class="c-str">'2'</span>, AccountName: <span class="c-str">'CME_RISK_ACC'</span>, FirmName: <span class="c-str">'Clearing Risk Management'</span> },
-    { AccountId: <span class="c-str">'3'</span>, AccountName: <span class="c-str">'CME_TEST_ACC'</span>, FirmName: <span class="c-str">'API SandBox Firm'</span> }
-  ]);
-
-  <span class="c-comment">// Write child mutations</span>
-  <span class="c-kw">await</span> tradesTable.insert([
-    { AccountId: <span class="c-str">'1'</span>, TradeId: <span class="c-str">'1'</span>, ProductSymbol: <span class="c-str">'ESU6 (E-mini S&P 500 Futures)'</span>, NotionalValue: <span class="c-str">'5000000'</span> },
-    { AccountId: <span class="c-str">'1'</span>, TradeId: <span class="c-str">'2'</span>, ProductSymbol: <span class="c-str">'CLU6 (Crude Oil Futures)'</span>, NotionalValue: <span class="c-str">'2500000'</span> },
-    { AccountId: <span class="c-str">'2'</span>, TradeId: <span class="c-str">'1'</span>, ProductSymbol: <span class="c-str">'GCU6 (Gold Futures)'</span>, NotionalValue: <span class="c-str">'3500000'</span> }
-  ]);
-
-  console.log(<span class="c-str">'Inserted rows using Mutations successfully!'</span>);
-}</code></pre>
-            </div>
-          </div>
+# Session Pool Configurations (mapped down to the Java client library)
+spring.cloud.gcp.spanner.session-pool.min-sessions=50
+spring.cloud.gcp.spanner.session-pool.max-sessions=200
+spring.cloud.gcp.spanner.session-pool.write-fraction=0.25
+spring.cloud.gcp.spanner.session-pool.keep-alive-interval-minutes=20</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1787,136 +1395,99 @@ main().catch(console.error);</code></pre>
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Mutation Logic Formulated</span>
-              <span class="task-desc">Implement TradingAccount and Trade records inside the mutation batch arrays.</span>
-            </div>
-          </li>
-          <li class="task-checkbox-container" data-task-id="t3_2">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Mutations Applied and Verified</span>
-              <span class="task-desc">Execute the application to verify that the mutation batches compile and apply without database errors.</span>
+              <span class="task-label">Configure application properties</span>
+              <span class="task-desc">Verify that the database parameters, emulator host, and session pool limits are configured.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 5: SQL Reads & Queries -->
+      <!-- STEP 5: Map Entity & Repo -->
       <section class="content-panel" id="panel-4">
-        <h1>Step 4: Executing Queries using SQL</h1>
-        <p>Cloud Spanner supports standard ANSI relational SQL queries. When performing queries, you should use parameterized values instead of string interpolation to prevent SQL injection vulnerabilities and maximize cache reuse for query execution plans.</p>
+        <h1>Step 3: Creating Entities & Repositories</h1>
+        <p>Spring Data Spanner maps tables to Java classes using annotations, and handles database operations using repository interfaces.</p>
 
-        <div class="tabs-wrapper">
-          <div class="tabs-header">
-            <button class="tab-btn active" data-tab-group="lang" data-tab="py4">Python</button>
-            <button class="tab-btn" data-tab-group="lang" data-tab="go4">Go</button>
-            <button class="tab-btn" data-tab-group="lang" data-tab="node4">Node.js</button>
-          </div>
+        <h2>1. Define the Entity Class</h2>
+        <p>Create a class named <code>Customer.java</code> and map it to your database schema using Spring Data annotations:</p>
 
-          <!-- Python Tab Content -->
-          <div class="tab-content active" id="tab-py4" data-tab-group="lang">
-            <p>Define a query helper function in <code>main.py</code>:</p>
-            <div class="code-block-container">
-              <div class="code-header">
-                <span class="code-lang-badge">main.py (Additions)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-kw">def</span> <span class="c-var">query_data</span>(database):
-    <span class="c-comment"># Queries are executed in read-only snapshots to ensure strong consistency</span>
-    <span class="c-kw">with</span> database.snapshot() <span class="c-kw">as</span> snapshot:
-        query = <span class="c-str">"SELECT AccountId, AccountName, FirmName FROM TradingAccounts ORDER BY AccountId"</span>
-        results = snapshot.execute_sql(query)
-        
-        print(<span class="c-str">"\nQuery Results (TradingAccounts):"</span>)
-        <span class="c-kw">for</span> row <span class="c-kw">in</span> results:
-            print(f<span class="c-str">"ID: {row[0]}, Name: {row[1]} (Firm: {row[2]})"</span>)</code></pre>
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">Customer.java</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
             </div>
           </div>
+          <pre class="code-content"><code>package com.example.spanner.model;
 
-          <!-- Go Tab Content -->
-          <div class="tab-content" id="tab-go4" data-tab-group="lang">
-            <p>Define a query helper function in <code>main.go</code>:</p>
-            <div class="code-block-container">
-              <div class="code-header">
-                <span class="code-lang-badge">main.go (Additions)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-kw">import</span> <span class="c-str">"google.golang.org/api/iterator"</span> <span class="c-comment">// Add to imports</span>
- 
-<span class="c-kw">func</span> queryData(ctx context.Context, client *spanner.Client) error {
-	stmt := spanner.Statement{SQL: <span class="c-str">"SELECT AccountId, AccountName, FirmName FROM TradingAccounts ORDER BY AccountId"</span>}
-	
-	<span class="c-comment">// Open read-only transaction snapshot</span>
-	iter := client.Single().Query(ctx, stmt)
-	<span class="c-kw">defer</span> iter.Stop()
+import com.google.cloud.spring.data.spanner.core.mapping.Table;
+import com.google.cloud.spring.data.spanner.core.mapping.PrimaryKey;
+import com.google.cloud.spring.data.spanner.core.mapping.Column;
 
-	fmt.Println(<span class="c-str">"\nQuery Results (TradingAccounts):"</span>)
-	<span class="c-kw">for</span> {
-		row, err := iter.Next()
-		<span class="c-kw">if</span> err == iterator.Done {
-			<span class="c-kw">break</span>
-		}
-		<span class="c-kw">if</span> err != nil {
-			<span class="c-kw">return</span> err
-		}
-		
-		<span class="c-kw">var</span> id int64
-		<span class="c-kw">var</span> accountName, firmName string
-		<span class="c-kw">if</span> err := row.Columns(&id, &accountName, &firmName); err != nil {
-			<span class="c-kw">return</span> err
-		}
-		fmt.Printf(<span class="c-str">"ID: %d, Name: %s (Firm: %s)\n"</span>, id, accountName, firmName)
-	}
-	<span class="c-kw">return</span> nil
+@Table(name = "Customers")
+public class Customer {
+
+    @PrimaryKey
+    @Column(name = "CustomerId")
+    private Long customerId;
+
+    @Column(name = "Name")
+    private String name;
+
+    @Column(name = "Email")
+    private String email;
+
+    // Constructors
+    public Customer() {}
+    
+    public Customer(Long customerId, String name, String email) {
+        this.customerId = customerId;
+        this.name = name;
+        this.email = email;
+    }
+
+    // Getters and Setters
+    public Long getCustomerId() { return customerId; }
+    public void setCustomerId(Long customerId) { this.customerId = customerId; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 }</code></pre>
+        </div>
+
+        <h2>2. Declare the Repository Interface</h2>
+        <p>Create an interface named <code>CustomerRepository.java</code> extending <code>SpannerRepository</code>. This interface automatically provides standard CRUD methods (like <code>save()</code> and <code>findById()</code>) and generates custom query methods based on their signatures:</p>
+
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">CustomerRepository.java</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
             </div>
           </div>
+          <pre class="code-content"><code>package com.example.spanner.repository;
 
-          <!-- Node.js Tab Content -->
-          <div class="tab-content" id="tab-node4" data-tab-group="lang">
-            <p>Define a query helper function in <code>index.js</code>:</p>
-            <div class="code-block-container">
-              <div class="code-header">
-                <span class="code-lang-badge">index.js (Additions)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-kw">async</span> <span class="c-kw">function</span> <span class="c-var">queryData</span>(database) {
-  <span class="c-kw">const</span> query = {
-    sql: <span class="c-str">'SELECT AccountId, AccountName, FirmName FROM TradingAccounts ORDER BY AccountId'</span>
-  };
+import com.example.spanner.model.Customer;
+import com.google.cloud.spring.data.spanner.repository.SpannerRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
 
-  <span class="c-kw">const</span> [rows] = <span class="c-kw">await</span> database.run(query);
-  
-  console.log(<span class="c-str">'\nQuery Results (TradingAccounts):'</span>);
-  rows.forEach(row => {
-    <span class="c-kw">const</span> AccountId = row[0].value;
-    <span class="c-kw">const</span> AccountName = row[1].value;
-    <span class="c-kw">const</span> FirmName = row[2].value;
-    console.log(`ID: ${AccountId}, Name: ${AccountName} (Firm: ${FirmName})`);
-  });
+@Repository
+public interface CustomerRepository extends SpannerRepository&lt;Customer, Long&gt; {
+    
+    // Spring Data automatically generates the query logic based on this method name:
+    List&lt;Customer&gt; findByName(String name);
 }</code></pre>
-            </div>
-          </div>
         </div>
 
         <ul class="task-checklist">
@@ -1925,8 +1496,8 @@ main().catch(console.error);</code></pre>
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">SQL Query Formulated</span>
-              <span class="task-desc">Write the SQL SELECT statement targeting the TradingAccounts table columns.</span>
+              <span class="task-label">Implement Entity class</span>
+              <span class="task-desc">Verify that you mapped table names and column names correctly in the entity model.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t4_2">
@@ -1934,170 +1505,65 @@ main().catch(console.error);</code></pre>
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Query Executed and Printed</span>
-              <span class="task-desc">Verify that the printed results in terminal output match the mutated data.</span>
+              <span class="task-label">Implement Repository interface</span>
+              <span class="task-desc">Extend SpannerRepository and define custom search queries.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 6: Transactions Management -->
+      <!-- STEP 6: Create REST API Controller -->
       <section class="content-panel" id="panel-5">
-        <h1>Step 5: Managing Read-Write Transactions</h1>
-        <p>Cloud Spanner supports ACID transactions. To execute modifications securely, you must use a **Read-Write Transaction**. When writing client code, you specify a transaction callback function. The SDK client libraries handle the necessary pessimistic locks and automatically retry the entire block if a conflict forces a retry.</p>
+        <h1>Step 4: Exposing REST Endpoints</h1>
+        <p>Expose REST endpoints to perform write and read operations against the database.</p>
 
-        <div class="callout callout-info">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">Deep Dive: Auto-Retry Mechanism</div>
-            <div class="callout-content">Because Spanner runs transactions with pessimistic locks, lock conflicts on resource keys can trigger database abort signals. The transaction runner function is designed to catch these abort signals, release locks, reset resources, and transparently replay the callback function. <strong>Rule of thumb:</strong> never include non-idempotent code (like sending an email or charging a payment API) directly inside the transaction callback, as it might run multiple times.</div>
-          </div>
-        </div>
+        <h2>Create the Controller Class</h2>
+        <p>Create a class named <code>CustomerController.java</code> and wire in the repository:</p>
 
-        <p>In this step, we implement a transaction block that reads the current <code>NotionalValue</code> value for a specific trade, adds value size adjustment, and executes a database <code>UPDATE</code> using parameterized DML statements.</p>
-
-        <div class="tabs-wrapper">
-          <div class="tabs-header">
-            <button class="tab-btn active" data-tab-group="lang" data-tab="py5">Python</button>
-            <button class="tab-btn" data-tab-group="lang" data-tab="go5">Go</button>
-            <button class="tab-btn" data-tab-group="lang" data-tab="node5">Node.js</button>
-          </div>
-
-          <!-- Python Tab Content -->
-          <div class="tab-content active" id="tab-py5" data-tab-group="lang">
-            <p>Implement the transaction callback function in <code>main.py</code>:</p>
-            <div class="code-block-container">
-              <div class="code-header">
-                <span class="code-lang-badge">main.py (Additions)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-kw">def</span> <span class="c-var">run_transaction</span>(database):
-    <span class="c-comment"># Define callback task function</span>
-    <span class="c-kw">def</span> <span class="c-var">update_trade_value</span>(transaction):
-        <span class="c-comment"># 1. Fetch current NotionalValue inside transaction scope</span>
-        results = transaction.execute_sql(
-            <span class="c-str">"SELECT NotionalValue FROM Trades WHERE AccountId = 1 AND TradeId = 1"</span>
-        )
-        row = list(results)[0]
-        current_val = row[0]
-        
-        <span class="c-comment"># Compute adjustment</span>
-        new_val = current_val + 500000
-        
-        <span class="c-comment"># 2. Update database record using SQL DML</span>
-        transaction.execute_update(
-            <span class="c-str">"UPDATE Trades SET NotionalValue = @notional WHERE AccountId = 1 AND TradeId = 1"</span>,
-            params={<span class="c-str">"notional"</span>: new_val},
-            param_types={<span class="c-str">"notional"</span>: spanner.param_types.INT64}
-        )
-        print(f<span class="c-str">"Transaction complete! Updated NotionalValue from {current_val} to {new_val}"</span>)
-
-    <span class="c-comment"># Run callback through helper which wraps transaction block</span>
-    database.run_in_transaction(update_trade_value)</code></pre>
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">CustomerController.java</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
             </div>
           </div>
+          <pre class="code-content"><code>package com.example.spanner.controller;
 
-          <!-- Go Tab Content -->
-          <div class="tab-content" id="tab-go5" data-tab-group="lang">
-            <p>Implement the transaction callback function in <code>main.go</code>:</p>
-            <div class="code-block-container">
-              <div class="code-header">
-                <span class="code-lang-badge">main.go (Additions)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code><span class="c-kw">func runTransaction(ctx context.Context, client *spanner.Client) error {
-	_, err := client.ReadWriteTransaction(ctx, func(ctx context.Context, txn *spanner.ReadWriteTransaction) error {
-		// 1. Fetch current NotionalValue inside transaction
-		stmt := spanner.Statement{
-			SQL: "SELECT NotionalValue FROM Trades WHERE AccountId = 1 AND TradeId = 1",
-		}
-		iter := txn.Query(ctx, stmt)
-		defer iter.Stop()
+import com.example.spanner.model.Customer;
+import com.example.spanner.repository.CustomerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
-		row, err := iter.Next()
-		if err != nil {
-			return err
-		}
+@RestController
+@RequestMapping("/customers")
+public class CustomerController {
 
-		var currentVal int64
-		if err := row.Column(0, &currentVal); err != nil {
-			return err
-		}
-		newVal := currentVal + 500000
+    @Autowired
+    private CustomerRepository customerRepository;
 
-		// 2. Update value using database DML statement
-		updateStmt := spanner.Statement{
-			SQL: "UPDATE Trades SET NotionalValue = @notional WHERE AccountId = 1 AND TradeId = 1",
-			Params: map[string]interface{}{
-				"notional": newVal,
-			},
-		}
-		_, err = txn.Update(ctx, updateStmt)
-		if err != nil {
-			return err
-		}
+    @PostMapping
+    public String saveCustomer(@RequestBody Customer customer) {
+        // Saves the entity to Spanner. 
+        // Under the hood, this borrows a write-prepared session from the pool.
+        customerRepository.save(customer);
+        return "Customer successfully saved!";
+    }
 
-		fmt.Printf("Transaction complete! Updated NotionalValue from %d to %d\n", currentVal, newVal)
-		return nil
-	})
-	return err
-}</span></code></pre>
-            </div>
-          </div>
+    @GetMapping("/{id}")
+    public Customer getCustomer(@PathVariable Long id) {
+        return customerRepository.findById(id).orElse(null);
+    }
 
-          <!-- Node.js Tab Content -->
-          <div class="tab-content" id="tab-node5" data-tab-group="lang">
-            <p>Implement the transaction callback function in <code>index.js</code>:</p>
-            <div class="code-block-container">
-              <div class="code-header">
-                <span class="code-lang-badge">index.js (Additions)</span>
-                <div class="copy-btn-wrapper">
-                  <button class="copy-btn" onclick="copyCode(this)">
-                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                    Copy
-                  </button>
-                  <span class="tooltip">Copied!</span>
-                </div>
-              </div>
-              <pre class="code-content"><code>async function runTransaction(database) {
-  await database.runTransactionAsync(async (transaction) => {
-    // 1. Fetch current NotionalValue inside transaction scope
-    const [rows] = await transaction.run({
-      sql: 'SELECT NotionalValue FROM Trades WHERE AccountId = 1 AND TradeId = 1'
-    });
-
-    const currentVal = parseInt(rows[0][0].value);
-    const newVal = currentVal + 500000;
-
-    // 2. Perform value update using database DML statement
-    await transaction.runUpdate({
-      sql: 'UPDATE Trades SET NotionalValue = @notional WHERE AccountId = 1 AND TradeId = 1',
-      params: {
-        notional: newVal
-      },
-      types: {
-        notional: 'int64'
-      }
-    });
-
-    console.log(`Transaction complete! Updated NotionalValue from ${currentVal} to ${newVal}`);
-    await transaction.commit();
-  });
+    @GetMapping("/search")
+    public List&lt;Customer&gt; getCustomersByName(@RequestParam String name) {
+        return customerRepository.findByName(name);
+    }
 }</code></pre>
-            </div>
-          </div>
         </div>
 
         <ul class="task-checklist">
@@ -2106,43 +1572,34 @@ main().catch(console.error);</code></pre>
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Transaction Callback Created</span>
-              <span class="task-desc">Define the transaction block function executing the select query and update DML.</span>
-            </div>
-          </li>
-          <li class="task-checkbox-container" data-task-id="t5_2">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Transaction Executed and Validated</span>
-              <span class="task-desc">Verify that the code executes successfully and logs the updated budget details.</span>
+              <span class="task-label">Implement REST Controller</span>
+              <span class="task-desc">Inject the repository and expose GET/POST mapping endpoints.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 7: Knowledge Check -->
+      <!-- STEP 7: Quiz / Knowledge Check -->
       <section class="content-panel" id="panel-6">
-        <h1>Step 6: Knowledge Check</h1>
-        <p class="subtitle">Validate your understanding of Cloud Spanner Application Client library integration and transaction patterns.</p>
+        <h1>Step 5: Knowledge Check</h1>
+        <p>Complete this quick self-check to evaluate your understanding of Spring Boot & Spanner SDK architectures.</p>
 
         <div class="quiz-container">
           <!-- Question 1 -->
           <div class="quiz-card" data-question-id="q1">
-            <div class="quiz-question">1. What is the standard configuration parameter name used by all official Spanner SDKs to redirect traffic to the local emulator container?</div>
+            <div class="quiz-question">1. Which interface does your custom data access interface extend to get CRUD operations in Spring Data Spanner?</div>
             <div class="quiz-options">
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. GOOGLE_APPLICATION_CREDENTIALS
+                A. CrudRepository
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                B. SPANNER_EMULATOR_PORT
+                B. SpannerConnection
               </button>
               <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                C. SPANNER_EMULATOR_HOST
+                C. SpannerRepository
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. GOOGLE_CLOUD_SPANNER_ENDPOINT
+                D. JpaRepository
               </button>
             </div>
             <div class="quiz-feedback"></div>
@@ -2150,19 +1607,19 @@ main().catch(console.error);</code></pre>
 
           <!-- Question 2 -->
           <div class="quiz-card" data-question-id="q2">
-            <div class="quiz-question">2. How do Mutations differ from DML (Data Manipulation Language) statements in Cloud Spanner?</div>
+            <div class="quiz-question">2. How are custom session pool limits mapped to Spanner in a Spring Boot application?</div>
             <div class="quiz-options">
               <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                A. Mutations bypass the SQL compiler, writing values directly to splits, but cannot be read in-flight before commit.
+                A. By declaring properties under the 'spring.cloud.gcp.spanner.session-pool' namespace.
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                B. Mutations require active database roles (FGAC) to execute, while DML is bypass-enabled.
+                B. By running a gcloud CLI command before starting the application.
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                C. DML statements are optimized for schema modification updates, whereas Mutations modify values.
+                C. By configuring the Docker database container environment variables.
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. Mutations are limited to single-row updates, whereas DML operates across parent-child structures.
+                D. Using custom annotations on Entity classes.
               </button>
             </div>
             <div class="quiz-feedback"></div>
@@ -2170,19 +1627,19 @@ main().catch(console.error);</code></pre>
 
           <!-- Question 3 -->
           <div class="quiz-card" data-question-id="q3">
-            <div class="quiz-question">3. Why should you avoid putting non-idempotent operations (such as sending notification webhooks) inside transaction callbacks?</div>
+            <div class="quiz-question">3. Which layer in this integration stack is directly responsible for establishing connections and maintaining the session pool?</div>
             <div class="quiz-options">
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. Non-idempotent operations cause physical split lock conflicts in parent tables.
+                A. Spring Boot Starter
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                B. Spring Data Repository abstraction
               </button>
               <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                B. The transaction executor handles abort lock conflicts by transparently replaying the callback, causing non-idempotent operations to execute multiple times.
+                C. Google Cloud Spanner Java Client
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                C. Official SDK clients abort execution if they discover standard network activity inside the transaction runner scope.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. Spanner transactions only support SQL queries, block allocations, and array parsing structures.
+                D. Spanner REST API Router
               </button>
             </div>
             <div class="quiz-feedback"></div>
@@ -2196,7 +1653,7 @@ main().catch(console.error);</code></pre>
             </div>
             <div class="task-content">
               <span class="task-label">Complete all quiz questions</span>
-              <span class="task-desc">Select the correct answer to all three multiple-choice questions to unlock the certificate screen.</span>
+              <span class="task-desc">Answer all three multiple-choice questions correctly to unlock the certificate screen.</span>
             </div>
           </li>
         </ul>
@@ -2221,21 +1678,22 @@ main().catch(console.error);</code></pre>
           <div class="cert-input-card">
             <div class="input-group">
               <label for="studentName">Enter Your Name</label>
-              <input type="text" id="studentName" class="cert-name-input" placeholder="e.g. Jane Doe" value="Google Cloud Builder">
+              <input type="text" id="studentName" class="cert-name-input" placeholder="e.g. Jane Doe" value="Google Cloud Java Developer">
             </div>
             <button class="generate-cert-btn" onclick="drawCertificate()">Generate Certificate</button>
           </div>
-          
+
+          <!-- Canvas element -->
           <canvas id="certificateCanvas" width="800" height="560"></canvas>
-          
+
           <div class="cert-actions" id="certActions">
-            <a href="#" id="downloadBtn" class="cert-btn cert-btn-download" download="Spanner_Multi_SDK_Certificate.png">
-              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+            <a href="#" id="downloadBtn" class="cert-btn cert-btn-download" download="Cloud_Spanner_Lab7_Certificate.png">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
               Download PNG
             </a>
             <button onclick="window.print()" class="cert-btn cert-btn-print">
-              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
-              Print Certificate
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+              Print Lab Guide
             </button>
           </div>
         </div>
@@ -2264,11 +1722,11 @@ main().catch(console.error);</code></pre>
     // Checklist configuration
     const taskStatus = {
       t0_1: false,
-      t1_1: false, t1_2: false,
+      t1_1: false,
       t2_1: false,
-      t3_1: false, t3_2: false,
+      t3_1: false,
       t4_1: false, t4_2: false,
-      t5_1: false, t5_2: false,
+      t5_1: false,
       t6_1: false
     };
 
@@ -2282,7 +1740,6 @@ main().catch(console.error);</code></pre>
     // Initialize Page
     document.addEventListener("DOMContentLoaded", () => {
       setupChecklistListeners();
-      setupTabListeners();
       setupTheme();
       updateProgress();
     });
@@ -2320,7 +1777,6 @@ main().catch(console.error);</code></pre>
     function showStep(stepIndex) {
       if (stepIndex < 0 || stepIndex >= totalSteps) return;
       
-      // Update UI active states
       document.querySelector(`.content-panel.active`).classList.remove("active");
       document.getElementById(`panel-${stepIndex}`).classList.add("active");
       
@@ -2329,7 +1785,6 @@ main().catch(console.error);</code></pre>
       
       currentStep = stepIndex;
       
-      // Footer Button configurations
       document.getElementById("prevBtn").disabled = (currentStep === 0);
       
       const nextBtn = document.getElementById("nextBtn");
@@ -2339,7 +1794,6 @@ main().catch(console.error);</code></pre>
         nextBtn.style.display = "flex";
       }
 
-      // Scroll top
       document.querySelector(".main-wrapper").scrollTop = 0;
     }
 
@@ -2350,7 +1804,7 @@ main().catch(console.error);</code></pre>
     // Checklist Logic
     function setupChecklistListeners() {
       document.querySelectorAll(".task-checkbox-container").forEach(container => {
-        container.addEventListener("click", (e) => {
+        container.addEventListener("click", () => {
           const taskId = container.getAttribute("data-task-id");
           const isChecked = container.classList.toggle("checked");
           taskStatus[taskId] = isChecked;
@@ -2370,45 +1824,14 @@ main().catch(console.error);</code></pre>
       document.getElementById("progressPercent").textContent = `${progressPercent}%`;
       
       markStepCompletion("t0_1", 0);
-      markStepCompletion("t1_1", 1, ["t1_1", "t1_2"]);
+      markStepCompletion("t1_1", 1, ["t1_1"]);
       markStepCompletion("t2_1", 2, ["t2_1"]);
-      markStepCompletion("t3_1", 3, ["t3_1", "t3_2"]);
+      markStepCompletion("t3_1", 3, ["t3_1"]);
       markStepCompletion("t4_1", 4, ["t4_1", "t4_2"]);
-      markStepCompletion("t5_1", 5, ["t5_1", "t5_2"]);
+      markStepCompletion("t5_1", 5, ["t5_1"]);
       markStepCompletion("t6_1", 6, ["t6_1"]);
       
       checkCertificateUnlock();
-    }
-
-    // Tab Synchronizer across steps
-    function setupTabListeners() {
-      document.querySelectorAll(".tab-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const group = btn.getAttribute("data-tab-group");
-          const targetTab = btn.getAttribute("data-tab");
-          
-          // Extrapolate 'py', 'go', or 'node' from target ID
-          const langId = targetTab.replace(/[0-9]/g, ''); 
-          
-          document.querySelectorAll(`.tab-btn`).forEach(b => {
-            const bLang = b.getAttribute("data-tab").replace(/[0-9]/g, '');
-            if (bLang === langId) {
-              b.classList.add("active");
-            } else {
-              b.classList.remove("active");
-            }
-          });
-
-          document.querySelectorAll(`.tab-content`).forEach(c => {
-            const cLang = c.getAttribute("id").replace("tab-", "").replace(/[0-9]/g, '');
-            if (cLang === langId) {
-              c.classList.add("active");
-            } else {
-              c.classList.remove("active");
-            }
-          });
-        });
-      });
     }
 
     function markStepCompletion(triggerKey, stepIdx, requiredKeys = [triggerKey]) {
@@ -2469,16 +1892,16 @@ main().catch(console.error);</code></pre>
         feedback.className = "quiz-feedback show correct";
         
         const explanations = {
-          q1: "Correct! The environment variable SPANNER_EMULATOR_HOST sets the target host and port endpoint redirects for all Spanner SDK client instances.",
-          q2: "Correct! Mutations compile and parse faster by bypassing SQL compilation, but their changes cannot be read sequentially inside same transactions.",
-          q3: "Correct! The automatic retry executor catches lock conflicts, rollbacks resources, and replays the callback from the beginning."
+          q1: "Correct! Your custom repository interface extends SpannerRepository to automatically inherit CRUD functionality and search patterns.",
+          q2: "Correct! Session pool properties are configured under the standard 'spring.cloud.gcp.spanner.session-pool' property namespace.",
+          q3: "Correct! Under the hood, Spring Data Spanner delegates connection creation, session management, and gRPC transactions to the Google Cloud Spanner Java Client library."
         };
         feedback.textContent = explanations[questionId];
         quizResults[questionId] = true;
       } else {
         optionBtn.classList.add("incorrect");
         feedback.className = "quiz-feedback show incorrect";
-        feedback.textContent = "Incorrect. Think about Spanner client architecture characteristics and retry patterns.";
+        feedback.textContent = "Incorrect. Review the Spring Data Spanner mapping structure.";
         quizResults[questionId] = false;
       }
       
@@ -2489,7 +1912,7 @@ main().catch(console.error);</code></pre>
     function drawCertificate() {
       const canvas = document.getElementById("certificateCanvas");
       const ctx = canvas.getContext("2d");
-      const name = document.getElementById("studentName").value.trim() || "Google Cloud Spanner Developer";
+      const name = document.getElementById("studentName").value.trim() || "Google Cloud Java Developer";
       
       canvas.style.display = "block";
       ctx.clearRect(0, 0, 800, 560);
@@ -2563,7 +1986,7 @@ main().catch(console.error);</code></pre>
       
       ctx.fillStyle = "#ffffff";
       ctx.font = "600 18px 'Outfit', 'Inter', sans-serif";
-      ctx.fillText("Cloud Spanner: Programmatic Multi-SDK Connection & Integration", 400, 375);
+      ctx.fillText("Cloud Spanner: Spring Boot & Spring Data Spanner Integration", 400, 375);
       
       const dateStr = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
       ctx.fillStyle = "#64748b";
@@ -2571,7 +1994,7 @@ main().catch(console.error);</code></pre>
       ctx.fillText(`Issued: ${dateStr}`, 400, 430);
       
       const randomId = Math.random().toString(36).substr(2, 9).toUpperCase();
-      ctx.fillText(`Verification ID: SPN-LAB8-${randomId}`, 400, 455);
+      ctx.fillText(`Verification ID: SPN-LAB7-${randomId}`, 400, 455);
       
       ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
       ctx.beginPath();
