@@ -1610,38 +1610,9 @@ gcloud spanner databases list --instance=test-instance</code></pre>
       <!-- STEP 5: Define Schema DDL -->
       <section class="content-panel" id="panel-4">
         <h1>Step 4: Defining the Schema (DDL)</h1>
-        <p>In Google Cloud Spanner, you use standard Data Definition Language (DDL) commands to create and edit tables. Spanner offers a unique architecture optimization feature called <strong>Table Interleaving</strong>.</p>
+        <p>In Google Cloud Spanner, you use standard Data Definition Language (DDL) commands to create and edit tables. Each table in Spanner must have a primary key specified to identify rows and guide spatial data distribution.</p>
 
-        <div class="callout callout-info">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">Deep Dive: Interleaved Tables</div>
-            <div class="callout-content">Interleaving sets up a parent-child relationship between tables in the physical storage layer. Spanner stores rows of the child table alongside corresponding rows of the parent table in the same hardware partition. This guarantees extremely fast joins because matching parent and child data reside in the same storage split!</div>
-          </div>
-        </div>
-
-        <h2>Designing the Schema</h2>
-        <p>We will create a parent table named <code>TradingAccounts</code> and an interleaved child table named <code>Trades</code>. Notice the primary key alignment and the <code>INTERLEAVE IN PARENT</code> clause (this block is for design reference; <strong>do not copy and paste this SQL directly into your terminal</strong>):</p>
-
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">SQL (Schema DDL - Reference Only)</span>
-          </div>
-          <pre class="code-content"><code><span class="c-kw">CREATE TABLE</span> TradingAccounts (
-  AccountId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
-  AccountName <span class="c-val">STRING</span>(1024),
-  FirmName <span class="c-val">STRING</span>(1024),
-  AccountInfo <span class="c-val">BYTES</span>(<span class="c-kw">MAX</span>),
-) <span class="c-kw">PRIMARY KEY</span> (AccountId);
-
-<span class="c-kw">CREATE TABLE</span> Trades (
-  AccountId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
-  TradeId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
-  ProductSymbol <span class="c-val">STRING</span>(<span class="c-kw">MAX</span>),
-  NotionalValue <span class="c-val">INT64</span>,
-) <span class="c-kw">PRIMARY KEY</span> (AccountId, TradeId),
-<span class="c-kw">INTERLEAVE IN PARENT</span> TradingAccounts <span class="c-kw">ON DELETE CASCADE</span>;</code></pre>
-        </div>
+        <p>We will create two independent simple tables: <code>TradingAccounts</code> (to store account profiles) and <code>Trades</code> (to store trade transactions).</p>
 
         <h2>Execute the DDL Command</h2>
         <p>Write the schema changes to your database instance using the <code>gcloud spanner databases ddl update</code> tool:</p>
@@ -1659,7 +1630,18 @@ gcloud spanner databases list --instance=test-instance</code></pre>
           </div>
           <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
   --instance=test-instance \
-  --ddl='CREATE TABLE TradingAccounts (AccountId INT64 NOT NULL, AccountName STRING(1024), FirmName STRING(1024), AccountInfo BYTES(MAX)) PRIMARY KEY (AccountId); CREATE TABLE Trades (AccountId INT64 NOT NULL, TradeId INT64 NOT NULL, ProductSymbol STRING(MAX), NotionalValue INT64) PRIMARY KEY (AccountId, TradeId), INTERLEAVE IN PARENT TradingAccounts ON DELETE CASCADE;'</code></pre>
+  --ddl='CREATE TABLE TradingAccounts (
+    AccountId INT64 NOT NULL,
+    AccountName STRING(1024),
+    FirmName STRING(1024),
+    AccountInfo BYTES(MAX)
+  ) PRIMARY KEY (AccountId);
+  CREATE TABLE Trades (
+    AccountId INT64 NOT NULL,
+    TradeId INT64 NOT NULL,
+    ProductSymbol STRING(MAX),
+    NotionalValue INT64
+  ) PRIMARY KEY (AccountId, TradeId);'</code></pre>
         </div>
 
         <h2>Check Schema Integrity</h2>
@@ -1686,8 +1668,8 @@ gcloud spanner databases list --instance=test-instance</code></pre>
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Understand Interleaved Primary Key layouts</span>
-              <span class="task-desc">Verify that the child primary key begins with the parent primary key (AccountId).</span>
+              <span class="task-label">Understand Primary Key layouts</span>
+              <span class="task-desc">Verify that each table specifies a primary key to guide data sharding.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t4_2">
@@ -1726,7 +1708,7 @@ gcloud spanner databases execute-sql test-database \
   --instance=test-instance \
   --sql="INSERT INTO TradingAccounts (AccountId, AccountName, FirmName) VALUES (1, 'CME_MAIN_ACC', 'CME Group Client Services')"
 
-<span class="c-comment"># Insert a matching record into the interleaved Trades table</span>
+<span class="c-comment"># Insert a record into the Trades table</span>
 gcloud spanner databases execute-sql test-database \
   --instance=test-instance \
   --sql="INSERT INTO Trades (AccountId, TradeId, ProductSymbol, NotionalValue) VALUES (1, 101, 'ESU6 (E-mini S&P 500 Futures)', 5000000)"</code></pre>
@@ -1752,7 +1734,7 @@ gcloud spanner databases execute-sql test-database \
         </div>
 
         <h2>3. Run a Query (SELECT)</h2>
-        <p>Run a cross-table SQL query using a join. Because the tables are interleaved, Spanner computes this join on co-located shards without expensive network operations:</p>
+        <p>Run a cross-table SQL query using a JOIN operation to fetch records from both tables:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1800,19 +1782,19 @@ gcloud spanner databases execute-sql test-database \
         <div class="quiz-container">
           <!-- Question 1 -->
           <div class="quiz-card" data-question-id="q1">
-            <div class="quiz-question">1. What is the primary performance benefit of interleaving tables in Google Cloud Spanner?</div>
+            <div class="quiz-question">1. How does Cloud Spanner uniquely identify each row in a table?</div>
             <div class="quiz-options">
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. It automatically copies child records to other global server locations.
+                A. Through automatic row indexing based on insertion order.
               </button>
               <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                B. It co-locates child rows with parent rows on the same physical splits, yielding fast local joins.
+                B. By using a primary key, which must be defined for every table.
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                C. It compresses the child rows to minimize disk space consumption.
+                C. Using a foreign key constraint linking to other tables.
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. It converts relational SQL code into unstructured NoSQL key-value datasets.
+                D. By assigning a random UUID automatically.
               </button>
             </div>
             <div class="quiz-feedback"></div>
@@ -2142,7 +2124,7 @@ gcloud spanner databases execute-sql test-database \
         feedback.className = "quiz-feedback show correct";
         
         const explanations = {
-          q1: "Correct! Table interleaving is a physical storage optimization in Spanner that groups rows of child tables physically alongside parent rows, avoiding cross-network hops for key joins.",
+          q1: "Correct! Every table in Cloud Spanner must have a primary key defined to uniquely identify each row and determine the physical distribution of data across splits.",
           q2: "Correct! Altering Spanner tables, columns, constraints, or indexing is schema-related, which falls under Data Definition Language (DDL) using the 'ddl update' command.",
           q3: "Correct! The endpoint override property tells gcloud CLI to direct database requests to your local emulator REST endpoint (localhost:9020) instead of standard Google Cloud APIs."
         };
