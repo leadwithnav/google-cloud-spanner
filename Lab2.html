@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 3: Refactoring Relational Schemas for Cloud Spanner. Learn how to optimize table structures using interleaving, secondary indexes, and STORING clauses.">
-  <title>Cloud Spanner Lab: Legacy Schema Refactoring & Index Optimization</title>
+  <meta name="description" content="Lab 3: Multi-Region Deployments & Point-in-Time Recovery. Learn how to configure multi-region configs, simulate logical failure, perform stale reads, and restore backups using PITR.">
+  <title>Cloud Spanner Lab: Multi-Region & Point-in-Time Recovery (PITR)</title>
   
   <!-- Typography & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
-    /* Design Tokens - Matching previous labs */
+    /* Design Tokens - Matching Labs 0 and 1 */
     :root {
       --bg-primary: #0b0f19;
       --bg-secondary: #131a2e;
@@ -1162,35 +1162,35 @@
             <span class="step-number">2</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Analyze Legacy Schema</span>
+          <span>Deploy Multi-Region</span>
         </li>
         <li class="step-item" data-step="2">
           <span class="step-indicator">
             <span class="step-number">3</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Refactor Tables</span>
+          <span>Enable PITR</span>
         </li>
         <li class="step-item" data-step="3">
           <span class="step-indicator">
             <span class="step-number">4</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Optimize Indexes</span>
+          <span>Simulate Data Failure</span>
         </li>
         <li class="step-item" data-step="4">
           <span class="step-indicator">
             <span class="step-number">5</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Deploy Schema</span>
+          <span>Execute Stale Reads</span>
         </li>
         <li class="step-item" data-step="5">
           <span class="step-indicator">
             <span class="step-number">6</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Verify performance</span>
+          <span>Recover Database</span>
         </li>
         <li class="step-item" data-step="6">
           <span class="step-indicator">
@@ -1227,47 +1227,54 @@
       <!-- Sticky Top Header -->
       <header class="top-navbar">
         <div class="lab-badge">
-          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0-2 .9-2-2V4c0-1.1-.9-2-2-2z"/></svg>
-          Lab 2: Schema Refactoring
+          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.53c-.26-.81-1-1.4-1.9-1.4h-1v-3c0-.55-.45-1-1-1h-6v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.4z"/></svg>
+          Lab 3: Multi-Region & Disaster Recovery
         </div>
         <div class="lab-meta">
           <div class="meta-item">
             <svg class="meta-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-            <span>Estimated Duration: <strong>30 mins</strong></span>
+            <span>Estimated Duration: <strong>50 mins</strong></span>
           </div>
           <div class="meta-item">
             <svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            <span>Difficulty: <strong>Intermediate</strong></span>
+            <span>Difficulty: <strong>Advanced</strong></span>
           </div>
         </div>
       </header>
 
       <!-- STEP 1: Overview -->
       <section class="content-panel active" id="panel-0">
-        <h1>Refactoring a Legacy Schema for Spanner</h1>
-        <p class="subtitle">Welcome! In this hands-on lab, you will learn how to refactor a traditional relational database schema into an optimized schema built for Google Cloud Spanner's distributed architecture.</p>
+        <h1>Deploying Multi-Region Instances & Point-in-Time Recovery</h1>
+        <p class="subtitle">Welcome! In this advanced lab, you will learn how to design disaster recovery models with Google Cloud Spanner. You will configure multi-region replica architectures and leverage Point-in-Time Recovery (PITR) to restore tables from logical data corruption.</p>
         
-        <h2>The Distributed Schema Challenge</h2>
-        <p>In a traditional relational database (like PostgreSQL or MySQL), you design schemas with normalized tables linked by foreign keys. In a single-instance database, joins across these tables are computationally cheap because all data resides on the same machine.</p>
-        <p>However, Spanner divides tables into chunks called <strong>splits</strong> and distributes them across multiple server nodes. In a naive schema, joining two tables (e.g. <code>Customers</code> and <code>Orders</code>) requires joining splits across different physical servers, which causes heavy network latency and slows down operations.</p>
+        <h2>High Availability in Spanner</h2>
+        <p>Google Cloud Spanner guarantees high availability by replicating data across multiple zones (in a single region) or multiple regions.
+        Regional outages are handled automatically by Spanner using dynamic synchronous replication and Paxos consensus routing. 
+        Even during a complete zone or regional failure, Spanner continues reading and writing transactions without manual failover commands, guaranteeing an industry-leading <strong>99.999% SLA</strong>.</p>
 
-        <div class="callout callout-info">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">The Spanner Optimization Strategy</div>
-            <div class="callout-content">To achieve maximum performance at scale in Spanner, you must design your schema to co-locate related data on the same physical split. We achieve this using <strong>Table Interleaving</strong> and covered secondary indexes (using the <strong>STORING</strong> clause).</div>
+        <h2>Outage Failure vs. Logical Failure</h2>
+        <p>It is critical to distinguish between infrastructure failures and operational failures:</p>
+
+        <div class="concept-grid">
+          <div class="concept-card">
+            <div class="concept-title" style="color: var(--warning)">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              Infrastructure Failures
+            </div>
+            <div class="concept-desc">Hardware crashes, power cuts, or fiber lines cut. Spanner routes transactions around failed hardware instantly via Paxos. <strong>Mitigated automatically.</strong></div>
+          </div>
+          
+          <div class="concept-card">
+            <div class="concept-title" style="color: var(--danger)">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              Logical Data Corruption
+            </div>
+            <div class="concept-desc">Accidental deletions, faulty applications writing garbage data, or malicious hacks. Because Spanner replicates immediately, the deleted data is wiped everywhere. <strong>Mitigated using PITR.</strong></div>
           </div>
         </div>
 
-        <h2>Lab Objectives</h2>
-        <p>In this lab, you will refactor a legacy database structure into an optimized Spanner design by doing the following:</p>
-        <ul>
-          <li>Analyze a legacy normalized schema containing <code>Customers</code>, <code>Orders</code>, and <code>OrderItems</code>.</li>
-          <li>Refactor the tables into a hierarchical, **interleaved structure**.</li>
-          <li>Design secondary indexes to handle query filtering.</li>
-          <li>Apply **Covered Indexes** (using the `STORING` option) to eliminate back-join latency.</li>
-          <li>Deploy the schema to your local emulator database and execute validation queries.</li>
-        </ul>
+        <h2>Point-in-Time Recovery (PITR)</h2>
+        <p>PITR allows you to query historical data in Spanner at a microsecond scale in the past. If a developer accidentally deletes a table's records, Spanner can restore or query the database as it existed *before* the deletion, up to a maximum retention period of <strong>7 days</strong>.</p>
 
         <ul class="task-checklist">
           <li class="task-checkbox-container" data-task-id="t0_1">
@@ -1275,21 +1282,24 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Understand the goals of the lab</span>
-              <span class="task-desc">Review why traditional normalized database schemas are suboptimal in distributed environments.</span>
+              <span class="task-label">Understand disaster recovery concepts</span>
+              <span class="task-desc">Review the difference between automatic Paxos failovers and logical data corruption recovery.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 2: Analyze Legacy Schema -->
+      <!-- STEP 2: Deploy Multi-Region -->
       <section class="content-panel" id="panel-1">
-        <h1>Step 1: Analyzing the Legacy Schema</h1>
-        <p>Let's study a typical e-commerce relational schema designed for a traditional single-instance database. Examine the SQL declarations below:</p>
+        <h1>Step 1: Deploying a Multi-Region Instance</h1>
+        <p>In production, you can choose between a single region (99.99% SLA) and a multi-region configuration (99.999% SLA). Multi-region setups involve multiple read-write replicas, read-only replicas, and witness nodes across geographically separated regional locations.</p>
 
-        <div class="code-block-container">
+        <h2>1. Explore Available Multi-Region Configurations</h2>
+        <p>You can list the regional profiles supported by Google Cloud. Run this command in your cloud shell terminal:</p>
+
+        <div class="code-block-container shell">
           <div class="code-header">
-            <span class="code-lang-badge">SQL (Legacy Normalized Schema)</span>
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1298,40 +1308,39 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code><span class="c-comment">-- Parent Customers table</span>
-<span class="c-kw">CREATE TABLE</span> Customers (
-  CustomerId <span class="c-val">INT</span> <span class="c-kw">PRIMARY KEY</span>,
-  Name <span class="c-val">VARCHAR</span>(255),
-  Email <span class="c-val">VARCHAR</span>(255),
-  Country <span class="c-val">VARCHAR</span>(100)
-);
+          <pre class="code-content"><code>gcloud spanner instance-configs list \
+  --filter="name:nam"</code></pre>
+        </div>
+        <p>This filters configuration templates like <code>nam3</code> (multi-region North America configuration containing regions Iowa, South Carolina, and Oregon) and <code>eur5</code> (multi-region Europe configuration).</p>
 
-<span class="c-comment">-- Orders table linked by foreign key</span>
-<span class="c-kw">CREATE TABLE</span> Orders (
-  OrderId <span class="c-val">INT</span> <span class="c-kw">PRIMARY KEY</span>,
-  CustomerId <span class="c-val">INT</span>,
-  OrderDate <span class="c-val">DATE</span>,
-  TotalAmount <span class="c-val">DECIMAL</span>(10, 2),
-  <span class="c-kw">FOREIGN KEY</span> (CustomerId) <span class="c-kw">REFERENCES</span> Customers(CustomerId)
-);
+        <h2>2. Deploy the Multi-Region Instance</h2>
+        <p>Create a production-grade instance named <code>multi-region-spanner</code> using the <code>nam3</code> configuration template:</p>
 
-<span class="c-comment">-- OrderItems table linked by foreign key to Orders</span>
-<span class="c-kw">CREATE TABLE</span> OrderItems (
-  OrderItemId <span class="c-val">INT</span> <span class="c-kw">PRIMARY KEY</span>,
-  OrderId <span class="c-val">INT</span>,
-  ProductId <span class="c-val">INT</span>,
-  Quantity <span class="c-val">INT</span>,
-  Price <span class="c-val">DECIMAL</span>(10, 2),
-  <span class="c-kw">FOREIGN KEY</span> (OrderId) <span class="c-kw">REFERENCES</span> Orders(OrderId)
-);</code></pre>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code><span class="c-comment"># Note: Running this command in production starts cloud billing costs</span>
+gcloud spanner instances create multi-region-spanner \
+  --config=nam3 \
+  --description="HA Multi-Region Production Instance" \
+  --nodes=1</code></pre>
         </div>
 
-        <h3>Why this underperforms on Spanner:</h3>
-        <ol>
-          <li><strong>Data Scattering</strong>: Rows for Customer `101`, their Orders, and their Order Items will likely be stored on different physical servers.</li>
-          <li><strong>Distributed Joins</strong>: Running a query to calculate order totals with customer information requires gathering rows from separate splits over the network, causing latency.</li>
-          <li><strong>Index Inefficiencies</strong>: Querying orders by `OrderDate` requires scanning the entire `Orders` table, or incurring distributed secondary index updates.</li>
-        </ol>
+        <div class="callout callout-info">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">Emulator Support Notice</div>
+            <div class="callout-content">Because the local Spanner emulator runs in-memory on port 9010, it replicates all database commands locally. For the remainder of this training lab, we will use our active <code>test-instance</code> on the local emulator.</div>
+          </div>
+        </div>
 
         <ul class="task-checklist">
           <li class="task-checkbox-container" data-task-id="t1_1">
@@ -1339,165 +1348,36 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Identify schema design pain points</span>
-              <span class="task-desc">Analyze how foreign key relationships partition data in a distributed network.</span>
+              <span class="task-label">Identify multi-region configuration templates</span>
+              <span class="task-desc">Review how configs like nam3 replicate write replicas and witness nodes across states.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t1_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Review deployment CLI syntax</span>
+              <span class="task-desc">Verify command arguments for deploying config templates under gcloud CLI.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 3: Refactor Tables -->
+      <!-- STEP 3: Configure PITR -->
       <section class="content-panel" id="panel-2">
-        <h1>Step 2: Refactoring with Table Interleaving</h1>
-        <p>To optimize the legacy schema, we will define a parent-child relationship in Spanner's storage configuration using the <strong>INTERLEAVE IN PARENT</strong> clause.</p>
+        <h1>Step 2: Configuring Version Retention (PITR)</h1>
+        <p>To recover data from a point in the past, Spanner must store database historical states. This is managed by setting the <code>version_retention_period</code> database option.</p>
 
-        <h2>Designing Interleaved Primary Keys</h2>
-        <p>For Spanner to co-locate child records, <strong>the Primary Key of the child table must start with the Primary Key of the parent table</strong>. Observe the structural mapping:</p>
+        <h2>Understanding Retention Periods</h2>
         <ul>
-          <li><strong>Customers</strong> (Root Parent): PK is <code>(CustomerId)</code></li>
-          <li><strong>Orders</strong> (Child of Customers): PK is <code>(CustomerId, OrderId)</code></li>
-          <li><strong>OrderItems</strong> (Grandchild / Child of Orders): PK is <code>(CustomerId, OrderId, OrderItemId)</code></li>
+          <li>By default, Spanner databases retain history for <strong>1 hour</strong>.</li>
+          <li>You can configure this retention window to be anywhere from <strong>1 hour</strong> up to <strong>7 days</strong>.</li>
+          <li>Longer retention periods consume more storage space for keeping older versions of updated or deleted rows.</li>
         </ul>
 
-        <div class="callout callout-warning">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">Primary Key Implication</div>
-            <div class="callout-content">Notice that <code>OrderId</code> alone is no longer the primary key of the Orders table. The compound key <code>(CustomerId, OrderId)</code> is required. If your application queries orders by <code>OrderId</code> without knowing the <code>CustomerId</code>, you will need a secondary index. We will design this index in the next step.</div>
-          </div>
-        </div>
-
-        <h2>The Refactored DDL</h2>
-        <p>Here is the refactored schema. Notice how the primary keys are configured and how the <code>INTERLEAVE</code> and <code>ON DELETE CASCADE</code> options are applied:</p>
-
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">SQL (Interleaved Schema DDL)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
-          </div>
-          <pre class="code-content"><code><span class="c-kw">CREATE TABLE</span> Customers (
-  CustomerId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
-  Name <span class="c-val">STRING</span>(255),
-  Email <span class="c-val">STRING</span>(255),
-  Country <span class="c-val">STRING</span>(100),
-) <span class="c-kw">PRIMARY KEY</span> (CustomerId);
-
-<span class="c-kw">CREATE TABLE</span> Orders (
-  CustomerId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
-  OrderId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
-  OrderDate <span class="c-val">DATE</span>,
-  TotalAmount <span class="c-val">NUMERIC</span>,
-) <span class="c-kw">PRIMARY KEY</span> (CustomerId, OrderId),
-<span class="c-kw">INTERLEAVE IN PARENT</span> Customers <span class="c-kw">ON DELETE CASCADE</span>;
-
-<span class="c-kw">CREATE TABLE</span> OrderItems (
-  CustomerId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
-  OrderId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
-  OrderItemId <span class="c-val">INT64</span> <span class="c-kw">NOT NULL</span>,
-  ProductId <span class="c-val">INT64</span>,
-  Quantity <span class="c-val">INT64</span>,
-  Price <span class="c-val">NUMERIC</span>,
-) <span class="c-kw">PRIMARY KEY</span> (CustomerId, OrderId, OrderItemId),
-<span class="c-kw">INTERLEAVE IN PARENT</span> Orders <span class="c-kw">ON DELETE CASCADE</span>;</code></pre>
-        </div>
-
-        <ul class="task-checklist">
-          <li class="task-checkbox-container" data-task-id="t2_1">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Design compound primary keys</span>
-              <span class="task-desc">Verify that child tables inherit the primary keys of parent tables.</span>
-            </div>
-          </li>
-          <li class="task-checkbox-container" data-task-id="t2_2">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Understand cascade behaviors</span>
-              <span class="task-desc">Verify how 'ON DELETE CASCADE' affects child records during deletion.</span>
-            </div>
-          </li>
-        </ul>
-      </section>
-
-      <!-- STEP 4: Optimize Indexes -->
-      <section class="content-panel" id="panel-3">
-        <h1>Step 3: Optimizing Indexes & covered columns</h1>
-        <p>In Spanner, secondary indexes are structured as tables behind the scenes. When you query using an index, Spanner searches the index table for the key, fetches the corresponding primary key, and then queries the primary table to get other requested columns. This second fetch is called a **back-join**.</p>
-
-        <div class="callout callout-info">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">Deep Dive: Covered Indexes with STORING</div>
-            <div class="callout-content">To prevent back-joins, you can duplicate columns from the main table directly into the index using the <code>STORING</code> clause. When a query requests stored columns, Spanner returns them directly from the index, eliminating the back-join entirely and improving read performance.</div>
-          </div>
-        </div>
-
-        <h2>Designing the Index</h2>
-        <p>We want to support two queries efficiently:</p>
-        <ol>
-          <li>Find all orders made on a specific date: <code>SELECT CustomerId, OrderId FROM Orders WHERE OrderDate = '2026-07-17'</code></li>
-          <li>Find total sales on a date without back-joining the main table: <code>SELECT CustomerId, TotalAmount FROM Orders WHERE OrderDate = '2026-07-17'</code></li>
-        </ol>
-        
-        <p>Let's write DDL statements to create these indexes:</p>
-
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">SQL (Index DDL)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
-          </div>
-          <pre class="code-content"><code><span class="c-comment">-- Standard index on OrderDate (creates back-joins for TotalAmount query)</span>
-<span class="c-kw">CREATE INDEX</span> OrdersByDate <span class="c-kw">ON</span> Orders(OrderDate);
-
-<span class="c-comment">-- Optimized covered index storing TotalAmount</span>
-<span class="c-kw">CREATE INDEX</span> OrdersByDateCovered <span class="c-kw">ON</span> Orders(OrderDate) <span class="c-kw">STORING</span> (TotalAmount);</code></pre>
-        </div>
-
-        <ul class="task-checklist">
-          <li class="task-checkbox-container" data-task-id="t3_1">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Analyze back-join latency</span>
-              <span class="task-desc">Verify how back-joins impact query speed in distributed clusters.</span>
-            </div>
-          </li>
-          <li class="task-checkbox-container" data-task-id="t3_2">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Incorporate STORING clauses</span>
-              <span class="task-desc">Determine which fields should be stored in the index based on common query patterns.</span>
-            </div>
-          </li>
-        </ul>
-      </section>
-
-      <!-- STEP 5: Deploy Schema -->
-      <section class="content-panel" id="panel-4">
-        <h1>Step 4: Deploying the Schema</h1>
-        <p>Now, let's deploy the refactored schema and indexes to our local database emulator using the <code>gcloud spanner databases ddl update</code> tool.</p>
-
-        <h2>Execute the DDL Update</h2>
-        <p>Run the following command in your terminal to create the tables and secondary indexes:</p>
+        <h2>Set the Retention Option (DDL)</h2>
+        <p>Run the following DDL command to configure <code>test-database</code> to keep historical records for <strong>3 days</strong>:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1512,11 +1392,11 @@
           </div>
           <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
   --instance=test-instance \
-  --ddl='CREATE TABLE Customers (CustomerId INT64 NOT NULL, Name STRING(255), Email STRING(255), Country STRING(100)) PRIMARY KEY (CustomerId); CREATE TABLE Orders (CustomerId INT64 NOT NULL, OrderId INT64 NOT NULL, OrderDate DATE, TotalAmount NUMERIC) PRIMARY KEY (CustomerId, OrderId), INTERLEAVE IN PARENT Customers ON DELETE CASCADE; CREATE TABLE OrderItems (CustomerId INT64 NOT NULL, OrderId INT64 NOT NULL, OrderItemId INT64 NOT NULL, ProductId INT64, Quantity INT64, Price NUMERIC) PRIMARY KEY (CustomerId, OrderId, OrderItemId), INTERLEAVE IN PARENT Orders ON DELETE CASCADE; CREATE INDEX OrdersByDate ON Orders(OrderDate); CREATE INDEX OrdersByDateCovered ON Orders(OrderDate) STORING (TotalAmount);'</code></pre>
+  --ddl="ALTER DATABASE \`test-database\` SET OPTIONS (version_retention_period = '3d')"</code></pre>
         </div>
 
-        <h2>Verify Schema Registration</h2>
-        <p>Verify that all tables and indexes are successfully registered in the database metadata:</p>
+        <h2>Verify Database Configuration Settings</h2>
+        <p>Verify that your database configuration options reflect the new 3-day history retention: </p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1529,8 +1409,170 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl describe test-database \
+          <pre class="code-content"><code>gcloud spanner databases describe test-database \
   --instance=test-instance</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t2_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Configure version retention via DDL</span>
+              <span class="task-desc">Set version_retention_period to '3d' in test-database.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t2_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Verify metadata settings</span>
+              <span class="task-desc">Inspect databases description to check the retention setting.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 4: Simulate Failure -->
+      <section class="content-panel" id="panel-3">
+        <h1>Step 3: Simulating a Data Failure</h1>
+        <p>To demonstrate recovery, we will write database records, document the exact timestamp of their existence, and then simulate logical data corruption by dropping all rows.</p>
+
+        <h2>1. Populate Records</h2>
+        <p>Ensure your <code>TradingAccounts</code> table contains clean test data. Run these commands:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="INSERT INTO TradingAccounts (AccountId, AccountName, FirmName) VALUES (10, 'John', 'Doe_Trading'), (11, 'Jane', 'Smith_Trading')"</code></pre>
+        </div>
+
+        <h2>2. Note the Current Timestamp</h2>
+        <p>In a real failure scenario, you need to know the timestamp of the database *before* the corruption occurred.
+        Retrieve the current system timestamp. Write down the result (e.g. <code>2026-07-17T13:05:00.123456Z</code>):</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="SELECT CURRENT_TIMESTAMP()"</code></pre>
+        </div>
+
+        <h2>3. Simulate Disaster / Deletion</h2>
+        <p>Now, run a destructive query that deletes all rows in the <code>TradingAccounts</code> table (a common user error!):</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="DELETE FROM TradingAccounts WHERE 1=1"</code></pre>
+        </div>
+
+        <h2>4. Verify Data is Gone</h2>
+        <p>Confirm that the table is now completely empty:</p>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="SELECT * FROM TradingAccounts"</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t3_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Document pre-outage timestamp</span>
+              <span class="task-desc">Run SELECT CURRENT_TIMESTAMP() and note the output time.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t3_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Run destructive DELETE command</span>
+              <span class="task-desc">Delete all records from TradingAccounts and verify table shows zero rows.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 5: Execute Stale Reads -->
+      <section class="content-panel" id="panel-4">
+        <h1>Step 4: Executing Stale Reads</h1>
+        <p>Because you configured a 3-day retention period, the deleted rows are not permanently purged. Spanner still retains the versions that existed at your noted timestamp. You can access this data using **Stale Reads**.</p>
+
+        <h2>Read-Only Transactions with Timestamps</h2>
+        <p>Spanner allows you to perform a query specifying a past target timestamp. The database executes the query using the snapshot matching that exact time.</p>
+
+        <h2>Query the Past</h2>
+        <p>Execute the select query, passing the timestamp you recorded in Step 3 into the <code>--read-timestamp</code> flag:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code><span class="c-comment"># Replace the timestamp below with the time you recorded in Step 3</span>
+gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --read-timestamp="2026-07-17T13:05:00.123456Z" \
+  --sql="SELECT * FROM TradingAccounts"</code></pre>
+        </div>
+
+        <div class="callout callout-success">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          <div>
+            <div class="callout-title">Success: Rows Returned!</div>
+            <div class="callout-content">Observe that the query returned your deleted trading accounts! The database read the state of the table before the deletion query occurred.</div>
+          </div>
         </div>
 
         <ul class="task-checklist">
@@ -1539,29 +1581,20 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Deploy the schema update</span>
-              <span class="task-desc">Deploy the refactored schema and indexes to the local emulator.</span>
-            </div>
-          </li>
-          <li class="task-checkbox-container" data-task-id="t4_2">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Verify table structure creation</span>
-              <span class="task-desc">Inspect metadata definitions to confirm indexes and interleaving properties are active.</span>
+              <span class="task-label">Execute query using --read-timestamp</span>
+              <span class="task-desc">Extract historical data from database version records.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 6: Verify Performance -->
+      <!-- STEP 6: Recover Database -->
       <section class="content-panel" id="panel-5">
-        <h1>Step 5: Verifying performance and local joins</h1>
-        <p>Let's insert sample records and examine how queries leverage table interleaving and stored indexes.</p>
+        <h1>Step 5: Restoring the Database (PITR Backup/Restore)</h1>
+        <p>While stale reads are excellent for ad-hoc queries, full disaster recovery requires restoring the entire database to a clean state. We accomplish this by creating a backup from a historical `version-time` and restoring it.</p>
 
-        <h2>1. Populate Sample Records</h2>
-        <p>Populate the database tables using DML statements:</p>
+        <h2>1. Create a Backup from the Past</h2>
+        <p>We will instruct Spanner to create a backup of <code>test-database</code>. Crucially, we supply the <code>--version-time</code> flag, which directs Spanner to take a snapshot of the database state as of our noted timestamp, rather than the current corrupt state:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1574,24 +1607,16 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code><span class="c-comment"># Insert Customer</span>
-gcloud spanner databases execute-sql test-database \
+          <pre class="code-content"><code><span class="c-comment"># Replace version-time with your recorded pre-outage timestamp</span>
+gcloud spanner backups create test-database-backup \
   --instance=test-instance \
-  --sql="INSERT INTO Customers (CustomerId, Name, Email, Country) VALUES (101, 'Alice Smith', 'alice@email.com', 'Germany')"
-
-<span class="c-comment"># Insert Interleaved Order</span>
-gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
-  --sql="INSERT INTO Orders (CustomerId, OrderId, OrderDate, TotalAmount) VALUES (101, 5001, '2026-07-17', 150.00)"
-
-<span class="c-comment"># Insert Interleaved Item</span>
-gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
-  --sql="INSERT INTO OrderItems (CustomerId, OrderId, OrderItemId, ProductId, Quantity, Price) VALUES (101, 5001, 1, 9901, 2, 75.00)"</code></pre>
+  --database=test-database \
+  --version-time="2026-07-17T13:05:00.123456Z" \
+  --retention-period=3d</code></pre>
         </div>
 
-        <h2>2. Run Co-located Join Query</h2>
-        <p>Run a query that joins Customers, Orders, and OrderItems. Because the schema is interleaved, Spanner can evaluate this join locally on a single server split without network hops:</p>
+        <h2>2. Restore the Backup to a New Database</h2>
+        <p>Now, restore the backup. We will restore it as a new database named <code>recovered-db</code>:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1604,13 +1629,15 @@ gcloud spanner databases execute-sql test-database \
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
-  --sql="SELECT c.Name, o.OrderId, o.OrderDate, i.ProductId, i.Quantity, i.Price FROM Customers c JOIN Orders o ON c.CustomerId = o.CustomerId JOIN OrderItems i ON o.CustomerId = i.CustomerId AND o.OrderId = i.OrderId WHERE c.CustomerId = 101"</code></pre>
+          <pre class="code-content"><code>gcloud spanner databases restore \
+  --destination-database=recovered-db \
+  --destination-instance=test-instance \
+  --backup=test-database-backup \
+  --backup-instance=test-instance</code></pre>
         </div>
 
-        <h2>3. Force the Covered Index</h2>
-        <p>Run a query targeting `OrderDate`. Use a query hint to force Spanner to run the query using our index. The database will return the `TotalAmount` directly from the index table without performing a back-join:</p>
+        <h2>3. Verify Recovery Results</h2>
+        <p>Query your new database to verify that the deleted rows have been successfully recovered:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1623,9 +1650,9 @@ gcloud spanner databases execute-sql test-database \
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+          <pre class="code-content"><code>gcloud spanner databases execute-sql recovered-db \
   --instance=test-instance \
-  --sql="SELECT CustomerId, TotalAmount FROM Orders@{FORCE_INDEX=OrdersByDateCovered} WHERE OrderDate = '2026-07-17'"</code></pre>
+  --sql="SELECT * FROM TradingAccounts"</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1634,8 +1661,8 @@ gcloud spanner databases execute-sql test-database \
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Insert sample records</span>
-              <span class="task-desc">Verify that data is correctly inserted into the interleaved database structure.</span>
+              <span class="task-label">Create a point-in-time backup</span>
+              <span class="task-desc">Generate backup using the --version-time flag pointing to the target state.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t5_2">
@@ -1643,8 +1670,8 @@ gcloud spanner databases execute-sql test-database \
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Test index performance</span>
-              <span class="task-desc">Verify that queries using stored index values return correctly.</span>
+              <span class="task-label">Restore database from backup</span>
+              <span class="task-desc">Deploy backup to 'recovered-db' and query TradingAccounts to verify data restoration.</span>
             </div>
           </li>
         </ul>
@@ -1653,24 +1680,24 @@ gcloud spanner databases execute-sql test-database \
       <!-- STEP 7: Quiz / Knowledge Check -->
       <section class="content-panel" id="panel-6">
         <h1>Step 6: Knowledge Check</h1>
-        <p>Complete this quick self-check to evaluate your understanding of Spanner schema refactoring and index optimization.</p>
+        <p>Complete this self-check to evaluate your understanding of Spanner multi-region availability and recovery architectures.</p>
 
         <div class="quiz-container">
           <!-- Question 1 -->
           <div class="quiz-card" data-question-id="q1">
-            <div class="quiz-question">1. In a child table interleaved inside a parent table, what is the requirement for the child table's primary key?</div>
+            <div class="quiz-question">1. How does Google Cloud Spanner guarantee high availability (99.999% SLA) during a zone outage?</div>
             <div class="quiz-options">
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. It must match the parent's primary key name exactly, with no additional columns.
+                A. By triggering a script to copy data folders manually.
               </button>
               <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                B. It must start with the parent table's primary key columns.
+                B. By using synchronous Paxos group replication across replicas to handle zone fails without data loss.
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                C. It cannot contain integers.
+                C. By reverting write commands to local client memory.
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. It must be generated using an autoincrement sequence.
+                D. By scaling node CPU capacities automatically.
               </button>
             </div>
             <div class="quiz-feedback"></div>
@@ -1678,19 +1705,19 @@ gcloud spanner databases execute-sql test-database \
 
           <!-- Question 2 -->
           <div class="quiz-card" data-question-id="q2">
-            <div class="quiz-question">2. What is a "back-join" in the context of secondary indexes in Spanner?</div>
+            <div class="quiz-question">2. What is the maximum version retention period supported by Google Cloud Spanner PITR?</div>
             <div class="quiz-options">
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                A. 24 hours
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                B. 3 days
+              </button>
               <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                A. An extra fetch from the primary table to get columns that are not stored in the index.
+                C. 7 days
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                B. A join that combines data in reverse alphabetical order.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                C. An error that occurs when an index table is split.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. A database process that rolls back uncommitted index modifications.
+                D. 30 days
               </button>
             </div>
             <div class="quiz-feedback"></div>
@@ -1698,19 +1725,19 @@ gcloud spanner databases execute-sql test-database \
 
           <!-- Question 3 -->
           <div class="quiz-card" data-question-id="q3">
-            <div class="quiz-question">3. How does the `STORING` clause optimize secondary index queries?</div>
+            <div class="quiz-question">3. Which parameter in `gcloud spanner backups create` establishes the target recovery time?</div>
             <div class="quiz-options">
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. It compresses the index to occupy less disk space.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                B. It automatically deletes older index entries.
+                A. --read-timestamp
               </button>
               <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                C. It stores copy columns directly in the index, allowing queries to avoid back-joins.
+                B. --version-time
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. It prevents the index table from split-routing.
+                C. --retention-period
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. --backup-time
               </button>
             </div>
             <div class="quiz-feedback"></div>
@@ -1724,7 +1751,7 @@ gcloud spanner databases execute-sql test-database \
             </div>
             <div class="task-content">
               <span class="task-label">Complete all quiz questions</span>
-              <span class="task-desc">Answer all three multiple-choice questions correctly to unlock the certificate screen.</span>
+              <span class="task-desc">Answer all three multiple-choice questions to unlock the certificate screen.</span>
             </div>
           </li>
         </ul>
@@ -1796,10 +1823,10 @@ gcloud spanner databases execute-sql test-database \
     // Checklist configuration
     const taskStatus = {
       t0_1: false,
-      t1_1: false,
+      t1_1: false, t1_2: false,
       t2_1: false, t2_2: false,
       t3_1: false, t3_2: false,
-      t4_1: false, t4_2: false,
+      t4_1: false,
       t5_1: false, t5_2: false,
       t6_1: false
     };
@@ -1889,7 +1916,6 @@ gcloud spanner databases execute-sql test-database \
       });
     }
 
-    // Update Overall progress
     function updateProgress() {
       const keys = Object.keys(taskStatus);
       const completedTasks = keys.filter(k => taskStatus[k]).length;
@@ -1899,10 +1925,10 @@ gcloud spanner databases execute-sql test-database \
       document.getElementById("progressPercent").textContent = `${progressPercent}%`;
       
       markStepCompletion("t0_1", 0);
-      markStepCompletion("t1_1", 1, ["t1_1"]);
+      markStepCompletion("t1_1", 1, ["t1_1", "t1_2"]);
       markStepCompletion("t2_1", 2, ["t2_1", "t2_2"]);
       markStepCompletion("t3_1", 3, ["t3_1", "t3_2"]);
-      markStepCompletion("t4_1", 4, ["t4_1", "t4_2"]);
+      markStepCompletion("t4_1", 4, ["t4_1"]);
       markStepCompletion("t5_1", 5, ["t5_1", "t5_2"]);
       markStepCompletion("t6_1", 6, ["t6_1"]);
       
@@ -2059,8 +2085,8 @@ gcloud spanner databases execute-sql test-database \
           const regex = new RegExp(`\\b(${kw})\\b`, 'g');
           html = html.replace(regex, '<span class="c-kw">$1</span>');
         });
-        html = html.replace(/\\b(\\w+)(?=\\()/g, '<span class="c-func">$1</span>');
-        html = html.replace(/\\b(\\d+)\\b/g, '<span class="c-num">$1</span>');
+        html = html.replace(/\b(\w+)(?=\()/g, '<span class="c-func">$1</span>');
+        html = html.replace(/\b(\d+)\b/g, '<span class="c-num">$1</span>');
       } else if (lang === "shell" || lang === "sql") {
         html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
         html = html.replace(/(#.*)$/g, '<span class="c-comment">$1</span>');
