@@ -742,6 +742,91 @@
       fill: currentColor;
     }
 
+    /* Challenge Elements */
+    .challenge-banner {
+      background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.15) 0%, rgba(var(--success-rgb), 0.05) 100%);
+      border: 1px solid rgba(var(--accent-rgb), 0.25);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .challenge-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%; right: -20%;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--accent-rgb), 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .challenge-banner-left { display: flex; align-items: center; gap: 16px; }
+    .challenge-badge-icon-container {
+      width: 48px; height: 48px;
+      background-color: rgba(var(--accent-rgb), 0.15);
+      border: 1px solid rgba(var(--accent-rgb), 0.3);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); flex-shrink: 0;
+    }
+    .challenge-badge-icon-container svg { width: 24px; height: 24px; fill: currentColor; }
+    .challenge-banner-title-area h1 { font-size: 1.45rem; margin-bottom: 4px; margin-top: 0; border-bottom: none; padding-bottom: 0; }
+    .challenge-banner-title-area p { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0; }
+    .challenge-cloud-graphics svg { width: 64px; height: 64px; color: rgba(var(--accent-rgb), 0.25); }
+    .challenge-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 24px; margin-top: 24px; }
+    .challenge-intro-box {
+      background-color: var(--bg-secondary); border: 1px solid var(--border-color);
+      border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; gap: 12px;
+    }
+    .challenge-intro-icon-container { color: var(--accent); flex-shrink: 0; }
+    .challenge-intro-icon-container svg { width: 20px; height: 20px; }
+    .challenge-intro-text { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0; line-height: 1.5; }
+    .challenge-section-title {
+      font-size: 0.95rem; font-weight: 700; color: var(--text-primary);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin: 0 0 16px 0; border: none; padding-left: 0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .challenge-section-title svg { width: 16px; height: 16px; }
+    .challenge-tasks-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .challenge-task-card {
+      background-color: var(--bg-secondary); border: 1px solid var(--border-color);
+      border-radius: 8px; padding: 16px; display: flex; gap: 16px; transition: all 0.2s ease;
+    }
+    .challenge-task-card:hover { border-color: var(--border-hover); }
+    .challenge-task-step-num { flex-shrink: 0; }
+    .challenge-task-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      background-color: var(--bg-tertiary); border: 1px solid var(--border-color);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 700; color: var(--accent);
+    }
+    .challenge-task-icon { color: var(--text-muted); flex-shrink: 0; margin-top: 4px; }
+    .challenge-task-icon svg { width: 18px; height: 18px; }
+    .challenge-task-content { display: flex; flex-direction: column; gap: 4px; }
+    .challenge-task-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .challenge-task-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; }
+    .challenge-sidebar { display: flex; flex-direction: column; gap: 16px; }
+    .sidebar-card { background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; }
+    .sidebar-card-header {
+      font-size: 0.85rem; font-weight: 700; color: var(--text-primary);
+      margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .sidebar-card-header svg { width: 16px; height: 16px; color: var(--accent); }
+    .sidebar-card-body { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 0; }
+    .use-case { border-left: 3px solid var(--success); }
+    .use-case .sidebar-card-header svg { color: var(--success); }
+    .goal-card { border-left: 3px solid var(--accent); }
+    .goal-card .sidebar-card-header svg { color: var(--accent); }
+    .pro-tip-card { border-left: 3px solid var(--warning); }
+    .pro-tip-card .sidebar-card-header svg { color: var(--warning); }
+    .schema-preview-card code { font-size: 0.75rem; color: #a9b2c3; }
+
     /* Quiz Panel Styling */
     .quiz-container {
       display: flex;
@@ -1197,11 +1282,25 @@
             <span class="step-number">7</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Knowledge Check</span>
+          <span>Hands-On Challenge</span>
         </li>
         <li class="step-item" data-step="7">
           <span class="step-indicator">
             <span class="step-number">8</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Challenge Solution</span>
+        </li>
+        <li class="step-item" data-step="8">
+          <span class="step-indicator">
+            <span class="step-number">9</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Knowledge Check</span>
+        </li>
+        <li class="step-item" data-step="9">
+          <span class="step-indicator">
+            <span class="step-number">10</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
           <span>Get Certificate</span>
@@ -1497,8 +1596,54 @@
         <p>Now, let's deploy the refactored schema and indexes to our local database emulator using the <code>gcloud spanner databases ddl update</code> tool.</p>
 
         <h2>Execute the DDL Update</h2>
-        <p>Run the following command in your terminal to create the tables and secondary indexes:</p>
+        <p>Create a <code>schema.ddl</code> file with the following DDL statements, then deploy it using the <code>gcloud spanner databases ddl update</code> command.</p>
 
+        <p><strong>Step 1 — Save DDL to file (<code>schema.ddl</code>):</strong></p>
+        <div class="code-block-container sql">
+          <div class="code-header">
+            <span class="code-lang-badge">SQL (schema.ddl)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>CREATE TABLE Customers (
+  CustomerId INT64 NOT NULL,
+  Name       STRING(255),
+  Email      STRING(255),
+  Country    STRING(100)
+) PRIMARY KEY (CustomerId);
+
+CREATE TABLE Orders (
+  CustomerId  INT64 NOT NULL,
+  OrderId     INT64 NOT NULL,
+  OrderDate   DATE,
+  TotalAmount NUMERIC
+) PRIMARY KEY (CustomerId, OrderId),
+  INTERLEAVE IN PARENT Customers ON DELETE CASCADE;
+
+CREATE TABLE OrderItems (
+  CustomerId  INT64 NOT NULL,
+  OrderId     INT64 NOT NULL,
+  OrderItemId INT64 NOT NULL,
+  ProductId   INT64,
+  Quantity    INT64,
+  Price       NUMERIC
+) PRIMARY KEY (CustomerId, OrderId, OrderItemId),
+  INTERLEAVE IN PARENT Orders ON DELETE CASCADE;
+
+CREATE INDEX OrdersByDate
+  ON Orders(OrderDate);
+
+CREATE INDEX OrdersByDateCovered
+  ON Orders(OrderDate)
+  STORING (TotalAmount);</code></pre>
+        </div>
+
+        <p><strong>Step 2 — Deploy the schema:</strong></p>
         <div class="code-block-container shell">
           <div class="code-header">
             <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
@@ -1511,8 +1656,8 @@
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=test-instance \
-  --ddl='CREATE TABLE Customers (CustomerId INT64 NOT NULL, Name STRING(255), Email STRING(255), Country STRING(100)) PRIMARY KEY (CustomerId); CREATE TABLE Orders (CustomerId INT64 NOT NULL, OrderId INT64 NOT NULL, OrderDate DATE, TotalAmount NUMERIC) PRIMARY KEY (CustomerId, OrderId), INTERLEAVE IN PARENT Customers ON DELETE CASCADE; CREATE TABLE OrderItems (CustomerId INT64 NOT NULL, OrderId INT64 NOT NULL, OrderItemId INT64 NOT NULL, ProductId INT64, Quantity INT64, Price NUMERIC) PRIMARY KEY (CustomerId, OrderId, OrderItemId), INTERLEAVE IN PARENT Orders ON DELETE CASCADE; CREATE INDEX OrdersByDate ON Orders(OrderDate); CREATE INDEX OrdersByDateCovered ON Orders(OrderDate) STORING (TotalAmount);'</code></pre>
+  --instance=multi-region-spanner \
+  --ddl-file=schema.ddl</code></pre>
         </div>
 
         <h2>Verify Schema Registration</h2>
@@ -1530,7 +1675,7 @@
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases ddl describe test-database \
-  --instance=test-instance</code></pre>
+  --instance=multi-region-spanner</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1576,17 +1721,17 @@
           </div>
           <pre class="code-content"><code><span class="c-comment"># Insert Customer</span>
 gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+  --instance=multi-region-spanner \
   --sql="INSERT INTO Customers (CustomerId, Name, Email, Country) VALUES (101, 'Alice Smith', 'alice@email.com', 'Germany')"
 
 <span class="c-comment"># Insert Interleaved Order</span>
 gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+  --instance=multi-region-spanner \
   --sql="INSERT INTO Orders (CustomerId, OrderId, OrderDate, TotalAmount) VALUES (101, 5001, '2026-07-17', 150.00)"
 
 <span class="c-comment"># Insert Interleaved Item</span>
 gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+  --instance=multi-region-spanner \
   --sql="INSERT INTO OrderItems (CustomerId, OrderId, OrderItemId, ProductId, Quantity, Price) VALUES (101, 5001, 1, 9901, 2, 75.00)"</code></pre>
         </div>
 
@@ -1605,7 +1750,7 @@ gcloud spanner databases execute-sql test-database \
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+  --instance=multi-region-spanner \
   --sql="SELECT c.Name, o.OrderId, o.OrderDate, i.ProductId, i.Quantity, i.Price FROM Customers c JOIN Orders o ON c.CustomerId = o.CustomerId JOIN OrderItems i ON o.CustomerId = i.CustomerId AND o.OrderId = i.OrderId WHERE c.CustomerId = 101"</code></pre>
         </div>
 
@@ -1624,7 +1769,7 @@ gcloud spanner databases execute-sql test-database \
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+  --instance=multi-region-spanner \
   --sql="SELECT CustomerId, TotalAmount FROM Orders@{FORCE_INDEX=OrdersByDateCovered} WHERE OrderDate = '2026-07-17'"</code></pre>
         </div>
 
@@ -1651,7 +1796,295 @@ gcloud spanner databases execute-sql test-database \
       </section>
 
       <!-- STEP 7: Quiz / Knowledge Check -->
-      <section class="content-panel" id="panel-6">
+      <!-- STEP 7: Hands-On Challenge -->
+      <section class="content-panel" id="panel-6" style="padding: 0; background: transparent; border: none; box-shadow: none;">
+
+        <!-- Challenge Header Banner -->
+        <div class="challenge-banner">
+          <div class="challenge-banner-left">
+            <div class="challenge-badge-icon-container">
+              <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v3c0 2.21 1.79 4 4 4h1.72c.76 1.48 2.05 2.61 3.66 2.92V19H8v2h8v-2h-4.38v-3.08c1.61-.31 2.9-1.44 3.66-2.92H17c2.21 0 4-1.79 4-4V7c0-1.1-.9-2-2-2zM5 10V7h2v3c0 1.1-.9 2-2 2s-2-.9-2-2zm14 0c0 1.1-.9 2-2 2s-2-.9-2-2V7h2v3zm-4-4v4c0 1.66-1.34 3-3 3S9 11.66 9 10V6h6z"/></svg>
+            </div>
+            <div class="challenge-banner-title-area">
+              <h1>Step 7: Hands-On Challenge</h1>
+              <p>Apply your interleaving and index knowledge to a real-world e-commerce schema problem.</p>
+            </div>
+          </div>
+          <div class="challenge-cloud-graphics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="challenge-grid">
+          <!-- Left Column -->
+          <div class="challenge-main" style="background-color: var(--bg-primary); padding: 0;">
+            <div class="challenge-intro-box">
+              <div class="challenge-intro-icon-container">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="6"></circle>
+                  <circle cx="12" cy="12" r="2"></circle>
+                </svg>
+              </div>
+              <p class="challenge-intro-text">
+                Your e-commerce team is expanding the schema to support product reviews. You need to add a <code>Reviews</code> table that is co-located with its parent <code>Orders</code> table for efficient read performance, then verify the join works without cross-split network hops.
+              </p>
+            </div>
+
+            <h2 class="challenge-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+              Challenge Tasks
+            </h2>
+
+            <div class="challenge-tasks-list">
+              <!-- Task 1 -->
+              <div class="challenge-task-card">
+                <div class="challenge-task-step-num"><div class="challenge-task-circle">1</div></div>
+                <div class="challenge-task-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"></path>
+                  </svg>
+                </div>
+                <div class="challenge-task-content">
+                  <div class="challenge-task-title">Design a <code>Reviews</code> Table</div>
+                  <div class="challenge-task-desc">Write DDL for a <code>Reviews</code> table with columns <code>CustomerId</code>, <code>OrderId</code>, <code>ReviewId</code>, <code>Rating</code> (INT64), and <code>Comment</code> (STRING). Its primary key must start with <code>(CustomerId, OrderId)</code> so it can be interleaved inside <code>Orders</code>.</div>
+                </div>
+              </div>
+
+              <!-- Task 2 -->
+              <div class="challenge-task-card">
+                <div class="challenge-task-step-num"><div class="challenge-task-circle">2</div></div>
+                <div class="challenge-task-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                  </svg>
+                </div>
+                <div class="challenge-task-content">
+                  <div class="challenge-task-title">Deploy the New Table</div>
+                  <div class="challenge-task-desc">Use <code>gcloud spanner databases ddl update</code> with <code>--ddl-file</code> to apply the new <code>Reviews</code> table DDL to the <code>test-database</code> on the <code>multi-region-spanner</code> instance.</div>
+                </div>
+              </div>
+
+              <!-- Task 3 -->
+              <div class="challenge-task-card">
+                <div class="challenge-task-step-num"><div class="challenge-task-circle">3</div></div>
+                <div class="challenge-task-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                </div>
+                <div class="challenge-task-content">
+                  <div class="challenge-task-title">Insert a Sample Review</div>
+                  <div class="challenge-task-desc">Insert one row into <code>Reviews</code> for <code>CustomerId = 101</code>, <code>OrderId = 5001</code>. Choose any <code>ReviewId</code>, <code>Rating</code>, and <code>Comment</code> of your choice.</div>
+                </div>
+              </div>
+
+              <!-- Task 4 -->
+              <div class="challenge-task-card">
+                <div class="challenge-task-step-num"><div class="challenge-task-circle">4</div></div>
+                <div class="challenge-task-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                </div>
+                <div class="challenge-task-content">
+                  <div class="challenge-task-title">Verify the Co-located Join</div>
+                  <div class="challenge-task-desc">Run a query that joins <code>Orders</code> and <code>Reviews</code> for <code>CustomerId = 101</code>. Confirm the result returns the review row alongside its parent order — all served from the same split.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Task Checklist -->
+            <ul class="task-checklist">
+              <li class="task-checkbox-container" data-task-id="t6_challenge">
+                <div class="custom-checkbox">
+                  <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <div class="task-content">
+                  <span class="task-label">Complete the Interleaving Challenge</span>
+                  <span class="task-desc">Design, deploy, and verify a new interleaved Reviews table co-located with Orders.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Right Column Sidebar -->
+          <div class="challenge-sidebar">
+            <div class="sidebar-card use-case">
+              <div class="sidebar-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 18h6M10 22h4M15.09 14c.18-.33.3-.68.37-1.04.53-2.92-1.39-5.74-4.32-6.27-2.93-.53-5.75 1.39-6.28 4.32a5.96 5.96 0 0 0 2.24 5.37C8.42 17.24 9 18 9 18h6v-.5c0-.62.25-1.22.7-1.67l.39-.39c.6-.6.94-1.4.94-2.24a3 3 0 0 0-.94-2.2z"></path>
+                </svg>
+                Use Case
+              </div>
+              <p class="sidebar-card-body">
+                E-commerce platforms frequently need to co-locate review data with order records to serve product pages with minimal latency. Table interleaving eliminates cross-split joins for this common access pattern.
+              </p>
+            </div>
+
+            <div class="sidebar-card schema-preview-card">
+              <div class="sidebar-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                Target Schema Shape
+              </div>
+              <pre class="code-content" style="margin-top: 10px; background: #070a13; padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);"><code style="font-size: 0.75rem; color: #a9b2c3;">Customers (CustomerId)
+  └─ Orders (CustomerId, OrderId)
+       ├─ OrderItems (...)
+       └─ Reviews
+            (CustomerId,
+             OrderId,
+             ReviewId)</code></pre>
+            </div>
+
+            <div class="sidebar-card goal-card">
+              <div class="sidebar-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Goal
+              </div>
+              <p class="sidebar-card-body">
+                Add a <code>Reviews</code> table interleaved inside <code>Orders</code>, insert a review, and confirm a join query returns both the order and review data from a single co-located split.
+              </p>
+            </div>
+
+            <div class="sidebar-card pro-tip-card">
+              <div class="sidebar-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Pro Tip
+              </div>
+              <p class="sidebar-card-body">
+                A child table's primary key must always begin with the parent's primary key columns in the same order. Spanner will reject DDL where the key prefix doesn't match the parent's key exactly.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 8: Challenge Solution -->
+      <section class="content-panel" id="panel-7">
+        <h1>Step 8: Challenge Solution</h1>
+        <p>Review the complete solution for the interleaving challenge. Compare it with your own approach before moving on to the Knowledge Check.</p>
+
+        <!-- Solution Task 1 -->
+        <h2>Task 1 Solution — DDL for the <code>Reviews</code> Table</h2>
+        <p>The <code>Reviews</code> table primary key must begin with <code>(CustomerId, OrderId)</code> — the exact prefix of its parent <code>Orders</code> table — to satisfy Spanner's interleave constraint.</p>
+        <div class="code-block-container sql">
+          <div class="code-header">
+            <span class="code-lang-badge">SQL (reviews.ddl)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>CREATE TABLE Reviews (
+  CustomerId INT64 NOT NULL,
+  OrderId    INT64 NOT NULL,
+  ReviewId   INT64 NOT NULL,
+  Rating     INT64,
+  Comment    STRING(1024)
+) PRIMARY KEY (CustomerId, OrderId, ReviewId),
+  INTERLEAVE IN PARENT Orders ON DELETE CASCADE;</code></pre>
+        </div>
+
+        <!-- Solution Task 2 -->
+        <h2>Task 2 Solution — Deploy the Table</h2>
+        <p>Save the DDL above as <code>reviews.ddl</code>, then run:</p>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+  --instance=multi-region-spanner \
+  --ddl-file=reviews.ddl</code></pre>
+        </div>
+
+        <!-- Solution Task 3 -->
+        <h2>Task 3 Solution — Insert a Sample Review</h2>
+        <p>Insert a review row for the existing <code>CustomerId = 101</code>, <code>OrderId = 5001</code>:</p>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="INSERT INTO Reviews (CustomerId, OrderId, ReviewId, Rating, Comment) VALUES (101, 5001, 1, 5, 'Excellent quality and fast delivery!')"</code></pre>
+        </div>
+
+        <!-- Solution Task 4 -->
+        <h2>Task 4 Solution — Verify the Co-located Join</h2>
+        <p>Run a join across <code>Orders</code> and <code>Reviews</code>. Because <code>Reviews</code> is interleaved inside <code>Orders</code>, Spanner evaluates this join entirely within the same split — no cross-node network hop required:</p>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="SELECT o.OrderId, o.OrderDate, o.TotalAmount, r.ReviewId, r.Rating, r.Comment FROM Orders o JOIN Reviews r ON o.CustomerId = r.CustomerId AND o.OrderId = r.OrderId WHERE o.CustomerId = 101"</code></pre>
+        </div>
+
+        <p><strong>Expected output:</strong></p>
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">Output</span>
+          </div>
+          <pre class="code-content"><code>OrderId  OrderDate   TotalAmount  ReviewId  Rating  Comment
+5001     2026-07-17  150.00       1         5       Excellent quality and fast delivery!</code></pre>
+        </div>
+
+        <div class="info-box" style="background: rgba(var(--success-rgb),0.08); border: 1px solid rgba(var(--success-rgb),0.25); border-radius: 8px; padding: 16px; margin-top: 24px; display: flex; gap: 12px; align-items: flex-start;">
+          <svg style="width:20px;height:20px;flex-shrink:0;color:var(--success);margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <div>
+            <strong style="color:var(--success);">Key Takeaway</strong>
+            <p style="font-size:0.85rem;color:var(--text-secondary);margin:4px 0 0;">Because <code>Reviews</code> is interleaved inside <code>Orders</code>, its rows are physically stored adjacent to the parent order row on disk. Spanner can join them without any cross-split RPCs, giving you the same low-latency access pattern as a single-table scan.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 9: Knowledge Check (was panel-7) -->
+      <section class="content-panel" id="panel-8">
         <h1>Step 6: Knowledge Check</h1>
         <p>Complete this quick self-check to evaluate your understanding of Spanner schema refactoring and index optimization.</p>
 
@@ -1730,8 +2163,8 @@ gcloud spanner databases execute-sql test-database \
         </ul>
       </section>
 
-      <!-- STEP 8: Certificate of Completion -->
-      <section class="content-panel certificate-panel" id="panel-7">
+      <!-- STEP 10: Certificate of Completion -->
+      <section class="content-panel certificate-panel" id="panel-9">
         <h1>Lab Certificate of Completion</h1>
         <p class="subtitle">Once you complete the required tasks and pass the quiz, you can generate your certificate.</p>
 
@@ -1790,7 +2223,7 @@ gcloud spanner databases execute-sql test-database \
 
   <script>
     // Constants & State
-    const totalSteps = 8;
+    const totalSteps = 10;
     let currentStep = 0;
     
     // Checklist configuration
@@ -1801,6 +2234,7 @@ gcloud spanner databases execute-sql test-database \
       t3_1: false, t3_2: false,
       t4_1: false, t4_2: false,
       t5_1: false, t5_2: false,
+      t6_challenge: false,
       t6_1: false
     };
 
@@ -1904,7 +2338,8 @@ gcloud spanner databases execute-sql test-database \
       markStepCompletion("t3_1", 3, ["t3_1", "t3_2"]);
       markStepCompletion("t4_1", 4, ["t4_1", "t4_2"]);
       markStepCompletion("t5_1", 5, ["t5_1", "t5_2"]);
-      markStepCompletion("t6_1", 6, ["t6_1"]);
+      markStepCompletion("t6_challenge", 6, ["t6_challenge"]);
+      markStepCompletion("t6_1", 8, ["t6_1"]);
       
       checkCertificateUnlock();
     }
