@@ -1,0 +1,2490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lab 14: Views & Remote Cloud Functions in Cloud Spanner. Deploy a Google Cloud Function, register it as a Remote UDF, use it in queries, and wrap it in a database view.">
+  <title>Cloud Spanner Lab: Views & Remote User-Defined Functions</title>
+  
+  <!-- Typography & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Design Tokens - Matching previous labs */
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #131a2e;
+      --bg-tertiary: #1e294b;
+      --bg-code: #070a13;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --accent-rgb: 56, 189, 248;
+      
+      --success: #10b981;
+      --success-rgb: 16, 185, 129;
+      --warning: #f59e0b;
+      --warning-rgb: 245, 158, 11;
+      --danger: #ef4444;
+      
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.15);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.35);
+      
+      --font-sans: 'Inter', sans-serif;
+      --font-display: 'Outfit', sans-serif;
+      --font-mono: 'Fira Code', monospace;
+      
+      --sidebar-width: 320px;
+    }
+
+    /* Light Theme Variables */
+    .light-theme {
+      --bg-primary: #f1f5f9;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e2e8f0;
+      --bg-code: #1e293b;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-rgb: 2, 132, 199;
+      
+      --success: #059669;
+      --success-rgb: 5, 150, 105;
+      --warning: #d97706;
+      --warning-rgb: 217, 119, 6;
+      
+      --border-color: rgba(0, 0, 0, 0.08);
+      --border-hover: rgba(0, 0, 0, 0.15);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Global Reset & Base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      scroll-behavior: smooth;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .app-container {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      z-index: 10;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      fill: var(--accent);
+      filter: drop-shadow(0 0 8px rgba(var(--accent-rgb), 0.5));
+    }
+
+    .logo-text {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .progress-section {
+      margin-top: 8px;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background-color: var(--bg-tertiary);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--success) 100%);
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .steps-list {
+      list-style: none;
+      padding: 12px 0;
+      flex-grow: 1;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .step-item:hover {
+      color: var(--text-primary);
+      background-color: rgba(var(--accent-rgb), 0.03);
+    }
+
+    .step-item.active {
+      color: var(--text-primary);
+      background-color: rgba(var(--accent-rgb), 0.08);
+      font-weight: 600;
+    }
+
+    .step-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background-color: var(--accent);
+      box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5);
+    }
+
+    .step-item.completed {
+      color: var(--success);
+    }
+
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background-color: var(--bg-tertiary);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .step-item.active .step-indicator {
+      background-color: var(--accent);
+      color: var(--bg-primary);
+    }
+
+    .step-item.completed .step-indicator {
+      background-color: var(--success);
+      color: white;
+    }
+
+    .step-check-icon {
+      display: none;
+      width: 12px;
+      height: 12px;
+      fill: currentColor;
+    }
+
+    .step-item.completed .step-check-icon {
+      display: block;
+    }
+
+    .step-item.completed .step-number {
+      display: none;
+    }
+
+    .sidebar-footer {
+      padding: 24px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .theme-toggle-btn {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .theme-toggle-btn:hover {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      border-color: var(--border-hover);
+    }
+
+    .theme-toggle-icon {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    /* Main Content Wrapper */
+    .main-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .top-navbar {
+      height: 64px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      background-color: rgba(var(--bg-secondary), 0.5);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .lab-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: rgba(var(--accent-rgb), 0.1);
+      color: var(--accent);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid rgba(var(--accent-rgb), 0.15);
+    }
+
+    .lab-meta {
+      display: flex;
+      gap: 24px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meta-icon {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    /* Content Panels */
+    .content-panel {
+      display: none;
+      flex-grow: 1;
+      padding: 40px 60px;
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .content-panel.active {
+      display: block;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .content-panel h1 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 2.25rem;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 32px;
+      font-weight: 300;
+    }
+
+    .content-panel h2 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.35rem;
+      margin-top: 36px;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .content-panel h3 {
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin-top: 24px;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .content-panel p {
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text-secondary);
+      margin-bottom: 18px;
+    }
+
+    .content-panel ul {
+      margin-left: 20px;
+      margin-bottom: 18px;
+      color: var(--text-secondary);
+    }
+
+    .content-panel li {
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .content-panel code {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      background-color: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+
+    /* Architecture Grid */
+    .concept-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 28px 0;
+    }
+
+    .concept-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.2s ease;
+    }
+
+    .concept-card:hover {
+      border-color: var(--border-hover);
+    }
+
+    .concept-title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .concept-desc {
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+
+    /* Checklist & Callouts */
+    .task-checklist {
+      list-style: none !important;
+      margin: 32px 0 !important;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .task-checkbox-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background-color: rgba(var(--accent-rgb), 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .task-checkbox-container:hover {
+      background-color: rgba(var(--accent-rgb), 0.05);
+      border-color: rgba(var(--accent-rgb), 0.15);
+    }
+
+    .task-checkbox-container.checked {
+      background-color: rgba(var(--success-rgb), 0.03);
+      border-color: rgba(var(--success-rgb), 0.15);
+    }
+
+    .custom-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--text-muted);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .task-checkbox-container:hover .custom-checkbox {
+      border-color: var(--accent);
+    }
+
+    .task-checkbox-container.checked .custom-checkbox {
+      border-color: var(--success);
+      background-color: var(--success);
+      color: white;
+    }
+
+    .check-mark {
+      width: 12px;
+      height: 12px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 3px;
+      display: none;
+    }
+
+    .task-checkbox-container.checked .check-mark {
+      display: block;
+    }
+
+    .task-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .task-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+    }
+
+    .task-checkbox-container.checked .task-label {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .task-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .callout {
+      display: flex;
+      gap: 16px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin: 24px 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      border-left: 4px solid transparent;
+    }
+
+    .callout-info {
+      background-color: rgba(var(--accent-rgb), 0.05);
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    .callout-warning {
+      background-color: rgba(var(--warning-rgb), 0.05);
+      border-color: var(--warning);
+      color: var(--text-primary);
+    }
+
+    .callout-success {
+      background-color: rgba(var(--success-rgb), 0.05);
+      border-color: var(--success);
+      color: var(--text-primary);
+    }
+
+    .callout-icon {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    .callout-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    /* Code Block Containers */
+    .code-block-container {
+      background-color: var(--bg-code);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      margin: 20px 0;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background-color: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .editor-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mac-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .mac-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .mac-dot.red { background-color: #ff5f56; }
+    .mac-dot.yellow { background-color: #ffbd2e; }
+    .mac-dot.green { background-color: #27c93f; }
+
+    .editor-tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background-color: var(--bg-secondary);
+      padding: 4px 10px;
+      border-radius: 4px 4px 0 0;
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      color: var(--text-secondary);
+      font-size: 0.72rem;
+    }
+
+    .copy-btn-wrapper {
+      position: relative;
+    }
+
+    .copy-btn {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      font-family: var(--font-sans);
+    }
+
+    .copy-btn:hover {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .copy-btn-icon {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    .tooltip {
+      position: absolute;
+      bottom: 100%;
+      right: 0;
+      margin-bottom: 6px;
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: all 0.2s ease;
+      pointer-events: none;
+      border: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    .copy-btn-wrapper.copied .tooltip {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .code-content {
+      padding: 16px 0;
+      overflow-x: auto;
+      margin: 0;
+      background-color: #1e1e1e !important;
+    }
+
+    .code-line {
+      display: flex;
+      padding: 0 16px;
+      transition: background-color 0.1s ease;
+    }
+
+    .code-line:hover {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .line-number {
+      color: #858585;
+      text-align: right;
+      width: 32px;
+      padding-right: 16px;
+      user-select: none;
+      font-size: 0.85rem;
+      border-right: 1px solid #2d2d2d;
+      margin-right: 16px;
+    }
+
+    .line-code {
+      color: #d4d4d4;
+      font-size: 0.85rem;
+      white-space: pre;
+      font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Monaco, Consolas, monospace;
+      line-height: 1.6;
+    }
+
+    /* Syntax Highlighting Colors (VS Code Dark+ Style) */
+    .c-comment { color: #6a9955 !important; font-style: italic !important; }
+    .c-kw { color: #569cd6 !important; font-weight: 600 !important; }
+    .c-str { color: #ce9178 !important; }
+    .c-num { color: #b5cea8 !important; }
+    .c-func { color: #dcdcaa !important; }
+    .c-type { color: #4ec9b0 !important; }
+
+    /* Page Navigation Footer */
+    .page-navigation {
+      display: flex;
+      justify-content: space-between;
+      padding: 32px 40px;
+      border-top: 1px solid var(--border-color);
+      background-color: rgba(var(--bg-secondary), 0.3);
+      max-width: 900px;
+      width: 100%;
+      margin: 32px auto 0 auto;
+      border-radius: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border-color);
+    }
+
+    .nav-btn-prev {
+      background-color: transparent;
+      color: var(--text-secondary);
+    }
+
+    .nav-btn-prev:hover {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      border-color: var(--border-hover);
+    }
+
+    .nav-btn-next {
+      background: linear-gradient(135deg, var(--accent) 0%, #0369a1 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 14px rgba(var(--accent-rgb), 0.25);
+    }
+
+    .nav-btn-next:hover {
+      box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.4);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn-next:disabled {
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .nav-btn-icon {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* Challenge Elements */
+    .challenge-banner {
+      background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.15) 0%, rgba(var(--success-rgb), 0.05) 100%);
+      border: 1px solid rgba(var(--accent-rgb), 0.25);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .challenge-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--accent-rgb), 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .challenge-banner-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .challenge-badge-icon-container {
+      width: 48px;
+      height: 48px;
+      background-color: rgba(var(--accent-rgb), 0.15);
+      border: 1px solid rgba(var(--accent-rgb), 0.3);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .challenge-badge-icon-container svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    .challenge-banner-title-area h1 {
+      font-size: 1.45rem;
+      margin-bottom: 4px;
+      margin-top: 0;
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .challenge-banner-title-area p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 0;
+    }
+
+    .challenge-cloud-graphics svg {
+      width: 64px;
+      height: 64px;
+      color: rgba(var(--accent-rgb), 0.25);
+    }
+
+    .challenge-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .challenge-intro-box {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .challenge-intro-icon-container {
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .challenge-intro-icon-container svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .challenge-intro-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0;
+      line-height: 1.5;
+    }
+
+    .challenge-section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 16px 0;
+      border: none;
+      padding-left: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .challenge-section-title svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .challenge-tasks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .challenge-task-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      gap: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .challenge-task-card:hover {
+      border-color: var(--border-hover);
+    }
+
+    .challenge-task-step-num {
+      flex-shrink: 0;
+    }
+
+    .challenge-task-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .challenge-task-icon {
+      color: var(--text-muted);
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .challenge-task-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .challenge-task-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .challenge-task-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .challenge-task-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .challenge-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sidebar-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .sidebar-card-header {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-card-header svg {
+      width: 16px;
+      height: 16px;
+      color: var(--accent);
+    }
+
+    .sidebar-card-body {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 0;
+    }
+
+    .pro-tip-card {
+      border-left: 3px solid var(--warning);
+    }
+
+    .pro-tip-card .sidebar-card-header svg {
+      color: var(--warning);
+    }
+
+    .use-case {
+      border-left: 3px solid var(--success);
+    }
+
+    .use-case .sidebar-card-header svg {
+      color: var(--success);
+    }
+
+    .goal-card {
+      border-left: 3px solid var(--accent);
+    }
+
+    .goal-card .sidebar-card-header svg {
+      color: var(--accent);
+    }
+
+    /* Quiz Panel Styling */
+    .quiz-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin: 28px 0;
+    }
+
+    .quiz-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .quiz-question {
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .quiz-option {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      border-radius: 8px;
+      padding: 14px 18px;
+      cursor: pointer;
+      text-align: left;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .quiz-option:hover:not(:disabled) {
+      border-color: var(--accent);
+      background-color: rgba(var(--accent-rgb), 0.02);
+      color: var(--text-primary);
+    }
+
+    .quiz-option.correct {
+      border-color: var(--success) !important;
+      background-color: rgba(var(--success-rgb), 0.1) !important;
+      color: var(--success) !important;
+      font-weight: 600;
+    }
+
+    .quiz-option.incorrect {
+      border-color: var(--danger) !important;
+      background-color: rgba(239, 68, 68, 0.08) !important;
+      color: var(--danger) !important;
+    }
+
+    .quiz-option:disabled {
+      cursor: not-allowed;
+    }
+
+    /* Certificate Panel Styling */
+    .certificate-panel {
+      text-align: center;
+    }
+
+    .lock-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 40px;
+      border: 2px dashed var(--border-color);
+      border-radius: 16px;
+      background-color: rgba(255, 255, 255, 0.01);
+      margin: 32px 0;
+    }
+
+    .lock-icon {
+      width: 48px;
+      height: 48px;
+      fill: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .lock-screen h3 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .lock-screen p {
+      font-size: 0.9rem;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .certificate-generation {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      margin-top: 32px;
+    }
+
+    .certificate-generation.unlocked {
+      display: flex;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .cert-input-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: var(--shadow-sm);
+      text-align: left;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .cert-name-input {
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .cert-name-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
+    }
+
+    .generate-cert-btn {
+      background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 20px;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(var(--success-rgb), 0.2);
+    }
+
+    .generate-cert-btn:hover {
+      box-shadow: 0 6px 18px rgba(var(--success-rgb), 0.35);
+      transform: translateY(-1px);
+    }
+
+    #certificateCanvas {
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      max-width: 100%;
+      height: auto;
+      box-shadow: var(--shadow-md);
+      background-color: #0b0f19;
+      display: none;
+    }
+
+    .download-cert-btn {
+      background: linear-gradient(135deg, var(--accent) 0%, #0369a1 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 24px;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.2);
+    }
+
+    .download-cert-btn:hover {
+      box-shadow: 0 6px 18px rgba(var(--accent-rgb), 0.35);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body class="light-theme">
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation Left -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-container">
+          <svg class="logo-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="logo-text">Spanner Academy</span>
+        </div>
+        
+        <div class="progress-section">
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="overallProgressBar"></div>
+          </div>
+          <div class="progress-text">
+            <span>Overall Progress</span>
+            <span id="progressPercent">0%</span>
+          </div>
+        </div>
+      </div>
+      
+      <ul class="steps-list" id="stepsList">
+        <li class="step-item active" data-step="0">
+          <span class="step-indicator">
+            <span class="step-number">1</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Lab Overview</span>
+        </li>
+        <li class="step-item" data-step="1">
+          <span class="step-indicator">
+            <span class="step-number">2</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Deploy Cloud Function</span>
+        </li>
+        <li class="step-item" data-step="2">
+          <span class="step-indicator">
+            <span class="step-number">3</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Create Remote UDF</span>
+        </li>
+        <li class="step-item" data-step="3">
+          <span class="step-indicator">
+            <span class="step-number">4</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Query with Remote UDF</span>
+        </li>
+        <li class="step-item" data-step="4">
+          <span class="step-indicator">
+            <span class="step-number">5</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Create Database View</span>
+        </li>
+        <li class="step-item" data-step="5">
+          <span class="step-indicator">
+            <span class="step-number">6</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Challenge Section</span>
+        </li>
+        <li class="step-item" data-step="6">
+          <span class="step-indicator">
+            <span class="step-number">7</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Knowledge Check</span>
+        </li>
+        <li class="step-item" data-step="7">
+          <span class="step-indicator">
+            <span class="step-number">8</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Get Certificate</span>
+        </li>
+      </ul>
+      
+      <div class="sidebar-footer">
+        <button class="theme-toggle-btn" id="themeToggleBtn">
+          <svg class="theme-toggle-icon" id="themeSunIcon" viewBox="0 0 24 24">
+            <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.01c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
+          </svg>
+          <svg class="theme-toggle-icon" id="themeMoonIcon" style="display:none;" viewBox="0 0 24 24">
+            <path d="M12.3 22h-.1c-5.5 0-10-4.5-10-10 0-4.8 3.5-8.9 8.2-9.8.6-.1 1.2.3 1.3.9.1.6-.3 1.2-.9 1.3-3.7.7-6.5 3.9-6.5 7.7 0 4.4 3.6 8 8 8 3.8 0 7-2.8 7.7-6.5.1-.6.7-1 1.3-.9.6.1 1 .7.9 1.3-.9 4.7-5 8.2-9.9 8.2z"/>
+          </svg>
+          <span id="themeToggleText">Dark Mode</span>
+        </button>
+      </div>
+    </aside>
+    
+    <!-- Main Content Panel Right -->
+    <main class="main-wrapper">
+      
+      <!-- Sticky Top Header -->
+      <header class="top-navbar">
+        <div class="lab-badge">
+          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24" style="margin-right:4px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.53c-.26-.81-1-1.4-1.9-1.4h-1v-3c0-.55-.45-1-1-1h-6v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.4z"/></svg>
+          Lab 14: Views & Remote UDFs
+        </div>
+        <div class="lab-meta">
+          <div class="meta-item">
+            <svg class="meta-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+            <span>Estimated Duration: <strong>45 mins</strong></span>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            <span>Difficulty: <strong>Intermediate</strong></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- STEP 0: Overview -->
+      <section class="content-panel active" id="panel-0">
+        <h1>Views & Remote User-Defined Functions</h1>
+        <p class="subtitle">Welcome! In this lab, you will learn how to extend Cloud Spanner query capabilities using **Remote User-Defined Functions (UDFs)** and encapsulate complex calculations using database **Views**.</p>
+        
+        <h2>Overview of Remote UDFs</h2>
+        <p>In traditional databases, UDFs execute inside the database engine. In Cloud Spanner, a **Remote UDF** allows you to trigger external application logic (such as a Google Cloud Function) directly from within a SQL query. 
+        Spanner automatically groups rows and sends them in batches to your external endpoint, ensuring high throughput and minimal latency.</p>
+
+        <div class="callout callout-warning">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">Instance Sizing Requirement (Low Cost Instances)</div>
+            <div class="callout-content">
+              Google Cloud Spanner Remote UDF execution is **not supported on Low Cost Instances** (instances sized below 1 node or 1000 processing units). 
+              <br><br>
+              If your <code>multi-region-spanner</code> instance is currently configured with 100 processing units (as configured in Lab 2), you must scale it up to 1000 processing units (1 node) to complete this lab:
+              <div class="code-block-container shell" style="margin-top:12px; margin-bottom:12px;">
+                <pre class="code-content" style="padding: 10px; background:#070a13;"><code>gcloud spanner instances update multi-region-spanner \
+  --processing-units=1000</code></pre>
+              </div>
+              <em>Note: You will scale the instance back down to 100 processing units at the end of this lab to minimize project resource consumption and GCP credits usage.</em>
+            </div>
+          </div>
+        </div>
+
+        <div class="concept-grid">
+          <div class="concept-card">
+            <div class="concept-title">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              External Computation
+            </div>
+            <div class="concept-desc">Offloads complex processing (like custom cryptography, formatting, or third-party service calls) from the database instances to serverless Cloud Functions.</div>
+          </div>
+          
+          <div class="concept-card">
+            <div class="concept-title">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              Virtual Tables (Views)
+            </div>
+            <div class="concept-desc">Views present a virtual table representation of a query. You can wrap complex remote function calls inside a view to present clean, formatted data fields to application clients.</div>
+          </div>
+        </div>
+
+        <h2>Batch RPC Protocol</h2>
+        <p>Spanner interacts with your Cloud Function using a standard JSON payload format containing a list of arguments (referred to as <code>calls</code>). Your HTTP function must process these batch rows sequentially and respond with a matching list of computed values (referred to as <code>replies</code>).</p>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t0_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Understand Remote Functions & Views</span>
+              <span class="task-desc">Review the batch execution model and the architectural benefits of using external serverless computation in Spanner queries.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t0_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Scale Spanner instance to 1000 PUs</span>
+              <span class="task-desc">Scale your Spanner instance up to 1000 processing units to support UDF preview execution.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 1: Deploy Cloud Function -->
+      <section class="content-panel" id="panel-1">
+        <h1>Step 1: Deploy the Node.js Cloud Function</h1>
+        <p>In this step, you will inspect the Node.js source code for an HTTP Cloud Function that formats numbers into USD currency and deploy it using the <code>gcloud</code> SDK.</p>
+
+        <h2>1. Review the Node.js Function Code</h2>
+        <p>Below is the Cloud Function implementation using the Google Cloud Functions Framework. Note how it processes the batch request payload structures:</p>
+
+        <div class="code-block-container javascript">
+          <div class="code-header">
+            <span class="code-lang-badge">Node.js (index.js)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>const functions = require('@google-cloud/functions-framework');
+
+functions.http('formatCurrency', (req, res) => {
+  const requestBody = req.body;
+  const calls = requestBody.calls || [];
+  
+  // Process batch rows: each argument set is wrapped in an array
+  const replies = calls.map(args => {
+    const amount = parseFloat(args[0]);
+    if (isNaN(amount)) return null;
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+  });
+  
+  res.status(200).json({ replies });
+});</code></pre>
+        </div>
+
+        <h2>2. Deploy the HTTP Endpoint</h2>
+        <p>Run the following command in your terminal shell to deploy this code to Google Cloud Functions:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud functions deploy formatCurrency \
+  --runtime=nodejs20 \
+  --trigger-http \
+  --allow-unauthenticated \
+  --entry-point=formatCurrency \
+  --region=us-central1</code></pre>
+        </div>
+
+        <div class="callout callout-info">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">Retrieve Endpoint URL</div>
+            <div class="callout-content">Upon successful deployment, the console output will display the active https endpoint. Copy this URL (e.g. <code>https://us-central1-your-project.cloudfunctions.net/formatCurrency</code>). You will need it in the next step.</div>
+          </div>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t1_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Deploy the Cloud Function HTTP Endpoint</span>
+              <span class="task-desc">Run the gcloud deployment script and record the returned endpoint URL.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 2: Create Remote UDF -->
+      <section class="content-panel" id="panel-2">
+        <h1>Step 2: Register the Remote UDF in Spanner</h1>
+        <p>Once your Cloud Function is live, you must register it as a custom database function in your Spanner database using DDL syntax.</p>
+
+        <h2>DDL for Remote Function Registration</h2>
+        <p>Register the UDF inside your database. Remember to replace <code>[YOUR_ENDPOINT_URL]</code> with your actual deployed Cloud Function URL:</p>
+
+        <div class="code-block-container sql">
+          <div class="code-header">
+            <span class="code-lang-badge">DDL SQL</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>CREATE SCHEMA udf;
+
+CREATE OR REPLACE FUNCTION udf.formatCurrency (amount NUMERIC) RETURNS STRING
+  NOT DETERMINISTIC
+  LANGUAGE REMOTE
+  OPTIONS (
+    endpoint = 'https://us-central1-[PROJECT_ID].cloudfunctions.net/formatCurrency'
+  );</code></pre>
+        </div>
+
+        <h2>Execute the DDL Update</h2>
+        <p>Apply the DDL statement to your <code>test-database</code> in the <code>multi-region-spanner</code> instance:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+  --instance=multi-region-spanner \
+  --ddl="CREATE SCHEMA udf" \
+  --ddl="CREATE OR REPLACE FUNCTION udf.formatCurrency (amount NUMERIC) \
+    RETURNS STRING \
+    NOT DETERMINISTIC \
+    LANGUAGE REMOTE \
+    OPTIONS ( \
+      endpoint = 'https://us-central1-[PROJECT_ID].cloudfunctions.net/formatCurrency' \
+    )"</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t2_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Register the remote function in Spanner</span>
+              <span class="task-desc">Apply the CREATE FUNCTION DDL to test-database pointing to the cloud function endpoint.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 3: Query with Remote UDF -->
+      <section class="content-panel" id="panel-3">
+        <h1>Step 3: Querying Data Using the Remote UDF</h1>
+        <p>With the function registered in Spanner's catalog, you can call it directly inside standard SQL <code>SELECT</code> queries like any built-in scalar function.</p>
+
+        <h2>1. Add Balance Column to TradingAccounts Table</h2>
+        <p>Ensure your <code>TradingAccounts</code> table has a NUMERIC column to represent balances. Apply this schema modification:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+  --instance=multi-region-spanner \
+  --ddl="ALTER TABLE TradingAccounts ADD COLUMN Balance NUMERIC"</code></pre>
+        </div>
+
+        <h2>2. Populate Balances</h2>
+        <p>Update sample rows with positive amounts to format:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="UPDATE TradingAccounts SET Balance = 12500.75 WHERE AccountId = 10"
+
+gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="UPDATE TradingAccounts SET Balance = 945000.50 WHERE AccountId = 11"</code></pre>
+        </div>
+
+        <h2>3. Run Query with the Remote UDF</h2>
+        <p>Query the table and format the balance values using the UDF:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="SELECT AccountId, AccountName, udf.formatCurrency(Balance) AS FormattedBalance FROM TradingAccounts"</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t3_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Execute SQL Query with UDF</span>
+              <span class="task-desc">Query balances and verify that values are formatted as currency strings ($12,500.75) returned by your Cloud Function.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 4: Create Database View -->
+      <section class="content-panel" id="panel-4">
+        <h1>Step 4: Create a Database View</h1>
+        <p>In this step, you will encapsulate the UDF formatting query into a reusable **Database View** to simplify query access for client applications.</p>
+
+        <h2>1. Define the View (DDL)</h2>
+        <p>Run the DDL update command to create a view named <code>AccountBalancesView</code>:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+  --instance=multi-region-spanner \
+  --ddl="CREATE OR REPLACE VIEW AccountBalancesView \
+    SQL SECURITY INVOKER \
+    AS SELECT \
+      TradingAccounts.AccountId, \
+      TradingAccounts.AccountName, \
+      udf.formatCurrency(TradingAccounts.Balance) AS FormattedBalance \
+    FROM TradingAccounts"</code></pre>
+        </div>
+
+        <h2>2. Query the View</h2>
+        <p>Select records directly from the database view. Spanner evaluates the underlying UDF on-the-fly:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="SELECT * FROM AccountBalancesView"</code></pre>
+        </div>
+
+        <h2>3. Scale Down Your Instance (Cleanup)</h2>
+        <p>Now that you have successfully verified the remote function inside the view, scale your Spanner instance back down to 100 processing units to avoid incurring unnecessary billing costs:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner instances update multi-region-spanner \
+  --processing-units=100</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t4_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Create and verify the Spanner View</span>
+              <span class="task-desc">Apply the CREATE VIEW statement and check output columns in the view.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t4_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Scale down Spanner instance back to 100 PUs</span>
+              <span class="task-desc">Downscale your instance back to 100 processing units to minimize GCP costs.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 5: Challenge Section -->
+      <section class="content-panel" id="panel-5" style="padding: 0; background: transparent; border: none; box-shadow: none;">
+        
+        <!-- Challenge Header Banner -->
+        <div class="challenge-banner">
+          <div class="challenge-banner-left">
+            <div class="challenge-badge-icon-container">
+              <svg viewBox="0 0 24 24">
+                <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v3c0 2.21 1.79 4 4 4h1.72c.76 1.48 2.05 2.61 3.66 2.92V19H8v2h8v-2h-4.38v-3.08c1.61-.31 2.9-1.44 3.66-2.92H17c2.21 0 4-1.79 4-4V7c0-1.1-.9-2-2-2zM5 10V7h2v3c0 1.1-.9 2-2 2s-2-.9-2-2zm14 0c0 1.1-.9 2-2 2s-2-.9-2-2V7h2v3zm-4-4v4c0 1.66-1.34 3-3 3S9 11.66 9 10V6h6z"/>
+              </svg>
+            </div>
+            <div class="challenge-banner-title-area">
+              <h1>Step 5: Hands-On Challenge</h1>
+              <p>Apply your Cloud Spanner skills in a real-world multi-currency scenario.</p>
+            </div>
+          </div>
+          <div class="challenge-cloud-graphics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="challenge-grid">
+          <!-- Left Column -->
+          <div class="challenge-main" style="background-color: var(--bg-primary); padding: 0;">
+            <div class="challenge-intro-box">
+              <div class="challenge-intro-icon-container">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="6"></circle>
+                  <circle cx="12" cy="12" r="2"></circle>
+                </svg>
+              </div>
+              <p class="challenge-intro-text">
+                Now that you've mastered basic DDL and view operations with Remote UDFs in Cloud Spanner, let's complete a database engineering challenge. You will add support for multi-currency reporting by creating a Euro-converted view.
+              </p>
+            </div>
+
+            <h2 class="challenge-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+              Challenge Tasks
+            </h2>
+
+            <div class="challenge-tasks-list">
+              <!-- Task 1 -->
+              <div class="challenge-task-card step-1">
+                <div class="challenge-task-step-num">
+                  <div class="challenge-task-circle">1</div>
+                </div>
+                <div class="challenge-task-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                  </svg>
+                </div>
+                <div class="challenge-task-content">
+                  <div class="challenge-task-title">Define the View</div>
+                  <div class="challenge-task-desc">Create a database view named <code>AccountBalancesEurView</code> with the <code>SQL SECURITY INVOKER</code> option.</div>
+                </div>
+              </div>
+
+              <!-- Task 2 -->
+              <div class="challenge-task-card step-2">
+                <div class="challenge-task-step-num">
+                  <div class="challenge-task-circle">2</div>
+                </div>
+                <div class="challenge-task-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  </svg>
+                </div>
+                <div class="challenge-task-content">
+                  <div class="challenge-task-title">Convert and Format Currency</div>
+                  <div class="challenge-task-desc">Use a SQL query definition that multiplies the <code>Balance</code> column by <code>0.92</code> to convert USD to Euros (EUR). Format the converted numeric value using your registered Remote UDF <code>udf.formatCurrency</code>. Make sure all referenced table columns are fully qualified.</div>
+                </div>
+              </div>
+
+              <!-- Task 3 -->
+              <div class="challenge-task-card step-3">
+                <div class="challenge-task-step-num">
+                  <div class="challenge-task-circle">3</div>
+                </div>
+                <div class="challenge-task-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                </div>
+                <div class="challenge-task-content">
+                  <div class="challenge-task-title">Verify</div>
+                  <div class="challenge-task-desc">Query the <code>AccountBalancesEurView</code> view using SELECT to verify Euro currency conversions are calculated and formatted correctly.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Task Checklist -->
+            <ul class="task-checklist">
+              <li class="task-checkbox-container" data-task-id="t5_challenge">
+                <div class="custom-checkbox">
+                  <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <div class="task-content">
+                  <span class="task-label">Complete the EUR View Challenge</span>
+                  <span class="task-desc">Deploy the AccountBalancesEurView database view and run a SELECT query to verify the Euro conversions.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Right Column (Sidebar) -->
+          <div class="challenge-sidebar">
+            <div class="sidebar-card use-case">
+              <div class="sidebar-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 18h6M10 22h4M15.09 14c.18-.33.3-.68.37-1.04.53-2.92-1.39-5.74-4.32-6.27-2.93-.53-5.75 1.39-6.28 4.32a5.96 5.96 0 0 0 2.24 5.37C8.42 17.24 9 18 9 18h6v-.5c0-.62.25-1.22.7-1.67l.39-.39c.6-.6.94-1.4.94-2.24a3 3 0 0 0-.94-2.2z"></path>
+                </svg>
+                Use Case
+              </div>
+              <p class="sidebar-card-body">
+                Financial systems must report balances across multiple international regions. Creating dedicated localized views on top of active tables and Remote UDFs simplifies multi-currency reporting.
+              </p>
+            </div>
+
+            <div class="sidebar-card goal-card">
+              <div class="sidebar-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Goal
+              </div>
+              <p class="sidebar-card-body">
+                Create a Euro-converted view using the UDF without exposing raw exchange multiplier arithmetic to database clients.
+              </p>
+            </div>
+
+            <div class="sidebar-card pro-tip-card">
+              <div class="sidebar-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3zM6 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3z"></path>
+                </svg>
+                Pro Tip
+              </div>
+              <p class="sidebar-card-body">
+                Remote UDFs can execute arbitrary computations in serverless services, making them ideal for dynamic currency lookups, decrypting fields, or validation checks.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 6: Quiz -->
+      <section class="content-panel" id="panel-6">
+        <h1>Step 6: Knowledge Check</h1>
+        <p>Complete this self-check to evaluate your understanding of Views and Remote UDFs in Google Cloud Spanner.</p>
+
+        <div class="quiz-container">
+          <!-- Question 1 -->
+          <div class="quiz-card" data-question-id="q1">
+            <div class="quiz-question">1. How does Cloud Spanner optimize performance when sending rows to a Remote UDF?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                A. It sends rows one-by-one sequentially to ensure transaction isolation.
+              </button>
+              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
+                B. It automatically groups rows into batches (via the calls array) to reduce network and RPC overhead.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                C. It forces the external endpoint to run inside Spanner's internal database nodes.
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="quiz-card" data-question-id="q2">
+            <div class="quiz-question">2. Which option is required in the CREATE FUNCTION DDL to define a Remote UDF?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                A. The function body source code in JavaScript.
+              </button>
+              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
+                B. The endpoint option specifying the target URL.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                C. The maximum timeout and memory configuration of the remote function.
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="quiz-card" data-question-id="q3">
+            <div class="quiz-question">3. What is a key security restriction when query execution reads from a database view?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
+                A. The user querying the view must have permissions on the view itself (not necessarily the underlying tables).
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                B. Views can only contain standard built-in functions and never invoke Remote UDFs.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                C. Views can only be queried inside read-write transactions.
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t5_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Complete all quiz questions</span>
+              <span class="task-desc">Answer all three questions correctly to unlock the certificate panel.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 7: Get Certificate -->
+      <section class="content-panel certificate-panel" id="panel-7">
+        <h1>Lab Certificate of Completion</h1>
+        <p class="subtitle">Once you complete the required tasks and pass the quiz, you can generate your certificate.</p>
+
+        <!-- Lock Screen -->
+        <div class="lock-screen" id="certLockScreen">
+          <svg class="lock-icon" viewBox="0 0 24 24">
+            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+          </svg>
+          <h3>Certificate Locked</h3>
+          <p>Complete all checklist steps and answer every quiz question correctly to unlock your personalized training certificate.</p>
+        </div>
+
+        <!-- Unlocked generation -->
+        <div class="certificate-generation" id="certGenerationScreen">
+          <div class="cert-input-card">
+            <div class="input-group">
+              <label for="studentName">Enter Your Name</label>
+              <input type="text" id="studentName" class="cert-name-input" placeholder="e.g. Jane Doe" value="Google Cloud Architect">
+            </div>
+            <button class="generate-cert-btn" onclick="drawCertificate()">Generate Certificate</button>
+          </div>
+
+          <!-- Canvas element -->
+          <canvas id="certificateCanvas" width="800" height="560"></canvas>
+          
+          <div style="margin-top: 20px; display:none;" id="downloadWrapper">
+            <a id="downloadBtn" download="spanner_views_udfs_cert.png" class="download-cert-btn">
+              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+              Download Certificate
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Navigation Footer -->
+      <footer class="page-navigation">
+        <button class="nav-btn nav-btn-prev" id="prevBtn" onclick="navigateStep(-1)">
+          <svg class="nav-btn-icon" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+          Previous
+        </button>
+        <button class="nav-btn nav-btn-next" id="nextBtn" onclick="navigateStep(1)">
+          Next
+          <svg class="nav-btn-icon" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </button>
+      </footer>
+
+    </main>
+  </div>
+
+  <script>
+    // Constants & State
+    const totalSteps = 8;
+    let currentStep = 0;
+    
+    // Checklist configuration
+    const taskStatus = {
+      t0_1: false,
+      t0_2: false,
+      t1_1: false,
+      t2_1: false,
+      t3_1: false,
+      t4_1: false,
+      t4_2: false,
+      t5_challenge: false,
+      t5_1: false
+    };
+
+    // Quiz score trackers
+    const quizResults = {
+      q1: false,
+      q2: false,
+      q3: false
+    };
+
+    // Initialize Page
+    document.addEventListener("DOMContentLoaded", () => {
+      setupChecklistListeners();
+      setupTheme();
+      setupTabListeners();
+      updateProgress();
+      decorateCodeBlocks();
+    });
+
+    // Theme toggle logic
+    function setupTheme() {
+      const btn = document.getElementById("themeToggleBtn");
+      const sun = document.getElementById("themeSunIcon");
+      const moon = document.getElementById("themeMoonIcon");
+      const txt = document.getElementById("themeToggleText");
+      
+      btn.addEventListener("click", () => {
+        const isLight = document.body.classList.toggle("light-theme");
+        if (isLight) {
+          sun.style.display = "block";
+          moon.style.display = "none";
+          txt.textContent = "Dark Mode";
+        } else {
+          sun.style.display = "none";
+          moon.style.display = "block";
+          txt.textContent = "Light Mode";
+        }
+      });
+    }
+
+    // Step navigation
+    const stepsListItems = document.querySelectorAll("#stepsList .step-item");
+    stepsListItems.forEach(item => {
+      item.addEventListener("click", () => {
+        const stepNum = parseInt(item.getAttribute("data-step"));
+        showStep(stepNum);
+      });
+    });
+
+    function showStep(stepIndex) {
+      if (stepIndex < 0 || stepIndex >= totalSteps) return;
+      
+      document.querySelector(`.content-panel.active`).classList.remove("active");
+      document.getElementById(`panel-${stepIndex}`).classList.add("active");
+      
+      document.querySelector(`#stepsList .step-item.active`).classList.remove("active");
+      document.querySelector(`#stepsList .step-item[data-step="${stepIndex}"]`).classList.add("active");
+      
+      currentStep = stepIndex;
+      
+      document.getElementById("prevBtn").disabled = (currentStep === 0);
+      
+      const nextBtn = document.getElementById("nextBtn");
+      if (currentStep === totalSteps - 1) {
+        nextBtn.style.display = "none";
+      } else {
+        nextBtn.style.display = "flex";
+      }
+
+      document.querySelector(".main-wrapper").scrollTop = 0;
+    }
+
+    function navigateStep(direction) {
+      showStep(currentStep + direction);
+    }
+
+    // Interactive Tab switching
+    function setupTabListeners() {
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const group = btn.getAttribute("data-tab-group");
+          const targetTab = btn.getAttribute("data-tab");
+          
+          document.querySelectorAll(`.tab-btn[data-tab-group="${group}"]`).forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(`.tab-content[data-tab-group="${group}"]`).forEach(c => c.classList.remove("active"));
+          
+          btn.classList.add("active");
+          document.getElementById(`tab-${targetTab}`).classList.add("active");
+        });
+      });
+    }
+
+    // Checklist Logic
+    function setupChecklistListeners() {
+      document.querySelectorAll(".task-checkbox-container").forEach(container => {
+        container.addEventListener("click", () => {
+          const taskId = container.getAttribute("data-task-id");
+          const isChecked = container.classList.toggle("checked");
+          taskStatus[taskId] = isChecked;
+          
+          updateProgress();
+        });
+      });
+    }
+
+    function updateProgress() {
+      const keys = Object.keys(taskStatus);
+      const completedTasks = keys.filter(k => taskStatus[k]).length;
+      const progressPercent = Math.round((completedTasks / keys.length) * 100);
+      
+      document.getElementById("overallProgressBar").style.width = `${progressPercent}%`;
+      document.getElementById("progressPercent").textContent = `${progressPercent}%`;
+      
+      markStepCompletion("t0_1", 0, ["t0_1", "t0_2"]);
+      markStepCompletion("t1_1", 1, ["t1_1"]);
+      markStepCompletion("t2_1", 2, ["t2_1"]);
+      markStepCompletion("t3_1", 3, ["t3_1"]);
+      markStepCompletion("t4_1", 4, ["t4_1", "t4_2"]);
+      markStepCompletion("t5_challenge", 5, ["t5_challenge"]);
+      markStepCompletion("t5_1", 6, ["t5_1"]);
+      
+      checkCertificateUnlock();
+    }
+
+    function markStepCompletion(triggerKey, stepIdx, requiredKeys = [triggerKey]) {
+      const stepItem = document.querySelector(`#stepsList .step-item[data-step="${stepIdx}"]`);
+      if (!stepItem) return;
+      const allDone = requiredKeys.every(k => taskStatus[k]);
+      
+      if (allDone) {
+        stepItem.classList.add("completed");
+      } else {
+        stepItem.classList.remove("completed");
+      }
+    }
+
+    function checkCertificateUnlock() {
+      const allTasksDone = Object.values(taskStatus).every(val => val === true);
+      const quizPassed = Object.values(quizResults).every(val => val === true);
+      
+      const lockScreen = document.getElementById("certLockScreen");
+      const certScreen = document.getElementById("certGenerationScreen");
+      
+      if (allTasksDone && quizPassed) {
+        lockScreen.style.display = "none";
+        certScreen.classList.add("unlocked");
+      } else {
+        lockScreen.style.display = "flex";
+        certScreen.classList.remove("unlocked");
+      }
+    }
+
+    // Quiz evaluation
+    function checkAnswer(button) {
+      const card = button.closest(".quiz-card");
+      const questionId = card.getAttribute("data-question-id");
+      const isCorrect = button.getAttribute("data-correct") === "true";
+      const feedback = card.querySelector(".quiz-feedback");
+      
+      card.querySelectorAll(".quiz-option").forEach(opt => {
+        opt.classList.remove("correct", "incorrect");
+        opt.disabled = true;
+      });
+      
+      if (isCorrect) {
+        button.classList.add("correct");
+        feedback.className = "quiz-feedback show correct";
+        
+        const explanations = {
+          q1: "Correct! Spanner groups multiple rows in a query and sends them as a batch to the Cloud Function, reducing the overhead of multiple HTTP round-trips.",
+          q2: "Correct! The endpoint option specifies the HTTPS endpoint where the Cloud Function is deployed.",
+          q3: "Correct! Views provide fine-grained access control. Users need SELECT privilege on the view itself without needing access to underlying tables."
+        };
+        feedback.textContent = explanations[questionId];
+        quizResults[questionId] = true;
+      } else {
+        button.classList.add("incorrect");
+        feedback.className = "quiz-feedback show incorrect";
+        feedback.textContent = "Incorrect. Review the documentation and try again.";
+        card.querySelector(".quiz-option[data-correct='true']").classList.add("correct");
+        quizResults[questionId] = false;
+      }
+      
+      checkCertificateUnlock();
+    }
+
+    // Certificate generation canvas builder
+    function drawCertificate() {
+      const canvas = document.getElementById("certificateCanvas");
+      const ctx = canvas.getContext("2d");
+      const name = document.getElementById("studentName").value.trim() || "Google Cloud Spanner Developer";
+      
+      canvas.style.display = "block";
+      document.getElementById("downloadWrapper").style.display = "block";
+      
+      // Background gradient
+      const grad = ctx.createLinearGradient(0, 0, 800, 560);
+      grad.addColorStop(0, "#0b0f19");
+      grad.addColorStop(1, "#1e293b");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 800, 560);
+      
+      // Decorative border grid
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.15)";
+      ctx.lineWidth = 15;
+      ctx.strokeRect(20, 20, 760, 520);
+      
+      ctx.strokeStyle = "rgba(16, 185, 129, 0.2)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(35, 35, 730, 490);
+      
+      // Text formatting
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "bold 26px 'Outfit', sans-serif";
+      ctx.fillText("SPANNER ACADEMY CERTIFICATE", 400, 100);
+      
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "14px 'Inter', sans-serif";
+      ctx.fillText("THIS CERTIFIES THAT", 400, 160);
+      
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 32px 'Outfit', sans-serif";
+      ctx.fillText(name, 400, 220);
+      
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "15px 'Inter', sans-serif";
+      ctx.fillText("has successfully completed the training walkthrough:", 400, 280);
+      
+      ctx.fillStyle = "#10b981";
+      ctx.font = "600 20px 'Outfit', sans-serif";
+      ctx.fillText("Cloud Spanner: Views & Remote Cloud Functions", 400, 325);
+      
+      const dateStr = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+      ctx.fillStyle = "#64748b";
+      ctx.font = "13px 'Inter', sans-serif";
+      ctx.fillText(`Issued: ${dateStr}`, 400, 390);
+      
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "bold 14px 'Outfit', sans-serif";
+      ctx.fillText("Spanner Academy Certified Specialist", 400, 440);
+      
+      // Sync canvas with download link
+      const downloadBtn = document.getElementById("downloadBtn");
+      downloadBtn.href = canvas.toDataURL("image/png");
+    }
+
+    // Decorate code blocks copy buttons functionality
+    function decorateCodeBlocks() {
+      const codeContainers = document.querySelectorAll(".code-block-container");
+      
+      codeContainers.forEach((container, idx) => {
+        const codeElement = container.querySelector("code");
+        if (!codeElement) return;
+        
+        let codeText = codeElement.textContent.trim();
+        
+        let lang = "shell";
+        let filename = "commands.sh";
+        let iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#858585" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        
+        if (container.classList.contains("javascript") || container.classList.contains("node")) {
+          lang = "javascript";
+          filename = "index.js";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#f1e05a" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        } else if (container.classList.contains("sql")) {
+          lang = "sql";
+          filename = "queries.sql";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#f1e05a" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        }
+        
+        const header = document.createElement("div");
+        header.className = "code-header";
+        header.innerHTML = `
+          <div class="editor-left">
+            <div class="mac-dots">
+              <span class="mac-dot red"></span>
+              <span class="mac-dot yellow"></span>
+              <span class="mac-dot green"></span>
+            </div>
+            <div class="editor-tab">
+              <span class="tab-icon">${iconSvg}</span>
+              <span class="tab-filename">${filename}</span>
+            </div>
+          </div>
+          <div class="copy-btn-wrapper">
+            <button class="copy-btn" onclick="copyCode(this)">
+              <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+              Copy
+            </button>
+            <span class="tooltip">Copied!</span>
+          </div>
+        `;
+        
+        const oldHeader = container.querySelector(".code-header");
+        if (oldHeader) oldHeader.remove();
+        container.insertBefore(header, container.firstChild);
+        
+        const lines = codeText.split("\n");
+        const codePre = container.querySelector("pre");
+        if (codePre) {
+          codePre.className = "code-content";
+          codePre.innerHTML = "";
+          
+          lines.forEach((lineText, lineIdx) => {
+            const lineDiv = document.createElement("div");
+            lineDiv.className = "code-line";
+            
+            const lineNum = document.createElement("span");
+            lineNum.className = "line-number";
+            lineNum.textContent = lineIdx + 1;
+            
+            const lineCode = document.createElement("span");
+            lineCode.className = "line-code";
+            lineCode.innerHTML = highlightSyntax(lineText, lang);
+            
+            lineDiv.appendChild(lineNum);
+            lineDiv.appendChild(lineCode);
+            codePre.appendChild(lineDiv);
+          });
+        }
+      });
+    }
+
+    function highlightSyntax(text, lang) {
+      let escaped = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+        
+      const placeholders = [];
+      let placeholderCounter = 0;
+      
+      function addPlaceholder(value, className) {
+        const id = `___TOKEN_${placeholderCounter++}___`;
+        placeholders.push({ id, html: `<span class="${className}">${value}</span>` });
+        return id;
+      }
+      
+      let processed = escaped;
+      
+      if (lang === "python" || lang === "java" || lang === "javascript") {
+        // Extract strings
+        processed = processed.replace(/(["'])(.*?)\1/g, (match) => {
+          return addPlaceholder(match, "c-str");
+        });
+        
+        // Extract comments
+        processed = processed.replace(/(#.*|\/\/.*)$/g, (match) => {
+          return addPlaceholder(match, "c-comment");
+        });
+        
+        // Highlight keywords
+        const keywords = ['import', 'from', 'def', 'if', 'else', 'with', 'as', 'print', 'list', 'return', 'in', 'class', 'public', 'private', 'static', 'void', 'new', 'const', 'let', 'var', 'function', 'require'];
+        const regex = new RegExp(`\\b(${keywords.join('|')})\\b`, 'g');
+        processed = processed.replace(regex, '<span class="c-kw">$1</span>');
+        
+        // Highlight functions
+        processed = processed.replace(/\b(\w+)(?=\()/g, '<span class="c-func">$1</span>');
+        
+        // Highlight numbers
+        processed = processed.replace(/\b(\d+)\b/g, '<span class="c-num">$1</span>');
+        
+      } else if (lang === "shell" || lang === "sql") {
+        // Extract strings
+        processed = processed.replace(/(["'])(.*?)\1/g, (match) => {
+          return addPlaceholder(match, "c-str");
+        });
+        
+        // Extract comments
+        processed = processed.replace(/(#.*)$/g, (match) => {
+          return addPlaceholder(match, "c-comment");
+        });
+        
+        // Highlight SQL keywords
+        const sqlKeywords = ['CREATE', 'TABLE', 'ALTER', 'DATABASE', 'SET', 'OPTIONS', 'PRIMARY', 'KEY', 'INTERLEAVE', 'IN', 'PARENT', 'ON', 'DELETE', 'CASCADE', 'INSERT', 'INTO', 'VALUES', 'SELECT', 'FROM', 'WHERE', 'DROP', 'UPDATE', 'ROWS', 'DESCRIBE', 'RESTORE', 'OR', 'REPLACE', 'VIEW', 'AS', 'FUNCTION', 'RETURNS', 'ADD', 'COLUMN'];
+        const sqlRegex = new RegExp(`\\b(${sqlKeywords.join('|')})\\b`, 'gi');
+        processed = processed.replace(sqlRegex, '<span class="c-kw">$1</span>');
+      }
+      
+      // Restore placeholders in reverse order
+      for (let i = placeholders.length - 1; i >= 0; i--) {
+        processed = processed.replace(placeholders[i].id, placeholders[i].html);
+      }
+      
+      return processed;
+    }
+
+    function copyCode(button) {
+      const container = button.closest(".code-block-container");
+      const lines = container.querySelectorAll(".line-code");
+      let code = "";
+      lines.forEach((ln, idx) => {
+        code += ln.textContent + (idx < lines.length - 1 ? "\n" : "");
+      });
+      const wrapper = button.closest(".copy-btn-wrapper");
+      
+      navigator.clipboard.writeText(code).then(() => {
+        wrapper.classList.add("copied");
+        setTimeout(() => {
+          wrapper.classList.remove("copied");
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
