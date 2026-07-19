@@ -1,0 +1,2150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lab 13: Data Placements & Geo-Partitioning in Cloud Spanner. Configure instance partitions, register DDL database placements, declare table placement keys, and verify regional storage allocation.">
+  <title>Cloud Spanner Lab: Data Placements & Geo-Partitioning</title>
+  
+  <!-- Typography & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Design Tokens - Matching previous labs */
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #131a2e;
+      --bg-tertiary: #1e294b;
+      --bg-code: #070a13;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --accent-rgb: 56, 189, 248;
+      
+      --success: #10b981;
+      --success-rgb: 16, 185, 129;
+      --warning: #f59e0b;
+      --warning-rgb: 245, 158, 11;
+      --danger: #ef4444;
+      
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.15);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.35);
+      
+      --font-sans: 'Inter', sans-serif;
+      --font-display: 'Outfit', sans-serif;
+      --font-mono: 'Fira Code', monospace;
+      
+      --sidebar-width: 320px;
+    }
+
+    /* Light Theme Variables */
+    .light-theme {
+      --bg-primary: #f1f5f9;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e2e8f0;
+      --bg-code: #1e293b;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-rgb: 2, 132, 199;
+      
+      --success: #059669;
+      --success-rgb: 5, 150, 105;
+      --warning: #d97706;
+      --warning-rgb: 217, 119, 6;
+      
+      --border-color: rgba(0, 0, 0, 0.08);
+      --border-hover: rgba(0, 0, 0, 0.15);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Global Reset & Base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      scroll-behavior: smooth;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .app-container {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      z-index: 10;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      fill: var(--accent);
+      filter: drop-shadow(0 0 8px rgba(var(--accent-rgb), 0.5));
+    }
+
+    .logo-text {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .progress-section {
+      margin-top: 8px;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background-color: var(--bg-tertiary);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--success) 100%);
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .steps-list {
+      list-style: none;
+      padding: 12px 0;
+      flex-grow: 1;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .step-item:hover {
+      color: var(--text-primary);
+      background-color: rgba(var(--accent-rgb), 0.03);
+    }
+
+    .step-item.active {
+      color: var(--text-primary);
+      background-color: rgba(var(--accent-rgb), 0.08);
+      font-weight: 600;
+    }
+
+    .step-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background-color: var(--accent);
+      border-top-right-radius: 2px;
+      border-bottom-right-radius: 2px;
+    }
+
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--border-color);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.3s ease;
+    }
+
+    .step-item.completed .step-indicator {
+      background-color: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+
+    .step-check-icon {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: white;
+      stroke-width: 3;
+      display: none;
+    }
+
+    .step-item.completed .step-check-icon {
+      display: block;
+    }
+
+    .step-item.completed .step-number {
+      display: none;
+    }
+
+    .sidebar-footer {
+      padding: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .theme-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      background-color: rgba(var(--accent-rgb), 0.1);
+    }
+
+    .theme-toggle-icon {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* Main Content Wrapper */
+    .main-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .top-navbar {
+      height: 60px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background-color: var(--bg-secondary);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .lab-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+      background-color: rgba(var(--accent-rgb), 0.1);
+      padding: 6px 12px;
+      border-radius: 100px;
+      border: 1px solid rgba(var(--accent-rgb), 0.2);
+    }
+
+    .lab-meta {
+      display: flex;
+      gap: 20px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meta-icon {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: var(--text-muted);
+      stroke-width: 2;
+    }
+
+    /* Content Panels */
+    .content-panel {
+      display: none;
+      flex-grow: 1;
+      padding: 40px 10%;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .content-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    h2 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin: 32px 0 16px 0;
+      color: var(--text-primary);
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    ul, ol {
+      margin-bottom: 24px;
+      padding-left: 24px;
+    }
+
+    li {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 8px;
+    }
+
+    strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      background-color: var(--bg-tertiary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--accent);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Code Block Styling */
+    .code-block-container {
+      background-color: var(--bg-code);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin: 20px 0;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .code-header {
+      background-color: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-lang-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .copy-btn-wrapper {
+      position: relative;
+    }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      color: var(--text-primary);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .copy-btn-icon {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    .tooltip {
+      position: absolute;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #0f172a;
+      color: white;
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .tooltip::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 5px;
+      border-style: solid;
+      border-color: #0f172a transparent transparent transparent;
+    }
+
+    .copy-btn-wrapper.copied .tooltip {
+      opacity: 1;
+    }
+
+    pre.code-content {
+      padding: 16px 20px;
+      overflow-x: auto;
+      margin: 0;
+    }
+
+    pre.code-content code {
+      background: none;
+      border: none;
+      padding: 0;
+      border-radius: 0;
+      color: #e2e8f0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    /* Checklist Section */
+    .task-checklist {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 32px;
+      border-top: 1px dashed var(--border-color);
+      padding-top: 24px;
+    }
+
+    .task-checkbox-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px;
+      border-radius: 8px;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .task-checkbox-container:hover {
+      border-color: var(--border-hover);
+      transform: translateX(4px);
+      background-color: rgba(var(--accent-rgb), 0.02);
+    }
+
+    .task-checkbox-container.checked {
+      background-color: rgba(var(--success-rgb), 0.03);
+      border-color: rgba(var(--success-rgb), 0.3);
+    }
+
+    .custom-checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+      margin-top: 2px;
+    }
+
+    .task-checkbox-container:hover .custom-checkbox {
+      border-color: var(--accent);
+    }
+
+    .task-checkbox-container.checked .custom-checkbox {
+      background-color: var(--success);
+      border-color: var(--success);
+    }
+
+    .check-mark {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: white;
+      stroke-width: 3;
+      display: none;
+    }
+
+    .task-checkbox-container.checked .check-mark {
+      display: block;
+    }
+
+    .task-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .task-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: color 0.2s ease;
+    }
+
+    .task-checkbox-container.checked .task-label {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .task-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* Page Navigation Footer */
+    .page-navigation {
+      margin-top: auto;
+      border-top: 1px solid var(--border-color);
+      padding: 24px 10%;
+      display: flex;
+      justify-content: space-between;
+      background-color: var(--bg-secondary);
+      position: sticky;
+      bottom: 0;
+      z-index: 5;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn-prev {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .nav-btn-prev:hover {
+      background-color: var(--bg-secondary);
+      border-color: var(--border-hover);
+    }
+
+    .nav-btn-prev:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .nav-btn-next {
+      background-color: var(--accent);
+      border: none;
+      color: #0b0f19;
+    }
+
+    .nav-btn-next:hover {
+      background-color: var(--accent-hover);
+      box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.35);
+    }
+
+    .nav-btn-icon {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* Callout Boxes */
+    .callout {
+      background-color: var(--bg-secondary);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 24px 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .callout-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .callout-icon {
+      width: 16px;
+      height: 16px;
+      fill: var(--accent);
+    }
+
+    /* Challenge Elements */
+    .challenge-banner {
+      background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.15) 0%, rgba(var(--success-rgb), 0.05) 100%);
+      border: 1px solid rgba(var(--accent-rgb), 0.25);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .challenge-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--accent-rgb), 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .challenge-banner-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .challenge-badge-icon-container {
+      width: 48px;
+      height: 48px;
+      background-color: rgba(var(--accent-rgb), 0.15);
+      border: 1px solid rgba(var(--accent-rgb), 0.3);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .challenge-badge-icon-container svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    .challenge-banner-title-area h1 {
+      font-size: 1.45rem;
+      margin-bottom: 4px;
+    }
+
+    .challenge-banner-title-area p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 0;
+    }
+
+    .challenge-cloud-graphics svg {
+      width: 64px;
+      height: 64px;
+      color: rgba(var(--accent-rgb), 0.25);
+    }
+
+    .challenge-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .challenge-intro-box {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .challenge-intro-icon-container {
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .challenge-intro-icon-container svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .challenge-intro-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0;
+      line-height: 1.5;
+    }
+
+    .challenge-section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 16px 0;
+      border: none;
+      padding-left: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .challenge-section-title svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .challenge-tasks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .challenge-task-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      gap: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .challenge-task-card:hover {
+      border-color: var(--border-hover);
+    }
+
+    .challenge-task-step-num {
+      flex-shrink: 0;
+    }
+
+    .challenge-task-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .challenge-task-icon {
+      color: var(--text-muted);
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .challenge-task-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .challenge-task-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .challenge-task-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .challenge-task-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .challenge-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sidebar-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .sidebar-card-header {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-card-header svg {
+      width: 16px;
+      height: 16px;
+      color: var(--accent);
+    }
+
+    .sidebar-card-body {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 0;
+    }
+
+    .pro-tip-card {
+      border-left: 3px solid var(--warning);
+    }
+
+    .pro-tip-card .sidebar-card-header svg {
+      color: var(--warning);
+    }
+
+    /* Quiz Elements */
+    .quiz-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .quiz-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .quiz-question {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quiz-option {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 12px 16px;
+      border-radius: 6px;
+      text-align: left;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+      background-color: rgba(var(--accent-rgb), 0.02);
+    }
+
+    .quiz-option.correct {
+      background-color: rgba(var(--success-rgb), 0.1);
+      border-color: var(--success);
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .quiz-option.incorrect {
+      background-color: rgba(239, 68, 68, 0.1);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .quiz-option:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    /* Certificate Screen */
+    .certificate-panel {
+      text-align: center;
+    }
+
+    .certificate-panel h1 {
+      font-size: 2.2rem;
+    }
+
+    .certificate-panel .subtitle {
+      margin-bottom: 40px;
+    }
+
+    .lock-screen {
+      border: 1px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 60px 40px;
+      background-color: var(--bg-secondary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: 0 auto;
+      max-width: 600px;
+    }
+
+    .lock-icon {
+      width: 48px;
+      height: 48px;
+      fill: var(--text-muted);
+    }
+
+    .lock-screen h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      color: var(--text-primary);
+    }
+
+    .lock-screen p {
+      font-size: 0.85rem;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .certificate-generation {
+      display: none;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .certificate-generation.unlocked {
+      display: block;
+    }
+
+    .cert-input-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 500px;
+      margin: 0 auto 32px auto;
+      text-align: left;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .input-group label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .cert-name-input {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      padding: 12px;
+      font-size: 0.95rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .cert-name-input:focus {
+      border-color: var(--accent);
+    }
+
+    .generate-cert-btn {
+      background-color: var(--accent);
+      border: none;
+      color: #0b0f19;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.2s ease;
+    }
+
+    .generate-cert-btn:hover {
+      background-color: var(--accent-hover);
+    }
+
+    #certificateCanvas {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: var(--shadow-md);
+      display: none;
+      margin: 0 auto;
+    }
+
+    .cert-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    .cert-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .cert-btn-download {
+      background-color: var(--accent);
+      color: #0b0f19;
+    }
+
+    .cert-btn-download:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .cert-btn-print {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .cert-btn-print:hover {
+      background-color: var(--bg-tertiary);
+    }
+  </style>
+</head>
+<body class="light-theme">
+
+  <div class="app-container">
+    
+    <!-- Sidebar Left Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-container">
+          <svg class="logo-icon" viewBox="0 0 24 24">
+            <path d="M12 2L2 22h20L12 2zm0 3.99L19.53 19H4.47L12 5.99zM13 16h-2v2h2v-2zm0-6h-2v4h2v-4z"/>
+          </svg>
+          <span class="logo-text">Spanner Academy</span>
+        </div>
+        <div class="progress-section">
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="overallProgressBar"></div>
+          </div>
+          <div class="progress-text">
+            <span>Overall Progress</span>
+            <span id="progressPercent">0%</span>
+          </div>
+        </div>
+      </div>
+      
+      <ul class="steps-list" id="stepsList">
+        <li class="step-item active" data-step="0">
+          <span class="step-indicator">
+            <span class="step-number">1</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Lab Overview</span>
+        </li>
+                
+<li class="step-item" data-step="2">
+          <span class="step-indicator">
+            <span class="step-number">3</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Instance Partitions</span>
+        </li>
+        <li class="step-item" data-step="2">
+          <span class="step-indicator">
+            <span class="step-number">3</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Creating Placements</span>
+        </li>
+        <li class="step-item" data-step="2">
+          <span class="step-indicator">
+            <span class="step-number">3</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Table Placements DDL</span>
+        </li>
+        <li class="step-item" data-step="2">
+          <span class="step-indicator">
+            <span class="step-number">3</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Information Schema</span>
+        </li>
+        <li class="step-item" data-step="2">
+          <span class="step-indicator">
+            <span class="step-number">3</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Hands-on Challenge</span>
+        </li>
+        <li class="step-item" data-step="2">
+          <span class="step-indicator">
+            <span class="step-number">3</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Clean Up Resources</span>
+        </li>
+        <li class="step-item" data-step="2">
+          <span class="step-indicator">
+            <span class="step-number">3</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Knowledge Check</span>
+        </li>
+        <li class="step-item" data-step="2">
+          <span class="step-indicator">
+            <span class="step-number">3</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Get Certificate</span>
+        </li>
+      </ul>
+      
+      <div class="sidebar-footer">
+        <button class="theme-toggle-btn" id="themeToggleBtn">
+          <svg class="theme-toggle-icon" id="themeSunIcon" viewBox="0 0 24 24">
+            <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.01c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
+          </svg>
+          <svg class="theme-toggle-icon" id="themeMoonIcon" style="display:none;" viewBox="0 0 24 24">
+            <path d="M12.3 22h-.1c-5.5 0-10-4.5-10-10 0-4.8 3.5-8.9 8.2-9.8.6-.1 1.2.3 1.3.9.1.6-.3 1.2-.9 1.3-3.7.7-6.5 3.9-6.5 7.7 0 4.4 3.6 8 8 8 3.8 0 7-2.8 7.7-6.5.1-.6.7-1 1.3-.9.6.1 1 .7.9 1.3-.9 4.7-5 8.2-9.9 8.2z"/>
+          </svg>
+          <span id="themeToggleText">Dark Mode</span>
+        </button>
+      </div>
+    </aside>
+    
+    <!-- Main Content Panel Right -->
+    <main class="main-wrapper">
+      
+      <!-- Sticky Top Header -->
+      <header class="top-navbar">
+        <div class="lab-badge">
+          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>
+          Lab 13: Data Placements & Geo-Partitioning
+        </div>
+        <div class="lab-meta">
+          <div class="meta-item">
+            <svg class="meta-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+            <span>Estimated Duration: <strong>40 mins</strong></span>
+          </div>
+          <div class="meta-item">
+            <svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            <span>Difficulty: <strong>Advanced</strong></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- STEP 1: Overview -->
+      <section class="content-panel active" id="panel-0">
+        <h1>Data Placements in Cloud Spanner</h1>
+        <p class="subtitle">Welcome! In this hands-on lab, you will learn how to configure **Data Placements** and **Geo-Partitioning** in Cloud Spanner to satisfy strict data residency requirements and optimize read/write latencies globally.</p>
+        
+        <h2>Why Data Placements?</h2>
+        <p>In globally distributed systems, storing all database records in a single region limits write latency for remote users and can violate local data sovereignty regulations (such as GDPR in Europe). Spanner's **Data Placements** (available in Spanner Enterprise Plus) solve this by partitioning data at the row level across regions:</p>
+        <ul>
+          <li><strong>Data Sovereignty</strong>: Pin European users' records to Europe-based replication servers and American users' records to US-based servers.</li>
+          <li><strong>Localized Latency</strong>: Ensure clients read and write to nodes physically nearest to them, achieving near single-digit millisecond performance.</li>
+          <li><strong>Unified Schema</strong>: Maintain a single global table schema that is automatically partitioned under the hood.</li>
+        </ul>
+
+        <div class="callout">
+          <div class="callout-title">
+            <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            Key Concept: Placement Key
+          </div>
+          <p class="sidebar-card-body">
+            A <strong>Placement Key</strong> is a column attribute declared during table creation that tells Spanner which replica partition should physically host the row. To route queries efficiently, the placement key must be part of the table's <strong>Primary Key</strong>.
+          </p>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t0_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Read introduction to geo-partitioning</span>
+              <span class="task-desc">Understand how row-level placements solve regulatory compliance and latency bottlenecks.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 2: Instance Partitions -->
+
+<section class="content-panel" id="panel-1">
+        <h1>Creating Instance Partitions</h1>
+        <p>Before placing database rows, you must allocate compute capacity in the target regions. You achieve this by creating **Instance Partitions**.</p>
+        
+        <h2>Instance Partition Architecture</h2>
+        <p>An instance partition represents a distinct slice of computing power (nodes or processing units) tied to a specific geographic region inside your multi-region instance configuration.</p>
+
+        <h2>1. Provision Multi-Region Instance</h2>
+        <p>Run this command to create a multi-region Spanner instance allocated with <strong>200 Processing Units</strong> (PUs):</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner instances create test-instance \
+  --config=nam-eur-asia1 \
+  --description="Global Multi-region Instance" \
+  --nodes=2</code></pre>
+        </div>
+
+        <h2>2. Divide Nodes into 2 Partitions</h2>
+        <p>Now, divide those 2 nodes equally by creating two instance partitions of <strong>1 node each</strong> (assigning one partition to the Americas and one to Europe):</p>
+
+        <div class="callout" style="border-left-color: var(--warning); margin-bottom: 20px;">
+          <div class="callout-title" style="color: var(--warning);">
+            <svg class="callout-icon" style="fill: var(--warning);" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            Important: No Granular Partitions
+          </div>
+          <p class="sidebar-card-body" style="color: var(--text-secondary);">
+            Cloud Spanner does not support granular instances (capacities in processing units less than 1000 PUs / 1 node) or processing units for the geo-partitioning / instance partition features. Partitions must always be configured with at least <strong>1 full node</strong> (e.g. <code>--nodes=1</code>).
+          </p>
+        </div>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code># 1. Create Americas partition with 1 node
+gcloud spanner instance-partitions create us-partition \
+  --instance=test-instance \
+  --config=regional-us-east1 \
+  --nodes=1 \
+  --description="Americas regional partition"
+
+# 2. Create Europe partition with 1 node
+gcloud spanner instance-partitions create eu-partition \
+  --instance=test-instance \
+  --config=regional-europe-west3 \
+  --nodes=1 \
+  --description="Europe regional partition"</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t1_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Create regional instance partitions</span>
+              <span class="task-desc">Provision regional compute resource boundaries inside your Spanner deployment.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 3: Database Placements -->
+            <!-- STEP 3: Clean Up Resources -->
+      <section class="content-panel" id="panel-2">
+        <h1>Step 3: Clean Up Resources</h1>
+        <p><strong>IMPORTANT:</strong> To avoid ongoing node billing charges, make sure to delete your active Google Cloud Spanner instances once you complete the lab. Execute these commands in your Cloud Shell or local console:</p>
+        
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code># Delete the test Spanner instance (deletes all databases inside it automatically)
+gcloud spanner instances delete test-instance --quiet
+
+# Delete the challenge Spanner instance (if created)
+gcloud spanner instances delete challenge-instance --quiet</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t_cleanup">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Clean up Spanner instances</span>
+              <span class="task-desc">Verify that Google Cloud Spanner test and challenge instances are deleted via gcloud.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+<section class="content-panel" id="panel-3">
+        <h1>Creating Database Placements</h1>
+        <p>Once regional compute resource boundaries exist, register them as **Placements** within the database schema.</p>
+
+        <h2>DDL: CREATE PLACEMENT</h2>
+        <p>Placements map database schema partitions to physical instance partition containers. Run the following DDL statements inside your database schema:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">DDL</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>-- Register US placement
+CREATE PLACEMENT placement_us 
+OPTIONS (
+  instance_partition = 'us-partition'
+);
+
+-- Register Europe placement
+CREATE PLACEMENT placement_eu 
+OPTIONS (
+  instance_partition = 'eu-partition'
+);</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t2_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Register database placements DDL</span>
+              <span class="task-desc">Link logical database placement IDs to regional instance partition configurations.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 4: Table Placements DDL -->
+      <section class="content-panel" id="panel-4">
+        <h1>Declaring Table Placement Keys</h1>
+        <p>Now, deploy a schema that distributes customer rows based on the placement keys.</p>
+
+        <h2>1. Deploy Geo-Partitioned Table</h2>
+        <p>Define a table containing a column decorated with the <code>PLACEMENT KEY</code> constraint. Run the DDL script to create the <code>Customers</code> table:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">DDL</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>CREATE TABLE Customers (
+  CustomerId INT64 NOT NULL,
+  Name STRING(255),
+  Email STRING(255),
+  Region STRING(50) NOT NULL PLACEMENT KEY
+) PRIMARY KEY (Region, CustomerId);</code></pre>
+        </div>
+
+        <h2>2. Insert Regional Records</h2>
+        <p>Write records directly into their respective geographic regions by passing the correct placement IDs in the <code>Region</code> column:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="INSERT INTO Customers (CustomerId, Name, Email, Region) VALUES 
+  (101, 'Jane Smith', 'jane@email.com', 'placement_us'),
+  (102, 'Robert Johnson', 'robert@email.com', 'placement_eu');"</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t3_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Deploy table with PLACEMENT KEY</span>
+              <span class="task-desc">Deploy the schema containing a designated PLACEMENT KEY column constraint.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t3_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Seed geo-partitioned records</span>
+              <span class="task-desc">Verify that records are routed to their designated regions matching placement configurations.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 5: Information Schema -->
+      <section class="content-panel" id="panel-5">
+        <h1>Observing Placements metadata</h1>
+        <p>You can audit placements and their options by querying Spanner's built-in <code>INFORMATION_SCHEMA</code>.</p>
+
+        <h2>Query Metadata Tables</h2>
+        <p>Run these SELECT statements to inspect placements registered in your database:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code># 1. Query all database placements
+gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="SELECT PLACEMENT_NAME, SCHEMA_NAME FROM INFORMATION_SCHEMA.PLACEMENTS;"
+
+# 2. Query configured placement options
+gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="SELECT PLACEMENT_NAME, OPTION_NAME, OPTION_VALUE 
+         FROM INFORMATION_SCHEMA.PLACEMENT_OPTIONS;"</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t4_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Query placement metadata tables</span>
+              <span class="task-desc">Inspect configuration options inside Information Schema views.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 6: Hands-on Challenge -->
+      <section class="content-panel" id="panel-6" style="padding: 0; background: transparent; border: none; box-shadow: none;">
+        
+        <!-- Challenge Header Banner -->
+        <div class="challenge-banner">
+          <div class="challenge-banner-left">
+            <div class="challenge-badge-icon-container">
+              <svg viewBox="0 0 24 24">
+                <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v3c0 2.21 1.79 4 4 4h1.72c.76 1.48 2.05 2.61 3.66 2.92V19H8v2h8v-2h-4.38v-3.08c1.61-.31 2.9-1.44 3.66-2.92H17c2.21 0 4-1.79 4-4V7c0-1.1-.9-2-2-2zM5 10V7h2v3c0 1.1-.9 2-2 2s-2-.9-2-2zm14 0c0 1.1-.9 2-2 2s-2-.9-2-2V7h2v3zm-4-4v4c0 1.66-1.34 3-3 3S9 11.66 9 10V6h6z"/>
+              </svg>
+            </div>
+            <div class="challenge-banner-title-area">
+              <h1>Step 6: Hands-On Challenge</h1>
+              <p>Configure geo-partitioning table placements for localized users.</p>
+            </div>
+          </div>
+          <div class="challenge-cloud-graphics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="challenge-grid">
+          <!-- Left Column -->
+          <div class="challenge-main" style="background-color: var(--bg-primary); padding: 0;">
+            <div class="challenge-intro-box">
+              <div class="challenge-intro-icon-container">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="6"></circle>
+                  <circle cx="12" cy="12" r="2"></circle>
+                </svg>
+              </div>
+              <p class="challenge-intro-text">
+                Register a new Asia Pacific region placement policy and deploy a geo-partitioned Users table with location routing.
+              </p>
+            </div>
+
+            <h2 class="challenge-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+              Challenge Tasks
+            </h2>
+
+            <div class="challenge-tasks-list">
+              <!-- Task 1 -->
+              <div class="challenge-task-card step-1">
+                <div class="challenge-task-step-num">
+                  <div class="challenge-task-circle">1</div>
+                </div>
+                <div class="challenge-task-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                  </svg>
+                </div>
+                <div class="challenge-task-content">
+                  <div class="challenge-task-title">Register Asia Pacific Placement</div>
+                  <div class="challenge-task-desc">Create a placement named <code>placement_ap</code> pointing to instance partition <code>ap-partition</code>.</div>
+                  <details style="margin-top: 10px; cursor: pointer;">
+                    <summary style="font-size: 0.8rem; font-weight: 600; color: var(--accent);">Show Hint: DDL SQL</summary>
+                    <pre class="code-content" style="padding: 8px; margin-top: 6px;"><code style="font-size: 0.75rem;">CREATE PLACEMENT placement_ap
+OPTIONS (
+  instance_partition = 'ap-partition'
+);</code></pre>
+                  </details>
+                </div>
+              </div>
+
+              <!-- Task 2 -->
+              <div class="challenge-task-card step-2">
+                <div class="challenge-task-step-num">
+                  <div class="challenge-task-circle">2</div>
+                </div>
+                <div class="challenge-task-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"></path>
+                  </svg>
+                </div>
+                <div class="challenge-task-content">
+                  <div class="challenge-task-title">Deploy Geo-Partitioned Users Table</div>
+                  <div class="challenge-task-desc">Deploy a table named <code>Users</code> containing columns <code>UserId INT64 NOT NULL</code>, <code>Name STRING(255)</code>, and <code>Location STRING(MAX) NOT NULL PLACEMENT KEY</code>. Ensure the primary key contains the placement key column.</div>
+                  <details style="margin-top: 10px; cursor: pointer;">
+                    <summary style="font-size: 0.8rem; font-weight: 600; color: var(--accent);">Show Hint: DDL SQL</summary>
+                    <pre class="code-content" style="padding: 8px; margin-top: 6px;"><code style="font-size: 0.75rem;">CREATE TABLE Users (
+  UserId INT64 NOT NULL,
+  Name STRING(255),
+  Location STRING(MAX) NOT NULL PLACEMENT KEY
+) PRIMARY KEY (Location, UserId);</code></pre>
+                  </details>
+                </div>
+              </div>
+            </div>
+
+            <!-- Task Checklist -->
+            <ul class="task-checklist">
+              <li class="task-checkbox-container" data-task-id="t5_1">
+                <div class="custom-checkbox">
+                  <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <div class="task-content">
+                  <span class="task-label">Create placement_ap configuration</span>
+                  <span class="task-desc">Link database placement options to the ap-partition instance target.</span>
+                </div>
+              </li>
+              <li class="task-checkbox-container" data-task-id="t5_2">
+                <div class="custom-checkbox">
+                  <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <div class="task-content">
+                  <span class="task-label">Deploy geo-partitioned Users table</span>
+                  <span class="task-desc">Verify that the Users table schema registers the Location column as its PLACEMENT KEY attribute.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Right Column (Sidebar) -->
+          <div class="challenge-sidebar">
+            <div class="sidebar-card use-case">
+              <div class="sidebar-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 18h6M10 22h4M15.09 14c.18-.33.3-.68.37-1.04.53-2.92-1.39-5.74-4.32-6.27-2.93-.53-5.75 1.39-6.28 4.32a5.96 5.96 0 0 0 2.24 5.37C8.42 17.24 9 18 9 18h6v-.5c0-.62.25-1.22.7-1.67l.39-.39c.6-.6.94-1.4.94-2.24a3 3 0 0 0-.94-2.2z"></path>
+                </svg>
+                Use Case
+              </div>
+              <p class="sidebar-card-body">
+                Complying with regulatory borders requires isolating localized rows. Adding geo-placements pins row data to regional instances while letting developers query it globally lock-free.
+              </p>
+            </div>
+
+            <div class="sidebar-card pro-tip-card">
+              <div class="sidebar-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Pro Tip
+              </div>
+              <p class="sidebar-card-body">
+                If you update the value of the placement key column (such as changing Location from 'placement_us' to 'placement_eu'), Spanner physically migrates the row asynchronously to the new region partition!
+              </p>
+            </div>
+
+            <div class="sidebar-card goal-card">
+              <div class="sidebar-card-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Goal
+              </div>
+              <p class="sidebar-card-body">
+                Configure regional placements and build schemas to isolate user records inside dedicated instance replication environments.
+              </p>
+            </div>
+          </div>
+        </div>
+</section>
+
+      <!-- STEP 7: Quiz / Knowledge Check -->
+      <section class="content-panel" id="panel-7">
+        <h1>Step 7: Knowledge Check</h1>
+        <p>Complete this quick self-check to evaluate your understanding of Spanner Data Placements and geo-partitioning constraints.</p>
+
+        <div class="quiz-container">
+          <!-- Question 1 -->
+          <div class="quiz-card" data-question-id="q1">
+            <div class="quiz-question">1. What is a key design requirement of the Spanner column designated as the PLACEMENT KEY?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                A. It must be of type INT64.
+              </button>
+              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
+                B. It must be defined as part of the table's PRIMARY KEY.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                C. It must be unique across all rows.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. It can only be updated within read-only transactions.
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="quiz-card" data-question-id="q2">
+            <div class="quiz-question">2. Which Spanner database objects are stored in the "default placement" namespace?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                A. Row data for tables containing a placement key.
+              </button>
+              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
+                B. Observability metrics, query stats, split-boundary keys, and global schema index definitions.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                C. All table rows regardless of placement rules.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. Only columns that are defined as nullable.
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="quiz-card" data-question-id="q3">
+            <div class="quiz-question">3. How does Spanner handle moving a row to a different placement when its PLACEMENT KEY column is updated?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                A. It throws a primary key integrity constraint error.
+              </button>
+              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
+                B. It moves the row physically and asynchronously to the new region partition.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                C. It deletes the row and requires client code to re-insert it.
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. It creates a secondary copy of the row while keeping the old copy intact.
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t6_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Complete all quiz questions</span>
+              <span class="task-desc">Answer all three multiple-choice questions correctly to unlock the certificate screen.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 8: Certificate of Completion -->
+      <section class="content-panel certificate-panel" id="panel-8">
+        <h1>Lab Certificate of Completion</h1>
+        <p class="subtitle">Once you complete the required tasks and pass the quiz, you can generate your certificate.</p>
+
+        <!-- Lock Screen -->
+        <div class="lock-screen" id="certLockScreen">
+          <svg class="lock-icon" viewBox="0 0 24 24">
+            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+          </svg>
+          <h3>Certificate Locked</h3>
+          <p>Complete all checklist steps and answer every quiz question correctly to unlock your personalized training certificate.</p>
+        </div>
+
+        <!-- Unlocked generation -->
+        <div class="certificate-generation" id="certGenerationScreen">
+          <div class="cert-input-card">
+            <div class="input-group">
+              <label for="studentName">Enter Your Name</label>
+              <input type="text" id="studentName" class="cert-name-input" placeholder="e.g. Jane Doe" value="Google Cloud Spanner Developer">
+            </div>
+            <button class="generate-cert-btn" onclick="drawCertificate()">Generate Certificate</button>
+          </div>
+
+          <!-- Canvas element -->
+          <canvas id="certificateCanvas" width="800" height="560"></canvas>
+
+          <div class="cert-actions" id="certActions">
+            <a href="#" id="downloadBtn" class="cert-btn cert-btn-download" download="Cloud_Spanner_Lab13_Certificate.png">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+              Download PNG
+            </a>
+            <button onclick="window.print()" class="cert-btn cert-btn-print">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+              Print Lab Guide
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Navigation Footer -->
+      <footer class="page-navigation">
+        <button class="nav-btn nav-btn-prev" id="prevBtn" onclick="navigateStep(-1)">
+          <svg class="nav-btn-icon" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+          Previous
+        </button>
+        <button class="nav-btn nav-btn-next" id="nextBtn" onclick="navigateStep(1)">
+          Next
+          <svg class="nav-btn-icon" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </button>
+      </footer>
+
+    </main>
+  </div>
+
+  <script>
+    // Constants & State
+    const totalSteps = 9;
+    let currentStep = 0;
+    
+    // Checklist configuration
+    const taskStatus = {
+      t_cleanup: false,
+      t0_1: false,
+      t1_1: false,
+      t2_1: false,
+      t3_1: false, t3_2: false,
+      t4_1: false,
+      t5_1: false, t5_2: false,
+      t6_1: false
+    };
+
+    // Quiz score trackers
+    const quizResults = {
+      q1: false,
+      q2: false,
+      q3: false
+    };
+
+    // Initialize Page
+    document.addEventListener("DOMContentLoaded", () => {
+      setupChecklistListeners();
+      setupTheme();
+      updateProgress();
+      decorateCodeBlocks();
+    });
+
+    // Theme toggle logic
+    function setupTheme() {
+      const btn = document.getElementById("themeToggleBtn");
+      const sun = document.getElementById("themeSunIcon");
+      const moon = document.getElementById("themeMoonIcon");
+      const txt = document.getElementById("themeToggleText");
+      
+      btn.addEventListener("click", () => {
+        const isLight = document.body.classList.toggle("light-theme");
+        if (isLight) {
+          sun.style.display = "block";
+          moon.style.display = "none";
+          txt.textContent = "Dark Mode";
+        } else {
+          sun.style.display = "none";
+          moon.style.display = "block";
+          txt.textContent = "Light Mode";
+        }
+      });
+    }
+
+    // Step navigation
+    const stepsListItems = document.querySelectorAll("#stepsList .step-item");
+    stepsListItems.forEach(item => {
+      item.addEventListener("click", () => {
+        const stepNum = parseInt(item.getAttribute("data-step"));
+        showStep(stepNum);
+      });
+    });
+
+    function showStep(stepIndex) {
+      if (stepIndex < 0 || stepIndex >= totalSteps) return;
+      
+      document.querySelector(`.content-panel.active`).classList.remove("active");
+      document.getElementById(`panel-${stepIndex}`).classList.add("active");
+      
+      document.querySelector(`#stepsList .step-item.active`).classList.remove("active");
+      document.querySelector(`#stepsList .step-item[data-step="${stepIndex}"]`).classList.add("active");
+      
+      currentStep = stepIndex;
+      
+      document.getElementById("prevBtn").disabled = (currentStep === 0);
+      
+      const nextBtn = document.getElementById("nextBtn");
+      if (currentStep === totalSteps - 1) {
+        nextBtn.style.display = "none";
+      } else {
+        nextBtn.style.display = "flex";
+      }
+
+      document.querySelector(".main-wrapper").scrollTop = 0;
+    }
+
+    function navigateStep(direction) {
+      showStep(currentStep + direction);
+    }
+
+    // Checklist Logic
+    function setupChecklistListeners() {
+      document.querySelectorAll(".task-checkbox-container").forEach(container => {
+        container.addEventListener("click", () => {
+          const taskId = container.getAttribute("data-task-id");
+          const isChecked = container.classList.toggle("checked");
+          taskStatus[taskId] = isChecked;
+          
+          updateProgress();
+        });
+      });
+    }
+
+    // Update Overall progress
+    function updateProgress() {
+      const keys = Object.keys(taskStatus);
+      const completedTasks = keys.filter(k => taskStatus[k]).length;
+      const progressPercent = Math.round((completedTasks / keys.length) * 100);
+      
+      document.getElementById("overallProgressBar").style.width = `${progressPercent}%`;
+      document.getElementById("progressPercent").textContent = `${progressPercent}%`;
+      
+      markStepCompletion("t0_1", 0);
+      markStepCompletion("t1_1", 1, ["t1_1"]);
+      markStepCompletion("t_cleanup", 2, ["t_cleanup"]);
+      markStepCompletion("t2_1", 3, ["t2_1"]);
+      markStepCompletion("t3_1", 4, ["t3_1", "t3_2"]);
+      markStepCompletion("t4_1", 5, ["t4_1"]);
+      markStepCompletion("t5_1", 6, ["t5_1", "t5_2"]);
+      markStepCompletion("t6_1", 7, ["t6_1"]);
+      
+      checkCertificateUnlock();
+    }
+
+    function markStepCompletion(triggerKey, stepIdx, requiredKeys = [triggerKey]) {
+      const stepItem = document.querySelector(`#stepsList .step-item[data-step="${stepIdx}"]`);
+      if (!stepItem) return;
+      const allDone = requiredKeys.every(k => taskStatus[k]);
+      
+      if (allDone) {
+        stepItem.classList.add("completed");
+      } else {
+        stepItem.classList.remove("completed");
+      }
+    }
+
+    function checkCertificateUnlock() {
+      const allTasksDone = Object.values(taskStatus).every(val => val === true);
+      const quizPassed = Object.values(quizResults).every(val => val === true);
+      
+      const lockScreen = document.getElementById("certLockScreen");
+      const certScreen = document.getElementById("certGenerationScreen");
+      
+      if (allTasksDone && quizPassed) {
+        lockScreen.style.display = "none";
+        certScreen.classList.add("unlocked");
+      } else {
+        lockScreen.style.display = "flex";
+        certScreen.classList.remove("unlocked");
+      }
+    }
+
+    // Quiz evaluation
+    function checkAnswer(button) {
+      const card = button.closest(".quiz-card");
+      const questionId = card.getAttribute("data-question-id");
+      const isCorrect = button.getAttribute("data-correct") === "true";
+      
+      card.querySelectorAll(".quiz-option").forEach(opt => {
+        opt.classList.remove("correct", "incorrect");
+        opt.disabled = true;
+      });
+      
+      if (isCorrect) {
+        button.classList.add("correct");
+        quizResults[questionId] = true;
+      } else {
+        button.classList.add("incorrect");
+        quizResults[questionId] = false;
+        card.querySelector(".quiz-option[data-correct='true']").classList.add("correct");
+      }
+      
+      checkCertificateUnlock();
+    }
+
+    // Certificate generation canvas builder
+    function drawCertificate() {
+      const canvas = document.getElementById("certificateCanvas");
+      const ctx = canvas.getContext("2d");
+      const name = document.getElementById("studentName").value.trim() || "Google Cloud Spanner Developer";
+      
+      canvas.style.display = "block";
+      
+      // Background gradient
+      const grad = ctx.createLinearGradient(0, 0, 800, 560);
+      grad.addColorStop(0, "#0b0f19");
+      grad.addColorStop(1, "#1e293b");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 800, 560);
+      
+      // Decorative border grid
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.15)";
+      ctx.lineWidth = 15;
+      ctx.strokeRect(20, 20, 760, 520);
+      
+      ctx.strokeStyle = "rgba(16, 185, 129, 0.2)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(35, 35, 730, 490);
+      
+      // Text formatting
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "bold 26px 'Outfit', sans-serif";
+      ctx.fillText("SPANNER ACADEMY CERTIFICATE", 400, 100);
+      
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "14px 'Inter', sans-serif";
+      ctx.fillText("THIS CERTIFIES THAT", 400, 160);
+      
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 32px 'Outfit', sans-serif";
+      ctx.fillText(name, 400, 220);
+      
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "15px 'Inter', sans-serif";
+      ctx.fillText("has successfully completed the training walkthrough:", 400, 280);
+      
+      ctx.fillStyle = "#10b981";
+      ctx.font = "600 20px 'Outfit', sans-serif";
+      ctx.fillText("Cloud Spanner: Data Placements & Geo-Partitioning", 400, 325);
+      
+      const dateStr = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+      ctx.fillStyle = "#64748b";
+      ctx.font = "13px 'Inter', sans-serif";
+      ctx.fillText(`Issued: ${dateStr}`, 400, 390);
+      
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "bold 14px 'Outfit', sans-serif";
+      ctx.fillText("Spanner Academy Certified Specialist", 400, 440);
+      
+      // Sync canvas with download link
+      const downloadBtn = document.getElementById("downloadBtn");
+      downloadBtn.href = canvas.toDataURL("image/png");
+    }
+
+    // Decorate code blocks copy buttons functionality
+    function decorateCodeBlocks() {
+      // Setup copy buttons listeners
+      document.querySelectorAll(".copy-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+        });
+      });
+    }
+
+    function copyCode(button) {
+      const container = button.closest(".code-block-container");
+      const code = container.querySelector(".code-content code").textContent;
+      const wrapper = button.closest(".copy-btn-wrapper");
+      
+      navigator.clipboard.writeText(code).then(() => {
+        wrapper.classList.add("copied");
+        setTimeout(() => {
+          wrapper.classList.remove("copied");
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

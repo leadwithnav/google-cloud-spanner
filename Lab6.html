@@ -627,32 +627,56 @@
     }
 
     .code-content {
-      padding: 18px;
+      padding: 16px 0;
       overflow-x: auto;
       margin: 0;
+      background-color: #1e1e1e !important;
     }
 
-    .code-content code {
-      font-family: var(--font-mono);
-      font-size: 0.9rem;
-      line-height: 1.6;
-      color: #e2e8f0;
-      display: block;
+    .code-line {
+      display: flex;
+      padding: 0 16px;
+      transition: background-color 0.1s ease;
+    }
+
+    .code-line:hover {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .code-line.highlight-red {
+      background-color: rgba(239, 68, 68, 0.15) !important;
+      border-left: 3px solid #ff5f56;
+      padding-left: 13px !important;
+    }
+
+    .line-number {
+      color: #858585;
+      text-align: right;
+      width: 32px;
+      padding-right: 16px;
+      user-select: none;
+      font-size: 0.85rem;
+      border-right: 1px solid #2d2d2d;
+      margin-right: 16px;
+    }
+
+    .line-code {
+      color: #d4d4d4;
+      font-size: 0.85rem;
       white-space: pre;
+      font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Monaco, Consolas, monospace;
+      line-height: 1.6;
     }
 
-    /* Terminal Shell Styles */
-    .code-block-container.shell .code-header {
-      background-color: #0c0f16;
-    }
-    .code-block-container.shell code {
-      color: #38bdf8;
-    }
-    .c-comment { color: #64748b; font-style: italic; }
-    .c-kw { color: #f472b6; font-weight: 600; }
-    .c-val { color: #38bdf8; }
-    .c-str { color: #34d399; }
-    .c-prompt { color: #a78bfa; user-select: none; }
+    /* Syntax Highlighting Colors (VS Code Dark+ Style) */
+    .c-comment { color: #6a9955 !important; font-style: italic !important; }
+    .c-kw { color: #569cd6 !important; font-weight: 600 !important; }
+    .c-str { color: #ce9178 !important; }
+    .c-num { color: #b5cea8 !important; }
+    .c-func { color: #dcdcaa !important; }
+    .c-type { color: #4ec9b0 !important; }
+    .c-flag { color: #9cdcfe !important; }
+
 
     /* Page Navigation Footer */
     .page-navigation {
@@ -1764,6 +1788,7 @@ const database = instance.database('test-database', {
       setupChecklistListeners();
       setupTheme();
       updateProgress();
+      decorateCodeBlocks();
     });
 
     // Theme toggle logic
@@ -1887,15 +1912,24 @@ const database = instance.database('test-database', {
     // Copy Code Utility
     function copyCode(btn) {
       const container = btn.closest(".code-block-container");
-      const code = container.querySelector("code").innerText;
+      const lineCodes = container.querySelectorAll(".line-code");
       
-      navigator.clipboard.writeText(code).then(() => {
+      let textToCopy = "";
+      if (lineCodes.length > 0) {
+        textToCopy = Array.from(lineCodes).map(el => el.textContent).join("\n");
+      } else {
+        const codeEl = container.querySelector("code");
+        textToCopy = codeEl ? codeEl.textContent : "";
+      }
+      
+      navigator.clipboard.writeText(textToCopy).then(() => {
         const tooltip = btn.nextElementSibling;
-        tooltip.style.opacity = "1";
-        
-        setTimeout(() => {
-          tooltip.style.opacity = "0";
-        }, 1500);
+        if (tooltip) {
+          tooltip.style.opacity = "1";
+          setTimeout(() => {
+            tooltip.style.opacity = "0";
+          }, 1500);
+        }
       });
     }
 
@@ -2038,6 +2072,118 @@ const database = instance.database('test-database', {
       const downloadBtn = document.getElementById("downloadBtn");
       downloadBtn.href = canvas.toDataURL("image/png");
       document.getElementById("certActions").style.display = "flex";
+    }
+    // Decorate code blocks dynamically into VS Code Editors
+    function decorateCodeBlocks() {
+      const codeContainers = document.querySelectorAll(".code-block-container");
+      
+      codeContainers.forEach((container, idx) => {
+        const codeElement = container.querySelector("code");
+        if (!codeElement) return;
+        
+        let codeText = codeElement.textContent.trim();
+        
+        let lang = "shell";
+        let filename = "commands.sh";
+        let iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#858585" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        
+        if (container.classList.contains("python")) {
+          lang = "python";
+          filename = "restore.py";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#3572A5" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        } else if (container.classList.contains("java")) {
+          lang = "java";
+          filename = "App.java";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#b07219" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        } else if (container.classList.contains("javascript") || container.classList.contains("node")) {
+          lang = "javascript";
+          filename = "app.js";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#f1e05a" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        } else if (codeText.includes("CREATE TABLE") || codeText.includes("SELECT") || codeText.includes("INSERT") || codeText.includes("ALTER DATABASE") || codeText.includes("DROP TABLE")) {
+          lang = "sql";
+          filename = "schema.sql";
+          iconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="#f1e05a" style="display:block;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6z"/></svg>`;
+        }
+        
+        const header = document.createElement("div");
+        header.className = "code-header";
+        header.innerHTML = `
+          <div class="editor-left">
+            <div class="mac-dots">
+              <span class="mac-dot red"></span>
+              <span class="mac-dot yellow"></span>
+              <span class="mac-dot green"></span>
+            </div>
+            <div class="editor-tab">
+              <span class="tab-icon">${iconSvg}</span>
+              <span class="tab-filename">${filename}</span>
+            </div>
+          </div>
+          <div class="copy-btn-wrapper">
+            <button class="copy-btn" onclick="copyCode(this)">
+              <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+              Copy
+            </button>
+            <span class="tooltip">Copied!</span>
+          </div>
+        `;
+        
+        const oldHeader = container.querySelector(".code-header");
+        if (oldHeader) oldHeader.remove();
+        container.insertBefore(header, container.firstChild);
+        
+        const lines = codeText.split("\n");
+        const codePre = container.querySelector("pre");
+        if (codePre) {
+          codePre.className = "code-content";
+          codePre.innerHTML = "";
+          
+          lines.forEach((lineText, lineIdx) => {
+            const lineDiv = document.createElement("div");
+            lineDiv.className = "code-line";
+            
+            const lineNum = document.createElement("span");
+            lineNum.className = "line-number";
+            lineNum.textContent = lineIdx + 1;
+            
+            const lineCode = document.createElement("span");
+            lineCode.className = "line-code";
+            lineCode.innerHTML = highlightSyntax(lineText, lang);
+            
+            lineDiv.appendChild(lineNum);
+            lineDiv.appendChild(lineCode);
+            codePre.appendChild(lineDiv);
+          });
+        }
+      });
+    }
+
+    function highlightSyntax(text, lang) {
+      let html = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+        
+      if (lang === "python" || lang === "java" || lang === "javascript") {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/(#.*|\/\/.*)$/g, '<span class="c-comment">$1</span>');
+        const keywords = ['import', 'from', 'def', 'if', 'else', 'with', 'as', 'print', 'list', 'return', 'in', 'class', 'public', 'private', 'static', 'void', 'new', 'const', 'let', 'var', 'function'];
+        keywords.forEach(kw => {
+          const regex = new RegExp(`\\b(${kw})\\b`, 'g');
+          html = html.replace(regex, '<span class="c-kw">$1</span>');
+        });
+        html = html.replace(/\b(\w+)(?=\()/g, '<span class="c-func">$1</span>');
+        html = html.replace(/\b(\d+)\b/g, '<span class="c-num">$1</span>');
+      } else if (lang === "shell" || lang === "sql") {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/(#.*)$/g, '<span class="c-comment">$1</span>');
+        const sqlKeywords = ['CREATE', 'TABLE', 'ALTER', 'DATABASE', 'SET', 'OPTIONS', 'PRIMARY', 'KEY', 'INTERLEAVE', 'IN', 'PARENT', 'ON', 'DELETE', 'CASCADE', 'INSERT', 'INTO', 'VALUES', 'SELECT', 'FROM', 'WHERE', 'DROP', 'UPDATE', 'ROWS', 'DESCRIBE', 'RESTORE'];
+        sqlKeywords.forEach(kw => {
+          const regex = new RegExp(`\\b(${kw})\\b`, 'gi');
+          html = html.replace(regex, '<span class="c-kw">$1</span>');
+        });
+      }
+      return html;
     }
   </script>
 </body>
