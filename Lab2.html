@@ -1971,7 +1971,24 @@ else:
     print("No rows found at the specified timestamp.")</code></pre>
         </div>
 
-        <h2>2. Run the Python Script</h2>
+        <h2>2. Install the Python Dependency</h2>
+        <p>Before running the recovery script, install the Google Cloud Spanner client library for Python:</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>python3 -m pip install google-cloud-spanner</code></pre>
+        </div>
+
+        <h2>3. Run the Python Script</h2>
         <p>Execute the Python recovery script from your terminal to fetch the stale records and write them back into the active database:</p>
 
         <div class="code-block-container shell">
