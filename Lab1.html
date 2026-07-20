@@ -550,12 +550,12 @@
 
     /* Code Blocks */
     .code-block-container {
-      background-color: var(--bg-code);
-      border: 1px solid var(--border-color);
+      background-color: #1e1e1e;
+      border: 1px solid #3c3c3c;
       border-radius: 12px;
       margin: 20px 0;
       overflow: hidden;
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
       position: relative;
     }
 
@@ -564,25 +564,60 @@
       justify-content: space-between;
       align-items: center;
       padding: 10px 16px;
-      background-color: rgba(255, 255, 255, 0.03);
-      border-bottom: 1px solid var(--border-color);
+      background: linear-gradient(180deg, #252526 0%, #1e1e1e 100%);
+      border-bottom: 1px solid #2d2d2d;
       font-size: 0.75rem;
-      color: var(--text-muted);
+      color: #cccccc;
       font-weight: 600;
     }
 
-    .code-lang-badge {
+    .editor-left {
       display: flex;
       align-items: center;
+      gap: 12px;
+    }
+
+    .mac-dots {
+      display: flex;
       gap: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    }
+
+    .mac-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .mac-dot.red { background: #ff5f56; }
+    .mac-dot.yellow { background: #ffbd2e; }
+    .mac-dot.green { background: #27c93f; }
+
+    .editor-tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #d4d4d4;
+    }
+
+    .tab-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tab-filename {
+      font-size: 0.8rem;
+      font-weight: 600;
     }
 
     .copy-btn {
       background-color: transparent;
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
+      border: 1px solid #3c3c3c;
+      color: #cccccc;
       border-radius: 6px;
       padding: 4px 10px;
       cursor: pointer;
@@ -595,8 +630,8 @@
     }
 
     .copy-btn:hover {
-      background-color: var(--bg-tertiary);
-      color: var(--text-primary);
+      background-color: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
     }
 
     .copy-btn-icon {
@@ -606,7 +641,7 @@
     }
 
     .code-content {
-      padding: 16px 0;
+      padding: 14px 0;
       overflow-x: auto;
       margin: 0;
       background-color: #1e1e1e !important;
@@ -619,7 +654,7 @@
     }
 
     .code-line:hover {
-      background-color: rgba(255, 255, 255, 0.02);
+      background-color: rgba(255, 255, 255, 0.03);
     }
 
     .code-line.highlight-red {
@@ -1950,6 +1985,11 @@ gcloud spanner databases execute-sql test-database \
       const sun = document.getElementById("themeSunIcon");
       const moon = document.getElementById("themeMoonIcon");
       const txt = document.getElementById("themeToggleText");
+
+      document.body.classList.add("light-theme");
+      sun.style.display = "block";
+      moon.style.display = "none";
+      txt.textContent = "Dark Mode";
       
       btn.addEventListener("click", () => {
         const isLight = document.body.classList.toggle("light-theme");

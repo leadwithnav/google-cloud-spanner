@@ -1344,11 +1344,18 @@
             <span class="step-number">9</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Knowledge Check</span>
+          <span>Cleanup & Finish</span>
         </li>
         <li class="step-item" data-step="9">
           <span class="step-indicator">
             <span class="step-number">10</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Knowledge Check</span>
+        </li>
+        <li class="step-item" data-step="10">
+          <span class="step-indicator">
+            <span class="step-number">11</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
           <span>Get Certificate</span>
@@ -1440,7 +1447,10 @@
             </div>
           </div>
           <pre class="code-content"><code>gcloud auth login
-gcloud auth application-default login</code></pre>
+gcloud auth application-default login
+
+# Set your active Google Cloud project ID
+gcloud config set project YOUR_PROJECT_ID</code></pre>
         </div>
 
         <h3>2. Unset Spanner Emulator Overrides</h3>
@@ -2317,8 +2327,38 @@ FROM TradingAccounts
         </div>
       </section>
 
-      <!-- STEP 9: Knowledge Check (was panel-7) -->
+      <!-- Cleanup -->
       <section class="content-panel" id="panel-8">
+        <h1>Cleanup: Delete the Lab Instance</h1>
+        <p>Once you have completed the recovery walkthrough, remove the temporary Spanner instance to stop incurring cloud charges.</p>
+
+        <div class="callout callout-warning">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v10z"/></svg>
+          <div>
+            <div class="callout-title">Billing Reminder</div>
+            <div class="callout-content">The multi-region instance you created in this lab is billed while it exists. Deleting it at the end prevents unexpected costs.</div>
+          </div>
+        </div>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner instances delete multi-region-spanner --quiet</code></pre>
+        </div>
+
+        <p>If you also created a restored database such as <code>recovered-db</code>, it will be removed automatically when the instance is deleted.</p>
+      </section>
+
+      <!-- STEP 9: Knowledge Check (was panel-7) -->
+      <section class="content-panel" id="panel-9">
         <h1>Step 7: Knowledge Check</h1>
         <p>Complete this self-check to evaluate your understanding of Spanner multi-region availability and recovery architectures.</p>
 
@@ -2398,7 +2438,7 @@ FROM TradingAccounts
       </section>
 
       <!-- STEP 9: Certificate of Completion -->
-      <section class="content-panel certificate-panel" id="panel-9">
+      <section class="content-panel certificate-panel" id="panel-10">
         <h1>Lab Certificate of Completion</h1>
         <p class="subtitle">Once you complete the required tasks and pass the quiz, you can generate your certificate.</p>
 
@@ -2457,7 +2497,7 @@ FROM TradingAccounts
 
   <script>
     // Constants & State
-    const totalSteps = 10;
+    const totalSteps = 11;
     let currentStep = 0;
     
     // Checklist configuration
