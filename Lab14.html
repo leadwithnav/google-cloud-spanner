@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud Spanner Lab 14: Hotspots and Key Design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-primary: #07111f;
+      --bg-secondary: #0f172a;
+      --bg-tertiary: #1e293b;
+      --bg-code: #020617;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #64748b;
+      --accent: #38bdf8;
+      --accent-rgb: 56, 189, 248;
+      --success: #10b981;
+      --success-rgb: 16, 185, 129;
+      --warning: #f59e0b;
+      --warning-rgb: 245, 158, 11;
+      --danger: #ef4444;
+      --border-color: rgba(255,255,255,0.08);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,.2);
+      --shadow-md: 0 10px 30px rgba(0,0,0,.26);
+      --font-sans: 'Inter', sans-serif;
+      --font-display: 'Outfit', sans-serif;
+      --font-mono: 'Fira Code', monospace;
+      --sidebar-width: 320px;
+    }
+
+    .light-theme {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e2e8f0;
+      --bg-code: #0f172a;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --accent: #0284c7;
+      --accent-rgb: 2,132,199;
+      --success: #059669;
+      --success-rgb: 5,150,105;
+      --warning: #d97706;
+      --warning-rgb: 217,119,6;
+      --border-color: rgba(0,0,0,.08);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,.05);
+      --shadow-md: 0 10px 30px rgba(0,0,0,.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: var(--font-sans); background: var(--bg-primary); color: var(--text-primary); scroll-behavior: smooth; }
+    body { transition: background .25s ease, color .25s ease; }
+
+    .app-container { display: grid; grid-template-columns: var(--sidebar-width) 1fr; height: 100vh; overflow: hidden; }
+    .sidebar { background: var(--bg-secondary); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; height: 100%; overflow-y: auto; }
+    .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border-color); }
+    .logo-container { display: flex; align-items: center; gap: 12px; }
+    .logo-icon { width: 34px; height: 34px; fill: var(--accent); }
+    .logo-text { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; }
+    .progress-section { margin-top: 16px; }
+    .progress-bar-container { width: 100%; height: 6px; background: var(--bg-tertiary); border-radius: 999px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--success)); transition: width .3s ease; }
+    .progress-text { display: flex; justify-content: space-between; font-size: .8rem; color: var(--text-secondary); margin-top: 8px; }
+
+    .steps-list { list-style: none; padding: 14px 12px; display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+    .step-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; cursor: pointer; color: var(--text-secondary); transition: all .2s ease; font-size: .9rem; font-weight: 500; }
+    .step-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .step-item.active { background: rgba(var(--accent-rgb), .12); color: var(--accent); }
+    .step-item.completed { color: var(--success); }
+    .step-indicator { width: 24px; height: 24px; border-radius: 999px; background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; flex-shrink: 0; }
+    .step-item.active .step-indicator { background: var(--accent); color: var(--bg-primary); }
+    .step-item.completed .step-indicator { background: var(--success); color: white; }
+
+    .sidebar-footer { padding: 16px 24px; border-top: 1px solid var(--border-color); }
+    .theme-toggle-btn { background: none; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .theme-toggle-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .theme-toggle-icon { width: 16px; height: 16px; fill: currentColor; }
+
+    .main-wrapper { display: flex; flex-direction: column; height: 100%; overflow-y: auto; background: var(--bg-primary); }
+    .top-navbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 30px; background: rgba(15,23,42,.55); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 5; }
+    .lab-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 999px; background: rgba(var(--accent-rgb), .12); color: var(--accent); font-size: .78rem; font-weight: 700; }
+    .lab-meta { display: flex; gap: 18px; font-size: .84rem; color: var(--text-secondary); }
+    .meta-item { display: flex; align-items: center; gap: 6px; }
+    .meta-icon { width: 16px; height: 16px; fill: currentColor; }
+
+    .content-panel { padding: 32px 36px 48px; max-width: 920px; width: 100%; margin: 0 auto; display: none; animation: fadeIn .35s ease; }
+    .content-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    h1 { font-family: var(--font-display); font-size: 2rem; margin-bottom: 10px; }
+    h2 { font-size: 1.25rem; margin-top: 28px; margin-bottom: 12px; color: var(--text-primary); }
+    p { color: var(--text-secondary); line-height: 1.7; margin-bottom: 12px; }
+    ul { margin-left: 20px; color: var(--text-secondary); margin-bottom: 14px; }
+    li { margin-bottom: 6px; line-height: 1.6; }
+    code { font-family: var(--font-mono); font-size: .95rem; color: var(--accent); }
+    .subtitle { font-size: 1.02rem; color: var(--text-secondary); margin-bottom: 24px; }
+
+    .callout { border-radius: 12px; padding: 16px 18px; border: 1px solid transparent; margin: 20px 0; display: flex; gap: 12px; }
+    .callout-info { background: rgba(var(--accent-rgb), .08); border-color: rgba(var(--accent-rgb), .2); }
+    .callout-warning { background: rgba(var(--warning-rgb), .08); border-color: rgba(var(--warning-rgb), .2); }
+    .callout-success { background: rgba(var(--success-rgb), .08); border-color: rgba(var(--success-rgb), .2); }
+    .callout-title { font-weight: 700; margin-bottom: 6px; }
+    .callout-content { color: var(--text-secondary); font-size: .95rem; }
+    .callout svg { width: 20px; height: 20px; fill: currentColor; flex-shrink: 0; }
+
+    .task-checklist { list-style: none; margin: 20px 0 0; display: flex; flex-direction: column; gap: 10px; margin-left: 0; }
+    .task-checkbox-container { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; transition: all .2s ease; }
+    .task-checkbox-container:hover { border-color: var(--border-hover, rgba(255,255,255,.16)); transform: translateY(-1px); }
+    .task-checkbox-container.checked { border-color: rgba(var(--success-rgb), .35); background: rgba(var(--success-rgb), .06); }
+    .custom-checkbox { width: 20px; height: 20px; border: 2px solid var(--text-muted); border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+    .task-checkbox-container.checked .custom-checkbox { background: var(--success); border-color: var(--success); }
+    .check-mark { width: 12px; height: 12px; fill: white; display: none; }
+    .task-checkbox-container.checked .check-mark { display: block; }
+    .task-label { font-weight: 600; color: var(--text-primary); }
+    .task-desc { font-size: .86rem; color: var(--text-secondary); margin-top: 2px; }
+    .task-checkbox-container.checked .task-label { text-decoration: line-through; color: var(--text-muted); }
+
+    .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 18px 0 24px; }
+    .concept-card { padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; }
+    .concept-title { font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+    .concept-desc { font-size: .9rem; color: var(--text-secondary); line-height: 1.6; }
+
+    .code-block-container { margin: 18px 0 20px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border-color); background: var(--bg-code); box-shadow: var(--shadow-sm); }
+    .code-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,.03); border-bottom: 1px solid var(--border-color); font-size: .75rem; color: var(--text-muted); font-weight: 600; }
+    .copy-btn { border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: .78rem; }
+    .copy-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .code-content { padding: 14px 0; overflow-x: auto; }
+    .code-line { display: flex; gap: 12px; padding: 2px 14px; font-family: var(--font-mono); font-size: .83rem; white-space: pre; color: #d4d4d4; }
+    .code-line .line-number { color: #7c8a9d; width: 28px; text-align: right; user-select: none; }
+    .c-comment { color: #6a9955; }
+    .c-kw { color: #569cd6; }
+    .c-str { color: #ce9178; }
+    .c-num { color: #b5cea8; }
+
+    .page-navigation { display: flex; justify-content: space-between; padding: 16px 0 0; margin-top: 24px; gap: 10px; }
+    .nav-btn { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); cursor: pointer; font-weight: 600; }
+    .nav-btn-next { background: linear-gradient(135deg, var(--accent) 0%, #0369a1 100%); color: white; border: none; }
+    .nav-btn-next:disabled { opacity: .5; cursor: not-allowed; }
+
+    .visualizer-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-top: 20px; }
+    .visualizer-controls { display: flex; gap: 10px; margin-bottom: 14px; }
+    .visualizer-btn { border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+    .visualizer-btn.active { background: rgba(var(--accent-rgb), .14); color: var(--accent); border-color: rgba(var(--accent-rgb), .2); }
+    .visualizer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .viz-box { padding: 12px; border-radius: 10px; text-align: center; border: 1px solid var(--border-color); background: rgba(255,255,255,.03); }
+    .viz-box.hot { border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.09); color: #fca5a5; }
+    .viz-box.good { border-color: rgba(16,185,129,.3); background: rgba(16,185,129,.08); color: #a7f3d0; }
+    .viz-title { font-size: .82rem; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; }
+    .viz-value { font-size: .9rem; font-weight: 600; }
+
+    .quiz-container { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+    .quiz-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
+    .quiz-question { font-weight: 700; margin-bottom: 12px; }
+    .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+    .quiz-option { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: var(--bg-primary); color: var(--text-secondary); }
+    .quiz-option:hover { border-color: var(--accent); }
+    .quiz-option.correct { border-color: var(--success); color: var(--success); }
+    .quiz-option.incorrect { border-color: var(--danger); color: var(--danger); }
+    .quiz-feedback { margin-top: 10px; font-size: .9rem; display: none; }
+    .quiz-feedback.show { display: block; }
+
+    @media (max-width: 900px) {
+      .app-container { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      .sidebar { height: auto; max-height: 300px; border-right: none; border-bottom: 1px solid var(--border-color); }
+      .steps-list { flex-direction: row; overflow-x: auto; }
+      .top-navbar { padding: 12px 16px; }
+      .content-panel { padding: 24px 16px 40px; }
+      .concept-grid { grid-template-columns: 1fr; }
+      .visualizer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="light-theme">
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-container">
+          <svg class="logo-icon" viewBox="0 0 24 24"><path d="M12 3 2 7v10l10 4 10-4V7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          <span class="logo-text">Spanner Academy</span>
+        </div>
+        <div class="progress-section">
+          <div class="progress-bar-container"><div class="progress-bar-fill" id="overallProgressBar"></div></div>
+          <div class="progress-text"><span>Overall Progress</span><span id="progressPercent">0%</span></div>
+        </div>
+      </div>
+      <ul class="steps-list" id="stepsList">
+        <li class="step-item active" data-step="0"><span class="step-indicator">1</span><span>Read Overview</span></li>
+        <li class="step-item" data-step="1"><span class="step-indicator">2</span><span>Hotspot Concept</span></li>
+        <li class="step-item" data-step="2"><span class="step-indicator">3</span><span>Bad Patterns</span></li>
+        <li class="step-item" data-step="3"><span class="step-indicator">4</span><span>Good Key Design</span></li>
+        <li class="step-item" data-step="4"><span class="step-indicator">5</span><span>Deploy Bad Schema</span></li>
+        <li class="step-item" data-step="5"><span class="step-indicator">6</span><span>Fix with Good Schema</span></li>
+        <li class="step-item" data-step="6"><span class="step-indicator">7</span><span>Key Visualizer</span></li>
+        <li class="step-item" data-step="7"><span class="step-indicator">8</span><span>Challenge</span></li>
+        <li class="step-item" data-step="8"><span class="step-indicator">9</span><span>Quiz</span></li>
+      </ul>
+      <div class="sidebar-footer">
+        <button class="theme-toggle-btn" id="themeToggleBtn"><svg class="theme-toggle-icon" id="themeSunIcon" viewBox="0 0 24 24"><path d="M12 5a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V6a1 1 0 0 1 1-1Zm0 11a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1Zm7-5a1 1 0 0 1 1 1 1 1 0 0 1-1 1h-1a1 1 0 1 0 0-2h1Zm-14 0a1 1 0 0 1 1 1 1 1 0 0 1-1 1h-1a1 1 0 1 0 0-2h1Zm10.95-4.95a1 1 0 0 1 1.41 0l.7.7a1 1 0 0 1-1.41 1.41l-.7-.7a1 1 0 0 1 0-1.41Zm-8.49 8.49a1 1 0 0 1 1.41 0l.7.7a1 1 0 1 1-1.41 1.41l-.7-.7a1 1 0 0 1 0-1.41Zm8.49 8.49a1 1 0 0 1 0 1.41l-.7.7a1 1 0 0 1-1.41-1.41l.7-.7a1 1 0 0 1 1.41 0Zm-8.49-8.49a1 1 0 0 1 0 1.41l-.7.7a1 1 0 0 1-1.41-1.41l.7-.7a1 1 0 0 1 1.41 0ZM12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"/></svg><svg class="theme-toggle-icon" id="themeMoonIcon" style="display:none;" viewBox="0 0 24 24"><path d="M20.3 14.9A8.7 8.7 0 0 1 9.1 3.7a8.7 8.7 0 1 0 11.2 11.2Z"/></svg><span id="themeToggleText">Dark Mode</span></button>
+      </div>
+    </aside>
+
+    <main class="main-wrapper">
+      <header class="top-navbar">
+        <div class="lab-badge">Lab 14 · Hotspots &amp; Key Design</div>
+        <div class="lab-meta">
+          <div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm1 5h-2v6l5.25 3.15.75-1.23-4.5-2.67Z"/></svg><span>Estimated Duration: <strong>25 mins</strong></span></div>
+          <div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2 3 7v5c0 5.25 3.44 9.95 9 10 5.56-.05 9-4.75 9-10V7Zm1 5h-2v6h2Zm0 8h-2v2h2Z"/></svg><span>Difficulty: <strong>Intermediate</strong></span></div>
+        </div>
+      </header>
+
+      <section class="content-panel active" id="panel-0">
+        <h1>Spanner Hotspots and Key Design</h1>
+        <p class="subtitle">In this lab you will explore how a poor primary key design can create write hotspots in Google Cloud Spanner and how a better key layout can spread traffic evenly.</p>
+        <h2>Why this matters</h2>
+        <p>Spanner scales well, but it still depends on your table design. If many writes land on the same key range, you can create a hotspot: one split or one node receives disproportionate traffic and becomes the bottleneck.</p>
+        <div class="callout callout-info">
+          <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm1 15h-2v-6h2Zm0-8h-2V5h2Z"/></svg>
+          <div>
+            <div class="callout-title">Key Takeaway</div>
+            <div class="callout-content">A hot split is usually caused by a poor leading key choice, a single low-cardinality key value, or monotonic write patterns.</div>
+          </div>
+        </div>
+        <h2>What you will do</h2>
+        <ul>
+          <li>Understand the hotspot concept in Spanner.</li>
+          <li>Spot bad key patterns that create skew.</li>
+          <li>Design better keys that distribute writes.</li>
+          <li>Deploy and fix a schema to compare outcomes.</li>
+        </ul>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t0_1"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Read the overview</div><div class="task-desc">Review why hotspots matter and what you will learn in this lab.</div></div></li>
+        </ul>
+        <div class="page-navigation"><button class="nav-btn" onclick="goToStep(0, false)">← Previous</button><button class="nav-btn nav-btn-next" onclick="goToStep(1, true)">Next →</button></div>
+      </section>
+
+      <section class="content-panel" id="panel-1">
+        <h1>Step 1: Understanding Hotspots</h1>
+        <p>In Spanner, rows are split by the primary key range. If many writes target the same key prefix, the system concentrates work into a single split.</p>
+        <div class="concept-grid">
+          <div class="concept-card"><div class="concept-title">Hotspot</div><div class="concept-desc">A hotspot is a region of the keyspace receiving much more traffic than the rest. This often leads to throttling and lower throughput.</div></div>
+          <div class="concept-card"><div class="concept-title">Why it happens</div><div class="concept-desc">Monotonic keys, a single tenant, or a low-cardinality prefix can force many writes into one split.</div></div>
+        </div>
+        <div class="callout callout-warning">
+          <svg viewBox="0 0 24 24"><path d="M12 2 1 21h22Zm-1 6h2v6h-2Zm0 8h2v2h-2Z"/></svg>
+          <div>
+            <div class="callout-title">Example</div>
+            <div class="callout-content">If every event is written with a key that starts with the same user_id and timestamp, the write load is concentrated on one key range.</div>
+          </div>
+        </div>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t1_1"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Understand the hotspot concept</div><div class="task-desc">Recognize how key distribution affects write throughput.</div></div></li>
+        </ul>
+        <div class="page-navigation"><button class="nav-btn" onclick="goToStep(0, false)">← Previous</button><button class="nav-btn nav-btn-next" onclick="goToStep(2, true)">Next →</button></div>
+      </section>
+
+      <section class="content-panel" id="panel-2">
+        <h1>Step 2: Identify Bad Key Patterns</h1>
+        <p>Some schema patterns look convenient but can hurt Spanner performance at scale.</p>
+        <div class="concept-grid">
+          <div class="concept-card"><div class="concept-title">Bad Pattern 1</div><div class="concept-desc">Using a monotonic primary key such as <code>PRIMARY KEY(order_id)</code> where order_id increases steadily.</div></div>
+          <div class="concept-card"><div class="concept-title">Bad Pattern 2</div><div class="concept-desc">Using a low-cardinality key like <code>region</code> or a single tenant ID as the leading key for high-volume writes.</div></div>
+        </div>
+        <div class="code-block-container">
+          <div class="code-header"><span>SQL · Bad Schema</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre class="code-content"><code><span class="c-comment">-- Bad: all writes pile into a single shard</span>
+CREATE TABLE UserEvents (
+  user_id              STRING(36) NOT NULL,
+  event_time           TIMESTAMP NOT NULL,
+  event_type           STRING(32),
+  payload              STRING(MAX),
+) PRIMARY KEY (user_id, event_time);
+</code></pre>
+        </div>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t2_1"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Identify the bad patterns</div><div class="task-desc">Spot why the schema is likely to become hot.</div></div></li>
+          <li class="task-checkbox-container" data-task-id="t2_2"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Note the write skew risk</div><div class="task-desc">Explain how one key prefix can dominate the workload.</div></div></li>
+        </ul>
+        <div class="page-navigation"><button class="nav-btn" onclick="goToStep(1, false)">← Previous</button><button class="nav-btn nav-btn-next" onclick="goToStep(3, true)">Next →</button></div>
+      </section>
+
+      <section class="content-panel" id="panel-3">
+        <h1>Step 3: Good Key Design</h1>
+        <p>A better design spreads writes by introducing a high-cardinality or hashed component into the leading key.</p>
+        <div class="concept-grid">
+          <div class="concept-card"><div class="concept-title">Good Strategy</div><div class="concept-desc">Use a partition key that has high cardinality, such as a tenant ID plus a hash or shard suffix.</div></div>
+          <div class="concept-card"><div class="concept-title">Why it helps</div><div class="concept-desc">The write load is distributed across many key ranges instead of being concentrated into one.</div></div>
+        </div>
+        <div class="code-block-container">
+          <div class="code-header"><span>SQL · Better Schema</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre class="code-content"><code><span class="c-comment">-- Better: spread writes across many shards</span>
+CREATE TABLE UserEvents (
+  tenant_id            STRING(16) NOT NULL,
+  shard_id             INT64 NOT NULL,
+  event_time           TIMESTAMP NOT NULL,
+  event_type           STRING(32),
+  payload              STRING(MAX),
+) PRIMARY KEY (tenant_id, shard_id, event_time);
+</code></pre>
+        </div>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t3_1"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Understand the good key design</div><div class="task-desc">Learn how a hash or shard component prevents hotspots.</div></div></li>
+          <li class="task-checkbox-container" data-task-id="t3_2"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Compare with the bad design</div><div class="task-desc">Notice how the better schema improves write distribution.</div></div></li>
+        </ul>
+        <div class="page-navigation"><button class="nav-btn" onclick="goToStep(2, false)">← Previous</button><button class="nav-btn nav-btn-next" onclick="goToStep(4, true)">Next →</button></div>
+      </section>
+
+      <section class="content-panel" id="panel-4">
+        <h1>Step 4: Deploy the Bad Schema</h1>
+        <p>This version creates a hotspot because writes for a single active customer will go to one key range.</p>
+        <div class="code-block-container">
+          <div class="code-header"><span>SQL · Deploying the Hotspot Schema</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre class="code-content"><code><span class="c-comment">-- Create bad table in Spanner</span>
+CREATE TABLE UserEvents (
+  user_id STRING(36) NOT NULL,
+  event_time TIMESTAMP NOT NULL,
+  event_type STRING(32),
+  payload STRING(MAX),
+) PRIMARY KEY (user_id, event_time);
+</code></pre>
+        </div>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t4_1"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Deploy the bad schema</div><div class="task-desc">Create the table in your emulator or environment.</div></div></li>
+          <li class="task-checkbox-container" data-task-id="t4_2"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Observe the risk</div><div class="task-desc">Imagine repeated writes for the same user_id.</div></div></li>
+        </ul>
+        <div class="page-navigation"><button class="nav-btn" onclick="goToStep(3, false)">← Previous</button><button class="nav-btn nav-btn-next" onclick="goToStep(5, true)">Next →</button></div>
+      </section>
+
+      <section class="content-panel" id="panel-5">
+        <h1>Step 5: Fix with a Better Schema</h1>
+        <p>The remedy is to introduce a shard or hash component so that rows are spread throughout the keyspace.</p>
+        <div class="code-block-container">
+          <div class="code-header"><span>SQL · Fixed Schema</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre class="code-content"><code><span class="c-comment">-- Replace the table with a sharded design</span>
+CREATE TABLE UserEvents (
+  tenant_id STRING(16) NOT NULL,
+  shard_id INT64 NOT NULL,
+  event_time TIMESTAMP NOT NULL,
+  event_type STRING(32),
+  payload STRING(MAX),
+) PRIMARY KEY (tenant_id, shard_id, event_time);
+</code></pre>
+        </div>
+        <div class="callout callout-success">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41ZM9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg>
+          <div>
+            <div class="callout-title">Why the fix works</div>
+            <div class="callout-content">The additional key component introduces many possible prefixes and enables more even distribution across splits.</div>
+          </div>
+        </div>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t5_1"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Apply the fix</div><div class="task-desc">Replace the hot table design with a sharded key.</div></div></li>
+          <li class="task-checkbox-container" data-task-id="t5_2"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Compare the trade-off</div><div class="task-desc">Notice that the schema is still easy to query while better distributed.</div></div></li>
+        </ul>
+        <div class="page-navigation"><button class="nav-btn" onclick="goToStep(4, false)">← Previous</button><button class="nav-btn nav-btn-next" onclick="goToStep(6, true)">Next →</button></div>
+      </section>
+
+      <section class="content-panel" id="panel-6">
+        <h1>Step 6: Key Visualizer</h1>
+        <p>Use the visualizer below to compare how writes move through the keyspace for the bad and good designs.</p>
+        <div class="visualizer-card">
+          <div class="visualizer-controls">
+            <button class="visualizer-btn active" data-view="bad">Bad Key Layout</button>
+            <button class="visualizer-btn" data-view="good">Good Key Layout</button>
+          </div>
+          <div class="visualizer-grid" id="visualizerGrid">
+            <div class="viz-box hot"><div class="viz-title">Prefix</div><div class="viz-value">user_id</div></div>
+            <div class="viz-box hot"><div class="viz-title">Distribution</div><div class="viz-value">Highly skewed</div></div>
+            <div class="viz-box hot"><div class="viz-title">Outcome</div><div class="viz-value">Hot split</div></div>
+          </div>
+        </div>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t6_1"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Explore the key visualizer</div><div class="task-desc">Switch between the bad and good layouts.</div></div></li>
+          <li class="task-checkbox-container" data-task-id="t6_2"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Interpret the result</div><div class="task-desc">Note that the better design spreads rows across multiple prefixes.</div></div></li>
+        </ul>
+        <div class="page-navigation"><button class="nav-btn" onclick="goToStep(5, false)">← Previous</button><button class="nav-btn nav-btn-next" onclick="goToStep(7, true)">Next →</button></div>
+      </section>
+
+      <section class="content-panel" id="panel-7">
+        <h1>Challenge</h1>
+        <p>Imagine you are designing a table for tracking checkout events. The traffic is very high, and you want to avoid write hotspots.</p>
+        <div class="callout callout-info">
+          <svg viewBox="0 0 24 24"><path d="M12 2 3 7v5c0 5.25 3.44 9.95 9 10 5.56-.05 9-4.75 9-10V7Zm1 5h-2v6h2Zm0 8h-2v2h2Z"/></svg>
+          <div>
+            <div class="callout-title">Challenge Prompt</div>
+            <div class="callout-content">Propose a better primary key for a table that records purchase events from many users. Your design should spread writes and still support recent-event lookups.</div>
+          </div>
+        </div>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t7_challenge"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Complete the challenge</div><div class="task-desc">Write down or explain a primary key that would reduce hotspot risk.</div></div></li>
+        </ul>
+        <div class="page-navigation"><button class="nav-btn" onclick="goToStep(6, false)">← Previous</button><button class="nav-btn nav-btn-next" onclick="goToStep(8, true)">Next →</button></div>
+      </section>
+
+      <section class="content-panel" id="panel-8">
+        <h1>Quiz</h1>
+        <p>Check your understanding of hotspot avoidance in Google Cloud Spanner.</p>
+        <div class="quiz-container">
+          <div class="quiz-card">
+            <div class="quiz-question">1. Which key pattern is most likely to create a hotspot?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false">A high-cardinality tenant plus shard</button>
+              <button class="quiz-option" data-correct="true">A single low-cardinality prefix that receives all writes</button>
+              <button class="quiz-option" data-correct="false">A composite key that includes a random suffix</button>
+            </div>
+            <div class="quiz-feedback" id="q1Feedback"></div>
+          </div>
+          <div class="quiz-card">
+            <div class="quiz-question">2. Why is a shard or hash component useful?</div>
+            <div class="quiz-options">
+              <button class="quiz-option" data-correct="false">It makes the table larger without benefit</button>
+              <button class="quiz-option" data-correct="true">It spreads writes across more key ranges</button>
+              <button class="quiz-option" data-correct="false">It removes the need for indexes</button>
+            </div>
+            <div class="quiz-feedback" id="q2Feedback"></div>
+          </div>
+        </div>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t8_1"><div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41Z"/></svg></div><div><div class="task-label">Complete the quiz</div><div class="task-desc">Test your understanding of hotspots and key design.</div></div></li>
+        </ul>
+        <div class="page-navigation"><button class="nav-btn" onclick="goToStep(7, false)">← Previous</button><button class="nav-btn nav-btn-next" disabled>Finish</button></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const steps = document.querySelectorAll('.step-item');
+    const panels = document.querySelectorAll('.content-panel');
+    const progressBar = document.getElementById('overallProgressBar');
+    const progressPercent = document.getElementById('progressPercent');
+    const taskItems = document.querySelectorAll('.task-checkbox-container');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const body = document.body;
+    const themeToggleText = document.getElementById('themeToggleText');
+    const themeSunIcon = document.getElementById('themeSunIcon');
+    const themeMoonIcon = document.getElementById('themeMoonIcon');
+
+    function setActiveStep(index) {
+      steps.forEach((step, i) => {
+        step.classList.toggle('active', i === index);
+      });
+      panels.forEach((panel, i) => panel.classList.toggle('active', i === index));
+    }
+
+    function goToStep(index, next) {
+      if (index < 0 || index >= panels.length) return;
+      setActiveStep(index);
+      if (next !== undefined) {
+        const step = steps[index];
+        if (step) step.classList.add('active');
+      }
+    }
+
+    steps.forEach((step) => {
+      step.addEventListener('click', () => setActiveStep(Number(step.dataset.step)));
+    });
+
+    taskItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        item.classList.toggle('checked');
+        updateProgress();
+      });
+    });
+
+    function updateProgress() {
+      const completed = document.querySelectorAll('.task-checkbox-container.checked').length;
+      const total = taskItems.length;
+      const pct = Math.round((completed / total) * 100);
+      progressBar.style.width = pct + '%';
+      progressPercent.textContent = pct + '%';
+
+      steps.forEach((step, index) => {
+        const panel = panels[index];
+        const panelTasks = panel.querySelectorAll('.task-checkbox-container');
+        const allDone = panelTasks.length > 0 && Array.from(panelTasks).every((task) => task.classList.contains('checked'));
+        step.classList.toggle('completed', allDone);
+      });
+    }
+
+    function copyCode(button) {
+      const codeBlock = button.closest('.code-block-container').querySelector('code').innerText;
+      navigator.clipboard.writeText(codeBlock).then(() => {
+        const original = button.textContent;
+        button.textContent = 'Copied';
+        setTimeout(() => (button.textContent = original), 1200);
+      });
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      body.classList.toggle('light-theme');
+      const isLight = body.classList.contains('light-theme');
+      themeToggleText.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+      themeSunIcon.style.display = isLight ? 'none' : 'inline';
+      themeMoonIcon.style.display = isLight ? 'inline' : 'none';
+    });
+
+    document.querySelectorAll('.quiz-option').forEach((option) => {
+      option.addEventListener('click', () => {
+        const feedback = option.parentElement.nextElementSibling;
+        const isCorrect = option.dataset.correct === 'true';
+        option.parentElement.querySelectorAll('.quiz-option').forEach((btn) => btn.classList.remove('correct', 'incorrect'));
+        if (isCorrect) {
+          option.classList.add('correct');
+          feedback.textContent = 'Correct — the best design spreads writes across more key ranges.';
+        } else {
+          option.classList.add('incorrect');
+          feedback.textContent = 'Not quite — a low-cardinality or single-prefix key tends to create a hotspot.';
+        }
+        feedback.classList.add('show');
+      });
+    });
+
+    document.querySelectorAll('.visualizer-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.visualizer-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const grid = document.getElementById('visualizerGrid');
+        if (btn.dataset.view === 'good') {
+          grid.innerHTML = `
+            <div class="viz-box good"><div class="viz-title">Prefix</div><div class="viz-value">tenant + shard</div></div>
+            <div class="viz-box good"><div class="viz-title">Distribution</div><div class="viz-value">Evenly spread</div></div>
+            <div class="viz-box good"><div class="viz-title">Outcome</div><div class="viz-value">Balanced traffic</div></div>`;
+        } else {
+          grid.innerHTML = `
+            <div class="viz-box hot"><div class="viz-title">Prefix</div><div class="viz-value">user_id</div></div>
+            <div class="viz-box hot"><div class="viz-title">Distribution</div><div class="viz-value">Highly skewed</div></div>
+            <div class="viz-box hot"><div class="viz-title">Outcome</div><div class="viz-value">Hot split</div></div>`;
+        }
+      });
+    });
+
+    updateProgress();
+  </script>
+</body>
+</html>

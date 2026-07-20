@@ -1198,18 +1198,11 @@
             <span class="step-number">7</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Deep Dive: Key Visualizer</span>
+          <span>Knowledge Check</span>
         </li>
         <li class="step-item" data-step="7">
           <span class="step-indicator">
             <span class="step-number">8</span>
-            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          </span>
-          <span>Knowledge Check</span>
-        </li>
-        <li class="step-item" data-step="8">
-          <span class="step-indicator">
-            <span class="step-number">9</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
           <span>Get Certificate</span>
@@ -1643,109 +1636,10 @@
         </ul>
       </section>
 
-      <!-- STEP 7: Deep Dive: Key Visualizer -->
+      <!-- STEP 6: Knowledge Check -->
       <section class="content-panel" id="panel-6">
-        <h1>Step 6: Deep Dive: Spanner Key Visualizer</h1>
-        <p class="subtitle">Learn how to read Spanner's graphical Key Visualizer heatmaps to diagnose distributed bottlenecks like key hotspots and lock contention.</p>
-
-        <h2>What is Key Visualizer?</h2>
-        <p>Google Cloud Spanner automatically shards tables and indexes into physical splits based on load and key ranges. If an application concentrates high throughput on a single range of keys, that split's hosting server becomes overloaded. <strong>Key Visualizer</strong> is a console diagnostic tool that renders interactive heatmaps of database traffic over time, helping developers locate these bottlenecks.</p>
-
-        <div class="concept-grid">
-          <div class="concept-card">
-            <div class="concept-title">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 16H6v-2h5v2zm0-4H6v-2h5v2zm0-4H6V8h5v2zm0-4H6V4h5v2z"/></svg>
-              Heatmap Layout
-            </div>
-            <div class="concept-desc">
-              <strong>X-Axis (Time)</strong>: Shows hours or days of execution.<br>
-              <strong>Y-Axis (Key Space)</strong>: Shows table, index, and row primary key ranges sorted lexicographically.<br>
-              <strong>Brightness/Color</strong>: Represents traffic intensity (darker is quiet, bright red/white is heavy traffic).
-            </div>
-          </div>
-          <div class="concept-card">
-            <div class="concept-title">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-              Metrics Visualized
-            </div>
-            <div class="concept-desc">
-              <strong>Ops/second</strong>: Shows read/write request density.<br>
-              <strong>CPU utilization</strong>: Highlights nodes running hot.<br>
-              <strong>Lock conflicts</strong>: Pinpoints lock wait times and write contention bottlenecks.
-            </div>
-          </div>
-        </div>
-
-        <h2>1. Identifying Row & Key Hotspots</h2>
-        <p>A **hotspot** occurs when reads or writes concentrate in a tight key range. Because Spanner is distributed, this overloads a single node while others remain idle.</p>
-        
-        <h3>Visual Signature</h3>
-        <p>Hotspots appear as bright horizontal bands or diagonal streaks on heatmaps:</p>
-        <ul>
-          <li><strong>Bright Horizontal Line</strong>: Indicates constant high CPU or writes to a single row (e.g., a global database counter or single record updated continuously).</li>
-          <li><strong>Diagonal Streak (Staircase)</strong>: Indicates monotonically increasing primary keys (e.g., sequential integer IDs or timestamps). As new keys are inserted, the active split location shifts linearly, leaving a bright trail.</li>
-        </ul>
-
-        <div class="callout callout-warning">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">Hotspotting Mitigation</div>
-            <div class="callout-content">Avoid sequential primary keys. Instead:
-              <ol>
-                <li>Use universally unique identifiers (e.g. <code>UUIDv4</code>) to distribute writes.</li>
-                <li>Hash monotonically increasing keys before insertion.</li>
-                <li>Shard keys by prepending a calculated shard ID (e.g. <code>hash(id) % SHARD_COUNT</code>).</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-
-        <h2>2. Identifying Lock Contention</h2>
-        <p>When multiple parallel transactions try to write to the same rows, Spanner serializes them using locks. If transactions take too long or compete heavily, you will experience **Lock Contention** (resulting in high abort/retry counts and latency spikes).</p>
-
-        <h3>Visual Signature</h3>
-        <p>In Key Visualizer, switch the metric filter to <strong>Lock conflicts</strong>. Contention will highlight as bright horizontal stripes covering the specific hot keys range during high transaction concurrency.</p>
-
-        <div class="callout callout-info">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">Lock Contention Mitigation</div>
-            <div class="callout-content">
-              <ul>
-                <li><strong>Use Read-Only Transactions</strong>: Read-only transactions do not take locks and run lock-free across replicas.</li>
-                <li><strong>Optimize Write Scope</strong>: Keep read-write transactions small and avoid long-running calculations within transaction callbacks.</li>
-                <li><strong>Batch Updates</strong>: Batch mutations where possible to minimize lock holds.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <ul class="task-checklist">
-          <li class="task-checkbox-container" data-task-id="t6_1">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Analyze Key Visualizer layouts</span>
-              <span class="task-desc">Understand how key spaces and timestamps map to heatmap axes.</span>
-            </div>
-          </li>
-          <li class="task-checkbox-container" data-task-id="t6_2">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Learn hotspot & lock contention patterns</span>
-              <span class="task-desc">Review visual patterns of sequential primary keys and transaction serialization contention.</span>
-            </div>
-          </li>
-        </ul>
-      </section>
-
-      <!-- STEP 8: Quiz / Knowledge Check -->
-      <section class="content-panel" id="panel-7">
-        <h1>Step 7: Knowledge Check</h1>
-        <p>Complete this quick self-check to evaluate your understanding of query profiling, covered index optimization, and Key Visualizer diagnostics.</p>
+        <h1>Step 6: Knowledge Check</h1>
+        <p>Complete this quick self-check to evaluate your understanding of query profiling and covered index optimization.</p>
 
         <div class="quiz-container">
           <!-- Question 1 -->
@@ -1808,42 +1702,23 @@
             <div class="quiz-feedback"></div>
           </div>
 
-          <!-- Question 4 -->
-          <div class="quiz-card" data-question-id="q4">
-            <div class="quiz-question">4. You open Spanner Key Visualizer and notice a bright diagonal line in the CPU heatmap. What does this pattern typically indicate?</div>
-            <div class="quiz-options">
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. High lock contention on a single global counter row.
-              </button>
-              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                B. Monotonically increasing primary keys (hotspotting) as new data is inserted.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                C. Efficient parallel range scans across multiple splits.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. An index back-join occurring on the primary table.
-              </button>
-            </div>
-            <div class="quiz-feedback"></div>
-          </div>
         </div>
 
         <ul class="task-checklist">
-          <li class="task-checkbox-container" data-task-id="t7_1">
+          <li class="task-checkbox-container" data-task-id="t6_1">
             <div class="custom-checkbox">
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
               <span class="task-label">Complete all quiz questions</span>
-              <span class="task-desc">Answer all four multiple-choice questions correctly to unlock the certificate screen.</span>
+              <span class="task-desc">Answer all three multiple-choice questions correctly to unlock the certificate screen.</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 9: Certificate of Completion -->
-      <section class="content-panel certificate-panel" id="panel-8">
+      <!-- STEP 8: Certificate of Completion -->
+      <section class="content-panel certificate-panel" id="panel-7">
         <h1>Lab Certificate of Completion</h1>
         <p class="subtitle">Once you complete the required tasks and pass the quiz, you can generate your certificate.</p>
 
@@ -1902,7 +1777,7 @@
 
   <script>
     // Constants & State
-    const totalSteps = 9;
+    const totalSteps = 8;
     let currentStep = 0;
     
     // Checklist configuration
@@ -1913,16 +1788,14 @@
       t3_1: false, t3_2: false,
       t4_1: false, t4_2: false,
       t5_1: false, t5_2: false,
-      t6_1: false, t6_2: false,
-      t7_1: false
+      t6_1: false
     };
 
     // Quiz score trackers
     const quizResults = {
       q1: false,
       q2: false,
-      q3: false,
-      q4: false
+      q3: false
     };
 
     // Initialize Page
@@ -2019,8 +1892,7 @@
       markStepCompletion("t3_1", 3, ["t3_1", "t3_2"]);
       markStepCompletion("t4_1", 4, ["t4_1", "t4_2"]);
       markStepCompletion("t5_1", 5, ["t5_1", "t5_2"]);
-      markStepCompletion("t6_1", 6, ["t6_1", "t6_2"]);
-      markStepCompletion("t7_1", 7, ["t7_1"]);
+      markStepCompletion("t6_1", 6, ["t6_1"]);
       
       checkCertificateUnlock();
     }
@@ -2094,8 +1966,7 @@
         const explanations = {
           q1: "Correct! The '--query-mode=PROFILE' option instructs Spanner to execute the query and return the execution statistics alongside the query plan.",
           q2: "Correct! A Key Lookup (back-join) occurs when Spanner scans a secondary index to resolve filters, but must query the main table to retrieve other selected columns.",
-          q3: "Correct! Storing indexes copy additional columns into the index table, which avoids back-joins but increases storage footprints and adds slight write latency to keep values synced.",
-          q4: "Correct! Monotonically increasing primary keys (like sequences or timestamps) result in sequential splits writing to a single node, shifting the active hotspot linearly over time."
+          q3: "Correct! Storing indexes copy additional columns into the index table, which avoids back-joins but increases storage footprints and adds slight write latency to keep values synced."
         };
         feedback.textContent = explanations[questionId];
         quizResults[questionId] = true;
