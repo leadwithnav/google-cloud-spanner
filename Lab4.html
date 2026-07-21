@@ -827,6 +827,81 @@
     .pro-tip-card .sidebar-card-header svg { color: var(--warning); }
     .schema-preview-card code { font-size: 0.75rem; color: #a9b2c3; }
 
+    /* Setup Parent Tables (collapsible) */
+    .setup-parent-details {
+      margin: 24px 0 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .setup-parent-summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      background: var(--bg-secondary);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-primary);
+      list-style: none;
+      user-select: none;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .setup-parent-summary::-webkit-details-marker { display: none; }
+    .setup-parent-summary:hover { background: var(--bg-hover, var(--bg-primary)); }
+    .setup-parent-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      color: var(--accent);
+      transition: transform 0.2s;
+    }
+    .setup-parent-details[open] .setup-parent-icon {
+      transform: rotate(90deg);
+    }
+    .setup-parent-body {
+      padding: 16px 20px 20px;
+      background: var(--bg-primary);
+      border-top: 1px solid var(--border-color);
+    }
+    .setup-parent-intro {
+      margin: 0 0 16px;
+      color: var(--text-secondary);
+      font-size: 0.93rem;
+    }
+    .setup-parent-heading {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 20px 0 8px;
+    }
+    .setup-parent-heading:first-of-type { margin-top: 0; }
+    .mandatory-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: auto;
+      padding: 3px 10px 3px 8px;
+      border-radius: 20px;
+      background: rgba(220, 38, 38, 0.13);
+      border: 1px solid rgba(220, 38, 38, 0.45);
+      color: #ef4444;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .mandatory-badge svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      fill: #ef4444;
+    }
+
     /* Quiz Panel Styling */
     .quiz-container {
       display: flex;
@@ -1247,60 +1322,67 @@
             <span class="step-number">2</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Analyze Legacy Schema</span>
+          <span>Emulator Setup</span>
         </li>
         <li class="step-item" data-step="2">
           <span class="step-indicator">
             <span class="step-number">3</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Refactor Tables</span>
+          <span>Analyze Legacy Schema</span>
         </li>
         <li class="step-item" data-step="3">
           <span class="step-indicator">
             <span class="step-number">4</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Optimize Indexes</span>
+          <span>Refactor Tables</span>
         </li>
         <li class="step-item" data-step="4">
           <span class="step-indicator">
             <span class="step-number">5</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Deploy Schema</span>
+          <span>Optimize Indexes</span>
         </li>
         <li class="step-item" data-step="5">
           <span class="step-indicator">
             <span class="step-number">6</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Verify performance</span>
+          <span>Deploy Schema</span>
         </li>
         <li class="step-item" data-step="6">
           <span class="step-indicator">
             <span class="step-number">7</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Hands-On Challenge</span>
+          <span>Verify Performance</span>
         </li>
         <li class="step-item" data-step="7">
           <span class="step-indicator">
             <span class="step-number">8</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Challenge Solution</span>
+          <span>Hands-On Challenge</span>
         </li>
         <li class="step-item" data-step="8">
           <span class="step-indicator">
             <span class="step-number">9</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Knowledge Check</span>
+          <span>Challenge Solution</span>
         </li>
         <li class="step-item" data-step="9">
           <span class="step-indicator">
             <span class="step-number">10</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Knowledge Check</span>
+        </li>
+        <li class="step-item" data-step="10">
+          <span class="step-indicator">
+            <span class="step-number">11</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
           <span>Get Certificate</span>
@@ -1382,9 +1464,113 @@
       </section>
 
       <!-- STEP 2: Analyze Legacy Schema -->
+      <!-- STEP 2: Emulator Setup -->
       <section class="content-panel" id="panel-1">
+        <h1>Step 1: Emulator Setup</h1>
+        <p class="subtitle">Run this entire lab locally without any GCP costs by using the Cloud Spanner Emulator. Follow these steps to activate the emulator profile, provision the instance and database, and bootstrap all required tables and indexes.</p>
+
+        <div class="callout callout-info">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">What is the Spanner Emulator?</div>
+            <div class="callout-content">The Cloud Spanner Emulator is a local in-process server that speaks the same gRPC/HTTP2 API as the real Spanner service. It starts in seconds, requires no GCP credentials, and is perfect for iterating on schema design and application development.</div>
+          </div>
+        </div>
+
+        <h2>1. Start the Emulator</h2>
+        <p>Start the emulator in the background. It listens on <code>localhost:9010</code> (gRPC) and <code>localhost:9020</code> (REST) by default:</p>
+        <div class="code-block-container shell">
+          <pre class="code-content"><code>gcloud emulators spanner start</code></pre>
+        </div>
+        <p>Leave this terminal open. Open a <strong>second terminal</strong> for all subsequent commands.</p>
+
+        <h2>2. Configure gcloud to Use the Emulator Profile</h2>
+        <p>Create and activate a named gcloud configuration that points to the emulator. This avoids overwriting your default GCP configuration:</p>
+        <div class="code-block-container shell">
+          <pre class="code-content"><code># Create a new named configuration
+gcloud config configurations create emulator
+
+# Switch to the emulator configuration
+gcloud config configurations activate emulator
+
+# Point the Spanner API endpoint at the local emulator
+gcloud config set api_endpoint_overrides/spanner http://localhost:9020/
+
+# Set a placeholder project (any value works for the emulator)
+gcloud config set project my-local-project</code></pre>
+        </div>
+
+        <div class="callout callout-warning">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          <div>
+            <div class="callout-title">Switching Back to Real GCP</div>
+            <div class="callout-content">When you want to target the real Cloud Spanner service again, run:<br><code>gcloud config configurations activate default</code></div>
+          </div>
+        </div>
+
+        <h2>3. Check if Instance Exists</h2>
+        <p>Run this command to check whether <code>test-instance</code> is already provisioned on the emulator. If it exists, you will see its details; if not, the command exits with an error — proceed to the next step to create it:</p>
+        <div class="code-block-container shell">
+          <pre class="code-content"><code>gcloud spanner instances describe test-instance</code></pre>
+        </div>
+
+        <h2>4. Create the Instance (if it doesn't exist)</h2>
+        <p>Skip this step if the describe command above succeeded. Otherwise, create <code>test-instance</code> on the emulator. The emulator accepts any instance name and the <code>emulator-config</code> config is always available locally:</p>
+        <div class="code-block-container shell">
+          <pre class="code-content"><code>gcloud spanner instances create test-instance \
+  --config=emulator-config \
+  --description="Local emulator instance" \
+  --nodes=1</code></pre>
+        </div>
+
+        <h2>5. Create the Database (if it doesn't exist)</h2>
+        <div class="code-block-container shell">
+          <pre class="code-content"><code># Check if the database already exists
+gcloud spanner databases describe test-database \
+  --instance=test-instance 2&gt;/dev/null \
+  &amp;&amp; echo "Database already exists" \
+  || gcloud spanner databases create test-database \
+       --instance=test-instance</code></pre>
+        </div>
+
+        <h2>6. Verify the Schema</h2>
+        <p>Confirm all objects were created successfully:</p>
+        <div class="code-block-container shell">
+          <pre class="code-content"><code>gcloud spanner databases ddl describe test-database \
+  --instance=test-instance</code></pre>
+        </div>
+        <p>You should see the DDL definitions for <code>Customers</code>, <code>Orders</code>, <code>OrderItems</code>, <code>OrdersByDate</code>, and <code>OrdersByDateCovered</code> echoed back.</p>
+
+        <div class="callout callout-success">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          <div>
+            <div class="callout-title">Emulator Ready</div>
+            <div class="callout-content">Your local Spanner emulator is now running with a fully-provisioned database. All <code>gcloud spanner</code> commands in the remaining steps will execute against this emulator — no GCP billing, no network latency.</div>
+          </div>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t1_emulator">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Start emulator, activate profile, provision instance &amp; database</span>
+              <span class="task-desc">Run gcloud emulators spanner start, create the emulator config, and confirm the test-database schema is deployed.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 3: Analyze Legacy Schema (was panel-1) -->
+      <section class="content-panel" id="panel-2">
         <h1>Step 1: Analyzing the Legacy Schema</h1>
         <p>Let's study a typical e-commerce relational schema designed for a traditional single-instance database. Examine the SQL declarations below:</p>
+
+        <p style="color: #ef4444; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+          <svg style="width:16px;height:16px;flex-shrink:0;fill:#ef4444;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          Do not run the SQL below — this is a legacy schema for analysis only. Read through it and understand the design limitations before moving to the next step.
+        </p>
 
         <div class="code-block-container">
           <div class="code-header">
@@ -1446,7 +1632,7 @@
       </section>
 
       <!-- STEP 3: Refactor Tables -->
-      <section class="content-panel" id="panel-2">
+      <section class="content-panel" id="panel-3">
         <h1>Step 2: Refactoring with Table Interleaving</h1>
         <p>To optimize the legacy schema, we will define a parent-child relationship in Spanner's storage configuration using the <strong>INTERLEAVE IN PARENT</strong> clause.</p>
 
@@ -1468,6 +1654,11 @@
 
         <h2>The Refactored DDL</h2>
         <p>Here is the refactored schema. Notice how the primary keys are configured and how the <code>INTERLEAVE</code> and <code>ON DELETE CASCADE</code> options are applied:</p>
+
+        <p style="color: #ef4444; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+          <svg style="width:16px;height:16px;flex-shrink:0;fill:#ef4444;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          Do not run the DDL below — this is a conceptual reference only. The full deployment command is in Step 6.
+        </p>
 
         <div class="code-block-container">
           <div class="code-header">
@@ -1529,7 +1720,7 @@
       </section>
 
       <!-- STEP 4: Optimize Indexes -->
-      <section class="content-panel" id="panel-3">
+      <section class="content-panel" id="panel-4">
         <h1>Step 3: Optimizing Indexes & covered columns</h1>
         <p>In Spanner, secondary indexes are structured as tables behind the scenes. When you query using an index, Spanner searches the index table for the key, fetches the corresponding primary key, and then queries the primary table to get other requested columns. This second fetch is called a **back-join**.</p>
 
@@ -1549,7 +1740,10 @@
         </ol>
         
         <p>Let's write DDL statements to create these indexes:</p>
-
+        <p style="color: #ef4444; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+          <svg style="width:16px;height:16px;flex-shrink:0;fill:#ef4444;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          Do not run the DDL below — this is a conceptual reference only. The full deployment command is in Step 6.
+        </p>
         <div class="code-block-container">
           <div class="code-header">
             <span class="code-lang-badge">SQL (Index DDL)</span>
@@ -1561,6 +1755,7 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
+
           <pre class="code-content"><code><span class="c-comment">-- Standard index on OrderDate (creates back-joins for TotalAmount query)</span>
 <span class="c-kw">CREATE INDEX</span> OrdersByDate <span class="c-kw">ON</span> Orders(OrderDate);
 
@@ -1591,41 +1786,28 @@
       </section>
 
       <!-- STEP 5: Deploy Schema -->
-      <section class="content-panel" id="panel-4">
+      <section class="content-panel" id="panel-5">
         <h1>Step 4: Deploying the Schema</h1>
-        <p>Now, let's deploy the refactored schema and indexes to our local database emulator using the <code>gcloud spanner databases ddl update</code> tool.</p>
+        <p>Now deploy all refactored tables and indexes to the emulator database in a single <code>gcloud spanner databases ddl update</code> command, passing each DDL statement directly via <code>--ddl</code>.</p>
 
-        <h2>Execute the DDL Update</h2>
-        <p>Create a <code>schema.ddl</code> file with the following DDL statements, then deploy it using the <code>gcloud spanner databases ddl update</code> command.</p>
-
-        <p><strong>Step 1 — Save DDL to file (<code>schema.ddl</code>):</strong></p>
-        <div class="code-block-container sql">
-          <div class="code-header">
-            <span class="code-lang-badge">SQL (schema.ddl)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
-          </div>
-          <pre class="code-content"><code>CREATE TABLE Customers (
+        <h2>Deploy Tables &amp; Indexes</h2>
+        <div class="code-block-container shell">
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+  --instance=test-instance \
+  --ddl="CREATE TABLE Customers (
   CustomerId INT64 NOT NULL,
   Name       STRING(255),
   Email      STRING(255),
   Country    STRING(100)
-) PRIMARY KEY (CustomerId);
-
-CREATE TABLE Orders (
+) PRIMARY KEY (CustomerId)" \
+  --ddl="CREATE TABLE Orders (
   CustomerId  INT64 NOT NULL,
   OrderId     INT64 NOT NULL,
   OrderDate   DATE,
   TotalAmount NUMERIC
 ) PRIMARY KEY (CustomerId, OrderId),
-  INTERLEAVE IN PARENT Customers ON DELETE CASCADE;
-
-CREATE TABLE OrderItems (
+  INTERLEAVE IN PARENT Customers ON DELETE CASCADE" \
+  --ddl="CREATE TABLE OrderItems (
   CustomerId  INT64 NOT NULL,
   OrderId     INT64 NOT NULL,
   OrderItemId INT64 NOT NULL,
@@ -1633,49 +1815,16 @@ CREATE TABLE OrderItems (
   Quantity    INT64,
   Price       NUMERIC
 ) PRIMARY KEY (CustomerId, OrderId, OrderItemId),
-  INTERLEAVE IN PARENT Orders ON DELETE CASCADE;
-
-CREATE INDEX OrdersByDate
-  ON Orders(OrderDate);
-
-CREATE INDEX OrdersByDateCovered
-  ON Orders(OrderDate)
-  STORING (TotalAmount);</code></pre>
-        </div>
-
-        <p><strong>Step 2 — Deploy the schema:</strong></p>
-        <div class="code-block-container shell">
-          <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
-          </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=multi-region-spanner \
-  --ddl-file=schema.ddl</code></pre>
+  INTERLEAVE IN PARENT Orders ON DELETE CASCADE" \
+  --ddl="CREATE INDEX OrdersByDate ON Orders(OrderDate)" \
+  --ddl="CREATE INDEX OrdersByDateCovered ON Orders(OrderDate) STORING (TotalAmount)"</code></pre>
         </div>
 
         <h2>Verify Schema Registration</h2>
         <p>Verify that all tables and indexes are successfully registered in the database metadata:</p>
-
         <div class="code-block-container shell">
-          <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
-          </div>
           <pre class="code-content"><code>gcloud spanner databases ddl describe test-database \
-  --instance=multi-region-spanner</code></pre>
+  --instance=test-instance</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1701,7 +1850,7 @@ CREATE INDEX OrdersByDateCovered
       </section>
 
       <!-- STEP 6: Verify Performance -->
-      <section class="content-panel" id="panel-5">
+      <section class="content-panel" id="panel-6">
         <h1>Step 5: Verifying performance and local joins</h1>
         <p>Let's insert sample records and examine how queries leverage table interleaving and stored indexes.</p>
 
@@ -1721,17 +1870,17 @@ CREATE INDEX OrdersByDateCovered
           </div>
           <pre class="code-content"><code><span class="c-comment"># Insert Customer</span>
 gcloud spanner databases execute-sql test-database \
-  --instance=multi-region-spanner \
+  --instance=test-instance \
   --sql="INSERT INTO Customers (CustomerId, Name, Email, Country) VALUES (101, 'Alice Smith', 'alice@email.com', 'Germany')"
 
 <span class="c-comment"># Insert Interleaved Order</span>
 gcloud spanner databases execute-sql test-database \
-  --instance=multi-region-spanner \
+  --instance=test-instance \
   --sql="INSERT INTO Orders (CustomerId, OrderId, OrderDate, TotalAmount) VALUES (101, 5001, '2026-07-17', 150.00)"
 
 <span class="c-comment"># Insert Interleaved Item</span>
 gcloud spanner databases execute-sql test-database \
-  --instance=multi-region-spanner \
+  --instance=test-instance \
   --sql="INSERT INTO OrderItems (CustomerId, OrderId, OrderItemId, ProductId, Quantity, Price) VALUES (101, 5001, 1, 9901, 2, 75.00)"</code></pre>
         </div>
 
@@ -1750,7 +1899,7 @@ gcloud spanner databases execute-sql test-database \
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=multi-region-spanner \
+  --instance=test-instance \
   --sql="SELECT c.Name, o.OrderId, o.OrderDate, i.ProductId, i.Quantity, i.Price FROM Customers c JOIN Orders o ON c.CustomerId = o.CustomerId JOIN OrderItems i ON o.CustomerId = i.CustomerId AND o.OrderId = i.OrderId WHERE c.CustomerId = 101"</code></pre>
         </div>
 
@@ -1769,7 +1918,7 @@ gcloud spanner databases execute-sql test-database \
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=multi-region-spanner \
+  --instance=test-instance \
   --sql="SELECT CustomerId, TotalAmount FROM Orders@{FORCE_INDEX=OrdersByDateCovered} WHERE OrderDate = '2026-07-17'"</code></pre>
         </div>
 
@@ -1797,7 +1946,7 @@ gcloud spanner databases execute-sql test-database \
 
       <!-- STEP 7: Quiz / Knowledge Check -->
       <!-- STEP 7: Hands-On Challenge -->
-      <section class="content-panel" id="panel-6" style="padding: 0; background: transparent; border: none; box-shadow: none;">
+      <section class="content-panel" id="panel-7" style="padding: 0; background: transparent; border: none; box-shadow: none;">
 
         <!-- Challenge Header Banner -->
         <div class="challenge-banner">
@@ -1807,7 +1956,7 @@ gcloud spanner databases execute-sql test-database \
             </div>
             <div class="challenge-banner-title-area">
               <h1>Step 7: Hands-On Challenge</h1>
-              <p>Apply your interleaving and index knowledge to a real-world e-commerce schema problem.</p>
+              <p>Apply your interleaving and index knowledge to a real-world Trading &amp; Banking schema problem.</p>
             </div>
           </div>
           <div class="challenge-cloud-graphics">
@@ -1829,9 +1978,158 @@ gcloud spanner databases execute-sql test-database \
                 </svg>
               </div>
               <p class="challenge-intro-text">
-                Your e-commerce team is expanding the schema to support product reviews. You need to add a <code>Reviews</code> table that is co-located with its parent <code>Orders</code> table for efficient read performance, then verify the join works without cross-split network hops.
+                Your trading platform already has an <code>Accounts</code> → <code>Trades</code> interleaved hierarchy in production. The settlements team now needs a <code>TradeSettlements</code> table co-located inside <code>Trades</code> for ultra-low-latency settlement lookups per trade — plus a covered index on <code>SettlementDate</code> that stores <code>Amount</code> to avoid back-joins in daily batch reconciliation queries.
               </p>
             </div>
+
+            <!-- Setup Parent Tables (collapsible) - Mandatory -->
+            <details class="setup-parent-details">
+              <summary class="setup-parent-summary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="setup-parent-icon">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+                <span>Setup Parent Tables</span>
+                <span class="mandatory-badge">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                  Mandatory
+                </span>
+              </summary>
+
+              <div class="setup-parent-body">
+                <p class="setup-parent-intro">Before you can insert a <code>TradeSettlements</code> row, the parent <code>Accounts</code> and <code>Trades</code> rows must already exist. Spanner enforces interleave integrity — a child insert without its parent will fail immediately.</p>
+
+                <h3 class="setup-parent-heading">Deploy the parent tables</h3>
+                <div class="code-block-container shell">
+                  <div class="code-header">
+                    <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+                    <div class="copy-btn-wrapper">
+                      <button class="copy-btn" onclick="copyCode(this)">
+                        <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        Copy
+                      </button>
+                      <span class="tooltip">Copied!</span>
+                    </div>
+                  </div>
+                  <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+  --instance=test-instance \
+  --ddl="CREATE TABLE Accounts (
+    AccountId INT64 NOT NULL,
+    AccountName STRING(100) NOT NULL,
+    AccountType STRING(30),
+    Status STRING(20) NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL OPTIONS (
+      allow_commit_timestamp = true
+    )
+  ) PRIMARY KEY (AccountId)" \
+  --ddl="CREATE TABLE Trades (
+    AccountId INT64 NOT NULL,
+    TradeId INT64 NOT NULL,
+    Symbol STRING(20) NOT NULL,
+    Quantity INT64 NOT NULL,
+    Price NUMERIC NOT NULL,
+    TradeDate DATE NOT NULL,
+    Status STRING(20) NOT NULL
+  ) PRIMARY KEY (
+    AccountId,
+    TradeId
+  ), INTERLEAVE IN PARENT Accounts ON DELETE CASCADE"</code></pre>
+                </div>
+
+                <h3 class="setup-parent-heading">Insert the parent account</h3>
+                <div class="code-block-container shell">
+                  <div class="code-header">
+                    <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+                    <div class="copy-btn-wrapper">
+                      <button class="copy-btn" onclick="copyCode(this)">
+                        <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        Copy
+                      </button>
+                      <span class="tooltip">Copied!</span>
+                    </div>
+                  </div>
+                  <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="INSERT INTO Accounts (
+           AccountId,
+           AccountName,
+           AccountType,
+           Status,
+           CreatedAt
+         )
+         VALUES (
+           201,
+           'Global Trading Account',
+           'INSTITUTIONAL',
+           'ACTIVE',
+           PENDING_COMMIT_TIMESTAMP()
+         )"</code></pre>
+                </div>
+
+                <h3 class="setup-parent-heading">Insert the parent trade</h3>
+                <div class="code-block-container shell">
+                  <div class="code-header">
+                    <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+                    <div class="copy-btn-wrapper">
+                      <button class="copy-btn" onclick="copyCode(this)">
+                        <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        Copy
+                      </button>
+                      <span class="tooltip">Copied!</span>
+                    </div>
+                  </div>
+                  <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="INSERT INTO Trades (
+           AccountId,
+           TradeId,
+           Symbol,
+           Quantity,
+           Price,
+           TradeDate,
+           Status
+         )
+         VALUES (
+           201,
+           3001,
+           'GOOG',
+           100,
+           NUMERIC '1250.005',
+           DATE '2026-07-21',
+           'EXECUTED'
+         )"</code></pre>
+                </div>
+
+                <h3 class="setup-parent-heading">Verify the parent hierarchy</h3>
+                <div class="code-block-container shell">
+                  <div class="code-header">
+                    <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+                    <div class="copy-btn-wrapper">
+                      <button class="copy-btn" onclick="copyCode(this)">
+                        <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        Copy
+                      </button>
+                      <span class="tooltip">Copied!</span>
+                    </div>
+                  </div>
+                  <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="SELECT
+           A.AccountId,
+           A.AccountName,
+           T.TradeId,
+           T.Symbol,
+           T.Quantity,
+           T.Price,
+           T.TradeDate,
+           T.Status
+         FROM Accounts AS A
+         JOIN Trades AS T
+           ON A.AccountId = T.AccountId
+         WHERE A.AccountId = 201
+           AND T.TradeId = 3001"</code></pre>
+                </div>
+              </div>
+            </details>
 
             <h2 class="challenge-section-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1852,8 +2150,8 @@ gcloud spanner databases execute-sql test-database \
                   </svg>
                 </div>
                 <div class="challenge-task-content">
-                  <div class="challenge-task-title">Design a <code>Reviews</code> Table</div>
-                  <div class="challenge-task-desc">Write DDL for a <code>Reviews</code> table with columns <code>CustomerId</code>, <code>OrderId</code>, <code>ReviewId</code>, <code>Rating</code> (INT64), and <code>Comment</code> (STRING). Its primary key must start with <code>(CustomerId, OrderId)</code> so it can be interleaved inside <code>Orders</code>.</div>
+                  <div class="challenge-task-title">Design the <code>TradeSettlements</code> Table</div>
+                  <div class="challenge-task-desc">Write DDL for a <code>TradeSettlements</code> table with columns <code>AccountId</code> (INT64), <code>TradeId</code> (INT64), <code>SettlementId</code> (INT64), <code>SettlementDate</code> (DATE), <code>Amount</code> (NUMERIC), and <code>Status</code> (STRING). Its primary key must start with <code>(AccountId, TradeId)</code> so it can be interleaved inside <code>Trades</code>.</div>
                 </div>
               </div>
 
@@ -1868,8 +2166,8 @@ gcloud spanner databases execute-sql test-database \
                   </svg>
                 </div>
                 <div class="challenge-task-content">
-                  <div class="challenge-task-title">Deploy the New Table</div>
-                  <div class="challenge-task-desc">Use <code>gcloud spanner databases ddl update</code> with <code>--ddl-file</code> to apply the new <code>Reviews</code> table DDL to the <code>test-database</code> on the <code>multi-region-spanner</code> instance.</div>
+                  <div class="challenge-task-title">Add a Covered Index on <code>SettlementDate</code></div>
+                  <div class="challenge-task-desc">Create a secondary index <code>SettlementsByDate</code> on <code>TradeSettlements(SettlementDate)</code> that stores <code>Amount</code> using the <code>STORING</code> clause, so daily batch reconciliation can retrieve settlement amounts without a back-join to the base table.</div>
                 </div>
               </div>
 
@@ -1883,8 +2181,8 @@ gcloud spanner databases execute-sql test-database \
                   </svg>
                 </div>
                 <div class="challenge-task-content">
-                  <div class="challenge-task-title">Insert a Sample Review</div>
-                  <div class="challenge-task-desc">Insert one row into <code>Reviews</code> for <code>CustomerId = 101</code>, <code>OrderId = 5001</code>. Choose any <code>ReviewId</code>, <code>Rating</code>, and <code>Comment</code> of your choice.</div>
+                  <div class="challenge-task-title">Deploy &amp; Insert a Sample Settlement</div>
+                  <div class="challenge-task-desc">Use <code>gcloud spanner databases ddl update</code> with <code>--ddl</code> to apply both the table and index to <code>test-database</code> on <code>test-instance</code>. Then insert one settlement row for <code>AccountId = 201</code>, <code>TradeId = 3001</code> with a status of <code>'SETTLED'</code>.</div>
                 </div>
               </div>
 
@@ -1898,8 +2196,8 @@ gcloud spanner databases execute-sql test-database \
                   </svg>
                 </div>
                 <div class="challenge-task-content">
-                  <div class="challenge-task-title">Verify the Co-located Join</div>
-                  <div class="challenge-task-desc">Run a query that joins <code>Orders</code> and <code>Reviews</code> for <code>CustomerId = 101</code>. Confirm the result returns the review row alongside its parent order — all served from the same split.</div>
+                  <div class="challenge-task-title">Verify the Co-located Join &amp; Index</div>
+                  <div class="challenge-task-desc">Run a query joining <code>Trades</code> and <code>TradeSettlements</code> for <code>AccountId = 201</code> — confirm the result returns the trade alongside its settlement from a single co-located split. Then force the covered index and confirm <code>Amount</code> is returned without a back-join.</div>
                 </div>
               </div>
             </div>
@@ -1911,8 +2209,8 @@ gcloud spanner databases execute-sql test-database \
                   <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                 </div>
                 <div class="task-content">
-                  <span class="task-label">Complete the Interleaving Challenge</span>
-                  <span class="task-desc">Design, deploy, and verify a new interleaved Reviews table co-located with Orders.</span>
+                  <span class="task-label">Complete the Trading &amp; Banking Interleaving Challenge</span>
+                  <span class="task-desc">Design, deploy, and verify a TradeSettlements table interleaved inside Trades with a covered index on SettlementDate.</span>
                 </div>
               </li>
             </ul>
@@ -1928,7 +2226,7 @@ gcloud spanner databases execute-sql test-database \
                 Use Case
               </div>
               <p class="sidebar-card-body">
-                E-commerce platforms frequently need to co-locate review data with order records to serve product pages with minimal latency. Table interleaving eliminates cross-split joins for this common access pattern.
+                Investment banks and trading platforms settle millions of trades daily. Co-locating <code>TradeSettlements</code> inside <code>Trades</code> ensures reconciliation queries for a single trade never cross a split boundary — critical for sub-millisecond SLAs.
               </p>
             </div>
 
@@ -1940,13 +2238,16 @@ gcloud spanner databases execute-sql test-database \
                 </svg>
                 Target Schema Shape
               </div>
-              <pre class="code-content" style="margin-top: 10px; background: #070a13; padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);"><code style="font-size: 0.75rem; color: #a9b2c3;">Customers (CustomerId)
-  └─ Orders (CustomerId, OrderId)
-       ├─ OrderItems (...)
-       └─ Reviews
-            (CustomerId,
-             OrderId,
-             ReviewId)</code></pre>
+              <pre class="code-content" style="margin-top: 10px; background: #070a13; padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);"><code style="font-size: 0.75rem; color: #a9b2c3;">Accounts (AccountId)
+  └─ Trades (AccountId, TradeId)
+       └─ TradeSettlements
+            (AccountId,
+             TradeId,
+             SettlementId)
+
+INDEX: SettlementsByDate
+  ON TradeSettlements(SettlementDate)
+  STORING (Amount)</code></pre>
             </div>
 
             <div class="sidebar-card goal-card">
@@ -1957,7 +2258,7 @@ gcloud spanner databases execute-sql test-database \
                 Goal
               </div>
               <p class="sidebar-card-body">
-                Add a <code>Reviews</code> table interleaved inside <code>Orders</code>, insert a review, and confirm a join query returns both the order and review data from a single co-located split.
+                Add <code>TradeSettlements</code> interleaved inside <code>Trades</code>, create a <code>STORING</code> index on <code>SettlementDate</code>, insert a settlement, and confirm both a co-located join and a covered index query work correctly on <code>test-instance</code>.
               </p>
             </div>
 
@@ -1969,7 +2270,7 @@ gcloud spanner databases execute-sql test-database \
                 Pro Tip
               </div>
               <p class="sidebar-card-body">
-                A child table's primary key must always begin with the parent's primary key columns in the same order. Spanner will reject DDL where the key prefix doesn't match the parent's key exactly.
+                Before deploying, first insert parent rows: an <code>Accounts</code> row for <code>AccountId = 201</code> and a <code>Trades</code> row for <code>TradeId = 3001</code>. Spanner enforces referential integrity for interleaved tables — inserting a child row without its parent will fail.
               </p>
             </div>
           </div>
@@ -1977,16 +2278,16 @@ gcloud spanner databases execute-sql test-database \
       </section>
 
       <!-- STEP 8: Challenge Solution -->
-      <section class="content-panel" id="panel-7">
+      <section class="content-panel" id="panel-8">
         <h1>Step 8: Challenge Solution</h1>
-        <p>Review the complete solution for the interleaving challenge. Compare it with your own approach before moving on to the Knowledge Check.</p>
+        <p>Review the complete solution for the Trading &amp; Banking interleaving challenge. Compare it with your own approach before moving on to the Knowledge Check.</p>
 
         <!-- Solution Task 1 -->
-        <h2>Task 1 Solution — DDL for the <code>Reviews</code> Table</h2>
-        <p>The <code>Reviews</code> table primary key must begin with <code>(CustomerId, OrderId)</code> — the exact prefix of its parent <code>Orders</code> table — to satisfy Spanner's interleave constraint.</p>
+        <h2>Task 1 Solution — DDL for <code>TradeSettlements</code></h2>
+        <p>The <code>TradeSettlements</code> primary key must begin with <code>(AccountId, TradeId)</code> — the exact prefix of its parent <code>Trades</code> table — to satisfy Spanner's interleave constraint.</p>
         <div class="code-block-container sql">
           <div class="code-header">
-            <span class="code-lang-badge">SQL (reviews.ddl)</span>
+            <span class="code-lang-badge">SQL</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1995,19 +2296,39 @@ gcloud spanner databases execute-sql test-database \
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>CREATE TABLE Reviews (
-  CustomerId INT64 NOT NULL,
-  OrderId    INT64 NOT NULL,
-  ReviewId   INT64 NOT NULL,
-  Rating     INT64,
-  Comment    STRING(1024)
-) PRIMARY KEY (CustomerId, OrderId, ReviewId),
-  INTERLEAVE IN PARENT Orders ON DELETE CASCADE;</code></pre>
+          <pre class="code-content"><code>CREATE TABLE TradeSettlements (
+  AccountId      INT64 NOT NULL,
+  TradeId        INT64 NOT NULL,
+  SettlementId   INT64 NOT NULL,
+  SettlementDate DATE,
+  Amount         NUMERIC,
+  Status         STRING(50)
+) PRIMARY KEY (AccountId, TradeId, SettlementId),
+  INTERLEAVE IN PARENT Trades ON DELETE CASCADE;</code></pre>
         </div>
 
         <!-- Solution Task 2 -->
-        <h2>Task 2 Solution — Deploy the Table</h2>
-        <p>Save the DDL above as <code>reviews.ddl</code>, then run:</p>
+        <h2>Task 2 Solution — Covered Index on <code>SettlementDate</code></h2>
+        <p>The <code>STORING (Amount)</code> clause pre-materialises the <code>Amount</code> column inside the index, so daily batch reconciliation queries can read settlement amounts directly from the index without a back-join to the base table:</p>
+        <div class="code-block-container sql">
+          <div class="code-header">
+            <span class="code-lang-badge">SQL</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>CREATE INDEX SettlementsByDate
+  ON TradeSettlements(SettlementDate)
+  STORING (Amount);</code></pre>
+        </div>
+
+        <!-- Solution Task 3 -->
+        <h2>Task 3 Solution — Deploy &amp; Insert a Sample Settlement</h2>
+        <p>Deploy both the table and index in one <code>ddl update</code> call using multiple <code>--ddl</code> flags:</p>
         <div class="code-block-container shell">
           <div class="code-header">
             <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
@@ -2020,13 +2341,22 @@ gcloud spanner databases execute-sql test-database \
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=multi-region-spanner \
-  --ddl-file=reviews.ddl</code></pre>
+  --instance=test-instance \
+  --ddl="CREATE TABLE TradeSettlements (
+  AccountId      INT64 NOT NULL,
+  TradeId        INT64 NOT NULL,
+  SettlementId   INT64 NOT NULL,
+  SettlementDate DATE,
+  Amount         NUMERIC,
+  Status         STRING(50)
+) PRIMARY KEY (AccountId, TradeId, SettlementId),
+  INTERLEAVE IN PARENT Trades ON DELETE CASCADE" \
+  --ddl="CREATE INDEX SettlementsByDate
+  ON TradeSettlements(SettlementDate)
+  STORING (Amount)"</code></pre>
         </div>
 
-        <!-- Solution Task 3 -->
-        <h2>Task 3 Solution — Insert a Sample Review</h2>
-        <p>Insert a review row for the existing <code>CustomerId = 101</code>, <code>OrderId = 5001</code>:</p>
+        <p>Before inserting a settlement row, insert the required parent rows — Spanner enforces referential integrity for interleaved tables:</p>
         <div class="code-block-container shell">
           <div class="code-header">
             <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
@@ -2038,14 +2368,25 @@ gcloud spanner databases execute-sql test-database \
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=multi-region-spanner \
-  --sql="INSERT INTO Reviews (CustomerId, OrderId, ReviewId, Rating, Comment) VALUES (101, 5001, 1, 5, 'Excellent quality and fast delivery!')"</code></pre>
+          <pre class="code-content"><code># 1. Insert parent Account
+gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="INSERT INTO Accounts (AccountId, AccountName, AccountType) VALUES (201, 'Apex Capital Fund', 'INVESTMENT')"
+
+# 2. Insert parent Trade
+gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="INSERT INTO Trades (AccountId, TradeId, Symbol, TradeDate, Quantity, Price) VALUES (201, 3001, 'GOOG', '2026-07-21', 500, 180.50)"
+
+# 3. Insert child TradeSettlement
+gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="INSERT INTO TradeSettlements (AccountId, TradeId, SettlementId, SettlementDate, Amount, Status) VALUES (201, 3001, 1, '2026-07-23', 90250.00, 'SETTLED')"</code></pre>
         </div>
 
         <!-- Solution Task 4 -->
-        <h2>Task 4 Solution — Verify the Co-located Join</h2>
-        <p>Run a join across <code>Orders</code> and <code>Reviews</code>. Because <code>Reviews</code> is interleaved inside <code>Orders</code>, Spanner evaluates this join entirely within the same split — no cross-node network hop required:</p>
+        <h2>Task 4 Solution — Verify Co-located Join &amp; Covered Index</h2>
+        <p>Run a join across <code>Trades</code> and <code>TradeSettlements</code>. Because <code>TradeSettlements</code> is interleaved inside <code>Trades</code>, Spanner evaluates this join entirely within the same split — no cross-node network hop required:</p>
         <div class="code-block-container shell">
           <div class="code-header">
             <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
@@ -2058,8 +2399,8 @@ gcloud spanner databases execute-sql test-database \
             </div>
           </div>
           <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=multi-region-spanner \
-  --sql="SELECT o.OrderId, o.OrderDate, o.TotalAmount, r.ReviewId, r.Rating, r.Comment FROM Orders o JOIN Reviews r ON o.CustomerId = r.CustomerId AND o.OrderId = r.OrderId WHERE o.CustomerId = 101"</code></pre>
+  --instance=test-instance \
+  --sql="SELECT t.Symbol, t.TradeDate, t.Quantity, t.Price, s.SettlementId, s.SettlementDate, s.Amount, s.Status FROM Trades t JOIN TradeSettlements s ON t.AccountId = s.AccountId AND t.TradeId = s.TradeId WHERE t.AccountId = 201"</code></pre>
         </div>
 
         <p><strong>Expected output:</strong></p>
@@ -2067,8 +2408,34 @@ gcloud spanner databases execute-sql test-database \
           <div class="code-header">
             <span class="code-lang-badge">Output</span>
           </div>
-          <pre class="code-content"><code>OrderId  OrderDate   TotalAmount  ReviewId  Rating  Comment
-5001     2026-07-17  150.00       1         5       Excellent quality and fast delivery!</code></pre>
+          <pre class="code-content"><code>Symbol  TradeDate   Quantity  Price   SettlementId  SettlementDate  Amount     Status
+GOOG    2026-07-21  500       180.5   1             2026-07-23      90250.0    SETTLED</code></pre>
+        </div>
+
+        <p>Now force the covered index to confirm <code>Amount</code> is served directly from the index without a back-join:</p>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=test-instance \
+  --sql="SELECT AccountId, TradeId, Amount FROM TradeSettlements@{FORCE_INDEX=SettlementsByDate} WHERE SettlementDate = '2026-07-23'"</code></pre>
+        </div>
+
+        <p><strong>Expected output:</strong></p>
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">Output</span>
+          </div>
+          <pre class="code-content"><code>AccountId  TradeId  Amount
+201        3001     90250.0</code></pre>
         </div>
 
         <div class="info-box" style="background: rgba(var(--success-rgb),0.08); border: 1px solid rgba(var(--success-rgb),0.25); border-radius: 8px; padding: 16px; margin-top: 24px; display: flex; gap: 12px; align-items: flex-start;">
@@ -2078,13 +2445,25 @@ gcloud spanner databases execute-sql test-database \
           </svg>
           <div>
             <strong style="color:var(--success);">Key Takeaway</strong>
-            <p style="font-size:0.85rem;color:var(--text-secondary);margin:4px 0 0;">Because <code>Reviews</code> is interleaved inside <code>Orders</code>, its rows are physically stored adjacent to the parent order row on disk. Spanner can join them without any cross-split RPCs, giving you the same low-latency access pattern as a single-table scan.</p>
+            <p style="font-size:0.85rem;color:var(--text-secondary);margin:4px 0 0;">Because <code>TradeSettlements</code> is interleaved inside <code>Trades</code>, its rows are physically stored adjacent to the parent trade row on disk. Spanner joins them without any cross-split RPCs. The <code>STORING (Amount)</code> index further eliminates back-joins for date-range reconciliation queries — a critical pattern for high-frequency trading and settlement workflows.</p>
           </div>
         </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t6_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Review the Challenge Solution</span>
+              <span class="task-desc">Compare your TradeSettlements DDL, deployment commands, and verification queries with the reference solution above.</span>
+            </div>
+          </li>
+        </ul>
       </section>
 
       <!-- STEP 9: Knowledge Check (was panel-7) -->
-      <section class="content-panel" id="panel-8">
+      <section class="content-panel" id="panel-9">
         <h1>Step 6: Knowledge Check</h1>
         <p>Complete this quick self-check to evaluate your understanding of Spanner schema refactoring and index optimization.</p>
 
@@ -2164,7 +2543,7 @@ gcloud spanner databases execute-sql test-database \
       </section>
 
       <!-- STEP 10: Certificate of Completion -->
-      <section class="content-panel certificate-panel" id="panel-9">
+      <section class="content-panel certificate-panel" id="panel-10">
         <h1>Lab Certificate of Completion</h1>
         <p class="subtitle">Once you complete the required tasks and pass the quiz, you can generate your certificate.</p>
 
@@ -2223,12 +2602,13 @@ gcloud spanner databases execute-sql test-database \
 
   <script>
     // Constants & State
-    const totalSteps = 10;
+    const totalSteps = 11;
     let currentStep = 0;
     
     // Checklist configuration
     const taskStatus = {
       t0_1: false,
+      t1_emulator: false,
       t1_1: false,
       t2_1: false, t2_2: false,
       t3_1: false, t3_2: false,
@@ -2333,13 +2713,14 @@ gcloud spanner databases execute-sql test-database \
       document.getElementById("progressPercent").textContent = `${progressPercent}%`;
       
       markStepCompletion("t0_1", 0);
-      markStepCompletion("t1_1", 1, ["t1_1"]);
-      markStepCompletion("t2_1", 2, ["t2_1", "t2_2"]);
-      markStepCompletion("t3_1", 3, ["t3_1", "t3_2"]);
-      markStepCompletion("t4_1", 4, ["t4_1", "t4_2"]);
-      markStepCompletion("t5_1", 5, ["t5_1", "t5_2"]);
-      markStepCompletion("t6_challenge", 6, ["t6_challenge"]);
-      markStepCompletion("t6_1", 8, ["t6_1"]);
+      markStepCompletion("t1_emulator", 1, ["t1_emulator"]);
+      markStepCompletion("t1_1", 2, ["t1_1"]);
+      markStepCompletion("t2_1", 3, ["t2_1", "t2_2"]);
+      markStepCompletion("t3_1", 4, ["t3_1", "t3_2"]);
+      markStepCompletion("t4_1", 5, ["t4_1", "t4_2"]);
+      markStepCompletion("t5_1", 6, ["t5_1", "t5_2"]);
+      markStepCompletion("t6_challenge", 7, ["t6_challenge"]);
+      markStepCompletion("t6_1", 9, ["t6_1"]);
       
       checkCertificateUnlock();
     }
