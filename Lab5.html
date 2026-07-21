@@ -833,6 +833,99 @@
       color: var(--danger);
     }
 
+    /* Setup-Parent Mandatory Collapsible */
+    .setup-parent-details {
+      margin: 24px 0 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .setup-parent-summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      background: var(--bg-secondary);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-primary);
+      list-style: none;
+      user-select: none;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .setup-parent-summary::-webkit-details-marker { display: none; }
+    .setup-parent-summary:hover { background: var(--bg-hover, var(--bg-primary)); }
+    .setup-parent-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      color: var(--accent);
+      transition: transform 0.2s;
+    }
+    .setup-parent-details[open] .setup-parent-icon {
+      transform: rotate(90deg);
+    }
+    .setup-parent-body {
+      padding: 16px 20px 20px;
+      background: var(--bg-primary);
+      border-top: 1px solid var(--border-color);
+    }
+    .setup-parent-intro {
+      margin: 0 0 16px;
+      color: var(--text-secondary);
+      font-size: 0.93rem;
+    }
+    .setup-parent-heading {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 20px 0 8px;
+    }
+    .setup-parent-heading:first-of-type { margin-top: 0; }
+    .mandatory-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: auto;
+      padding: 3px 10px 3px 8px;
+      border-radius: 20px;
+      background: rgba(220, 38, 38, 0.13);
+      border: 1px solid rgba(220, 38, 38, 0.45);
+      color: #ef4444;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .mandatory-badge svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      fill: #ef4444;
+    }
+
+    /* Lab Screenshot Images */
+    .lab-screenshot {
+      display: block;
+      width: 100%;
+      max-width: 780px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.28);
+      margin: 16px 0 6px 0;
+    }
+    .screenshot-caption {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      display: block;
+      font-style: italic;
+    }
+
     /* Certificate Section Styling */
     .certificate-panel {
       text-align: center;
@@ -1163,46 +1256,53 @@
             <span class="step-number">2</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Setup Test Tables</span>
+          <span>Set up Instance</span>
         </li>
         <li class="step-item" data-step="2">
           <span class="step-indicator">
             <span class="step-number">3</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Profile Slow Query</span>
+          <span>Setup Test Tables</span>
         </li>
         <li class="step-item" data-step="3">
           <span class="step-indicator">
             <span class="step-number">4</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Diagnose Back-Join</span>
+          <span>Profile Slow Query</span>
         </li>
         <li class="step-item" data-step="4">
           <span class="step-indicator">
             <span class="step-number">5</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Deploy Storing Index</span>
+          <span>Diagnose Back-Join</span>
         </li>
         <li class="step-item" data-step="5">
           <span class="step-indicator">
             <span class="step-number">6</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Verify Optimization</span>
+          <span>Deploy Storing Index</span>
         </li>
         <li class="step-item" data-step="6">
           <span class="step-indicator">
             <span class="step-number">7</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Knowledge Check</span>
+          <span>Verify Optimization</span>
         </li>
         <li class="step-item" data-step="7">
           <span class="step-indicator">
             <span class="step-number">8</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Knowledge Check</span>
+        </li>
+        <li class="step-item" data-step="8">
+          <span class="step-indicator">
+            <span class="step-number">9</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
           <span>Get Certificate</span>
@@ -1273,17 +1373,24 @@
         </ul>
       </section>
 
-      <!-- STEP 2: Setup Test Tables -->
+      <!-- STEP 2: Set up Instance -->
       <section class="content-panel" id="panel-1">
-        <h1>Step 1: Setting Up the Test Scenario</h1>
-        <p>Let's define a new interleaved table named <code>Transactions</code> to record card purchases. Deploy this schema definition onto your active emulator instance.</p>
+        <h1>Set Up Your Spanner Instance</h1>
+        <p class="subtitle">Before running SQL queries you need a live Google Cloud Spanner instance and database. Follow these steps to provision your environment in the Google Cloud Console.</p>
 
-        <h2>1. Deploy the DDL Schema</h2>
-        <p>Execute the DDL update in your terminal to append the <code>Transactions</code> table to your database. Note that it is interleaved under <code>Customers</code> (reusing our Customer hierarchy from Lab 3):</p>
+        <div class="callout callout-warning">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          <div>
+            <div class="callout-title">Use Your Assigned Project</div>
+            <div class="callout-content">Sign in with your <strong>company email address</strong> and select only the Google Cloud project that has been allocated to you by the instructor. Do not create resources in any other project.</div>
+          </div>
+        </div>
 
-        <div class="code-block-container shell">
+        <h2>Step 1 — Open Google Cloud Console</h2>
+        <p>Open your browser and navigate to the Google Cloud Console. Sign in with your company email address and password.</p>
+        <div class="code-block-container">
           <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <span class="code-lang-badge">URL</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1292,17 +1399,259 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=test-instance \
-  --ddl="CREATE TABLE Transactions (
-    CustomerId INT64 NOT NULL,
-    TransactionId INT64 NOT NULL,
-    TransactionDate DATE,
-    Amount NUMERIC,
-    Merchant STRING(255),
-    Status STRING(50)
-  ) PRIMARY KEY (CustomerId, TransactionId),
-  INTERLEAVE IN PARENT Customers ON DELETE CASCADE;"</code></pre>
+          <pre class="code-content"><code>https://console.cloud.google.com</code></pre>
+        </div>
+        <p>Once logged in, click the <strong>project selector</strong> at the top (shown as the project name next to the Google Cloud logo) and choose the project assigned to you by the instructor.</p>
+
+        <h2>Step 2 — Open Cloud Spanner</h2>
+        <p>In the top search bar, type <code>Spanner</code> and click <strong>Cloud Spanner</strong> from the results.</p>
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">URL</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>https://console.cloud.google.com/spanner</code></pre>
+        </div>
+
+        <h2>Step 3 — Create the Free Instance</h2>
+        <p>The Spanner home page shows a free trial banner — <strong>"Experience Spanner free for 90 days with no commitment"</strong>. Fill in the form fields exactly as shown below and click <strong>Create free instance</strong>.</p>
+
+        <img src="assets/lab5/01-create-instance.png" alt="Spanner free trial form showing instance name, instance ID, and configuration fields" class="lab-screenshot">
+        <span class="screenshot-caption">GCP Console — Spanner free trial form. Fill in the fields as shown and click "Create free instance".</span>
+
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">Form Values to Enter</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>Instance name         : test-instance1
+Instance ID           : test-instance1
+Select a configuration: asia-south1 (Mumbai)</code></pre>
+        </div>
+
+        <p>Click <strong>Create free instance</strong>. The instance will be provisioned in about 30–60 seconds and you will be redirected to the <code>test-instance1</code> overview page.</p>
+
+        <h2>Step 4 — Create a Database</h2>
+        <p>On the <code>test-instance1</code> overview page, find the <strong>Databases</strong> section and click <strong>"+ Create database"</strong>. Fill in the following settings:</p>
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">Database Settings</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>Database name    : test-database1
+Database dialect : Google Standard SQL</code></pre>
+        </div>
+
+        <img src="assets/Lab5/06-create-database.png" alt="Create database form showing database name test-database1 and Google Standard SQL dialect selected" class="lab-screenshot">
+        <span class="screenshot-caption">GCP Console — Create Database form. Enter the database name, select Google Standard SQL dialect, and click Create.</span>
+
+        <p>Leave the DDL statements field empty — tables are created in the next step. Click <strong>Create</strong>. You will land on the <code>test-database1</code> overview page.</p>
+
+        <div class="callout callout-info">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">What You Will See</div>
+            <div class="callout-content">The database overview for <code>test-database1</code> shows <strong>Overview</strong>, <strong>Tables</strong>, <strong>Spanner Studio</strong>, and other sections in the left navigation panel.</div>
+          </div>
+        </div>
+
+        <img src="assets/Lab5/07-database-overview.png" alt="Database overview page for test-database1 showing the left navigation with Overview, Tables, Spanner Studio options" class="lab-screenshot">
+        <span class="screenshot-caption">GCP Console — Database overview for test-database1. You will see Spanner Studio in the left navigation.</span>
+
+        <h2>Step 5 — Open Spanner Studio</h2>
+        <p>In the left-side navigation of the database overview, click <strong>"Spanner Studio"</strong>. Then click the <strong>"+ New SQL Editor Tab"</strong> button to open a blank query editor tab.</p>
+
+        <img src="assets/Lab5/08-spanner-studio.png" alt="Spanner Studio interface with New SQL Editor Tab button highlighted" class="lab-screenshot">
+        <span class="screenshot-caption">GCP Console — Spanner Studio. Click "+ New SQL Editor Tab" to open a blank query editor.</span>
+
+        <div class="callout callout-info">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">All SQL Queries Go Here</div>
+            <div class="callout-content">For all remaining steps in this lab, write and run your SQL statements in this Spanner Studio editor tab. Results appear in the <strong>Results</strong> pane below the editor.</div>
+          </div>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t_setup_1">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Create Spanner instance <code>test-instance1</code></span>
+              <span class="task-desc">Use the free trial form to provision instance test-instance1 in asia-south1 (Mumbai).</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t_setup_2">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Create database <code>test-database1</code></span>
+              <span class="task-desc">Create a Google Standard SQL dialect database inside your new instance.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t_setup_3">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Open Spanner Studio and create a new SQL Editor tab</span>
+              <span class="task-desc">Navigate to Spanner Studio from the database overview and open a new query editor tab.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 3: Setup Test Tables -->
+      <section class="content-panel" id="panel-2">
+        <h1>Step 1: Setting Up the Test Scenario</h1>
+
+        <details class="setup-parent-details">
+          <summary class="setup-parent-summary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="setup-parent-icon">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            Setup Parent Tables
+            <span class="mandatory-badge">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+              Mandatory
+            </span>
+          </summary>
+          <div class="setup-parent-body">
+            <p class="setup-parent-intro">Before deploying the <code>Transactions</code> table you must create the parent <code>Customers</code> table (and its child <code>Orders</code> / <code>OrderItems</code> hierarchy). Spanner enforces interleave integrity — a child insert without its parent will fail immediately.</p>
+
+            <h3 class="setup-parent-heading">1. Create the parent tables</h3>
+            <div class="code-block-container shell">
+              <div class="code-header">
+                <span class="code-lang-badge">Spanner Studio — SQL</span>
+                <div class="copy-btn-wrapper">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    Copy
+                  </button>
+                  <span class="tooltip">Copied!</span>
+                </div>
+              </div>
+              <pre class="code-content"><code>CREATE TABLE Customers (
+  CustomerId INT64 NOT NULL,
+  Name       STRING(255),
+  Email      STRING(255),
+  Country    STRING(100)
+) PRIMARY KEY (CustomerId);
+
+CREATE TABLE Orders (
+  CustomerId  INT64 NOT NULL,
+  OrderId     INT64 NOT NULL,
+  OrderDate   DATE,
+  TotalAmount NUMERIC
+) PRIMARY KEY (CustomerId, OrderId),
+  INTERLEAVE IN PARENT Customers ON DELETE CASCADE;
+
+CREATE TABLE OrderItems (
+  CustomerId  INT64 NOT NULL,
+  OrderId     INT64 NOT NULL,
+  OrderItemId INT64 NOT NULL,
+  ProductId   INT64,
+  Quantity    INT64,
+  Price       NUMERIC
+) PRIMARY KEY (CustomerId, OrderId, OrderItemId),
+  INTERLEAVE IN PARENT Orders ON DELETE CASCADE;</code></pre>
+            </div>
+
+            <h3 class="setup-parent-heading">2. Insert a parent customer</h3>
+            <div class="code-block-container shell">
+              <div class="code-header">
+                <span class="code-lang-badge">Spanner Studio — SQL</span>
+                <div class="copy-btn-wrapper">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    Copy
+                  </button>
+                  <span class="tooltip">Copied!</span>
+                </div>
+              </div>
+              <pre class="code-content"><code>INSERT INTO Customers (CustomerId, Name, Email, Country)
+VALUES (101, 'Alice Smith', 'alice@email.com', 'Germany');</code></pre>
+            </div>
+
+            <h3 class="setup-parent-heading">3. Insert a parent order</h3>
+            <div class="code-block-container shell">
+              <div class="code-header">
+                <span class="code-lang-badge">Spanner Studio — SQL</span>
+                <div class="copy-btn-wrapper">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    Copy
+                  </button>
+                  <span class="tooltip">Copied!</span>
+                </div>
+              </div>
+              <pre class="code-content"><code>INSERT INTO Orders (CustomerId, OrderId, OrderDate, TotalAmount)
+VALUES (101, 5001, '2026-07-17', 150.00);</code></pre>
+            </div>
+
+            <h3 class="setup-parent-heading">4. Insert an order item</h3>
+            <div class="code-block-container shell">
+              <div class="code-header">
+                <span class="code-lang-badge">Spanner Studio — SQL</span>
+                <div class="copy-btn-wrapper">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    Copy
+                  </button>
+                  <span class="tooltip">Copied!</span>
+                </div>
+              </div>
+              <pre class="code-content"><code>INSERT INTO OrderItems (CustomerId, OrderId, OrderItemId, ProductId, Quantity, Price)
+VALUES (101, 5001, 1, 9901, 2, 75.00);</code></pre>
+            </div>
+          </div>
+        </details>
+
+        <p>Let's define a new interleaved table named <code>Transactions</code> to record card purchases. Deploy this schema definition onto your active emulator instance.</p>
+
+        <h2>1. Deploy the DDL Schema</h2>
+        <p>Execute the DDL in Spanner Studio to create the <code>Transactions</code> table. Note that it is interleaved under <code>Customers</code> (reusing our Customer hierarchy from the previous step):</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Spanner Studio — SQL</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>CREATE TABLE Transactions (
+  CustomerId      INT64 NOT NULL,
+  TransactionId   INT64 NOT NULL,
+  TransactionDate DATE,
+  Amount          NUMERIC,
+  Merchant        STRING(255),
+  Status          STRING(50)
+) PRIMARY KEY (CustomerId, TransactionId),
+  INTERLEAVE IN PARENT Customers ON DELETE CASCADE;</code></pre>
         </div>
 
         <h2>2. Populate Transaction Records</h2>
@@ -1310,7 +1659,7 @@
 
         <div class="code-block-container shell">
           <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <span class="code-lang-badge">Spanner Studio — SQL</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1319,13 +1668,12 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
-  --sql="INSERT INTO Transactions (CustomerId, TransactionId, TransactionDate, Amount, Merchant, Status) VALUES
-  (101, 8001, '2026-07-17', 24.50, 'Cloud Cafe', 'COMPLETED'),
+          <pre class="code-content"><code>INSERT INTO Transactions (CustomerId, TransactionId, TransactionDate, Amount, Merchant, Status)
+VALUES
+  (101, 8001, '2026-07-17',  24.50, 'Cloud Cafe', 'COMPLETED'),
   (101, 8002, '2026-07-17', 120.00, 'Cloud Cafe', 'COMPLETED'),
-  (101, 8003, '2026-07-16', 55.00, 'GCP Shop', 'COMPLETED'),
-  (101, 8004, '2026-07-15', 10.00, 'Cloud Cafe', 'FAILED')"</code></pre>
+  (101, 8003, '2026-07-16',  55.00, 'GCP Shop',   'COMPLETED'),
+  (101, 8004, '2026-07-15',  10.00, 'Cloud Cafe', 'FAILED');</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1351,17 +1699,17 @@
       </section>
 
       <!-- STEP 3: Profile Slow Query -->
-      <section class="content-panel" id="panel-2">
+      <section class="content-panel" id="panel-3">
         <h1>Step 2: Profiling the Naive Query</h1>
         <p>Imagine your user dashboard queries the transactions table to list all successful purchases at `'Cloud Cafe'` on a specific date:</p>
         <p><code>SELECT CustomerId, Amount, Status FROM Transactions WHERE Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17'</code></p>
 
-        <h2>1. Run the Profile Command</h2>
-        <p>Profile the execution of this query by adding the <code>--query-mode=PROFILE</code> option. This tells Spanner to capture query execution statistics and output the query execution plan:</p>
+        <h2>1. Run the Query in Explanation Only Mode</h2>
+        <p>Paste the query below into your <strong>Spanner Studio</strong> editor tab. Before clicking Run, switch the execution mode to <strong>Explanation Only</strong> — this tells Spanner to compile the query and return the execution plan <em>without</em> scanning any data rows, so you can diagnose performance issues safely.</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <span class="code-lang-badge">Spanner Studio — SQL</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1370,29 +1718,41 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
-  --query-mode=PROFILE \
-  --sql="SELECT CustomerId, Amount, Status FROM Transactions WHERE Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17'"</code></pre>
+          <pre class="code-content"><code>SELECT CustomerId, Amount, Status
+FROM   Transactions
+WHERE  Merchant = 'Cloud Cafe'
+  AND  TransactionDate = '2026-07-17';</code></pre>
         </div>
 
-        <h2>2. Analyze the Output Plan</h2>
-        <p>Review the printed plan output in your terminal. You will notice plan operators similar to this:</p>
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">Execution Plan Concept</span>
+        <div class="callout callout-info">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div>
+            <div class="callout-title">How to Select Explanation Only Mode</div>
+            <div class="callout-content">In Spanner Studio, click the dropdown arrow next to the <strong>Run</strong> button and select <strong>Explanation Only</strong>. The query plan appears in the <strong>Explanation</strong> tab of the results pane instead of returning data rows.</div>
           </div>
-          <pre class="code-content"><code>Distributed Union
-└── Local Distributed Union
-    └── Filter (Condition: Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17')
-        └── <span class="c-kw">Table Scan</span> (Table: Transactions)</code></pre>
         </div>
+
+        <img src="assets/Lab5/09-explanation-only-mode.png" alt="Spanner Studio showing Explanation Only mode selected from the Run button dropdown" class="lab-screenshot">
+        <span class="screenshot-caption">Spanner Studio — Select "Explanation Only" from the Run dropdown to view the query execution plan without scanning data.</span>
+
+        <h2>2. Analyze the Explanation</h2>
+        <p>After clicking <strong>Explanation Only</strong>, the <strong>Explanation</strong> tab opens with a visual query plan. Because the query filters on <code>Merchant</code> and <code>TransactionDate</code> — neither of which is the primary key nor covered by any secondary index — Spanner has no shortcut. It falls back to a <strong>full table scan</strong>, reading every row in <code>Transactions</code> before applying the filter.</p>
+
+        <img src="assets/Lab5/10-explanation1.png" alt="Spanner Studio Explanation tab showing a full Table Scan on the Transactions table" class="lab-screenshot">
+        <span class="screenshot-caption">Spanner Studio Explanation tab — the plan shows a Table Scan on <code>Transactions</code>, confirming no index is used.</span>
+
+        <p>The key operator to spot in the plan is <strong>Table Scan</strong> on the <code>Transactions</code> table, which appears because:</p>
+        <ul style="margin: 0.5rem 0 1rem 1.4rem; line-height: 1.8;">
+          <li>The <strong>primary key</strong> of <code>Transactions</code> is <code>(CustomerId, TransactionId)</code> — the WHERE clause does not filter by primary key columns.</li>
+          <li>There is <strong>no secondary index</strong> on <code>Merchant</code> or <code>TransactionDate</code> yet.</li>
+          <li>Spanner therefore reads the <strong>entire table</strong> to find matching rows.</li>
+        </ul>
 
         <div class="callout callout-danger">
           <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
           <div>
-            <div class="callout-title">Bottleneck: Table Scan Operator</div>
-            <div class="callout-content">Because there is no index on <code>Merchant</code> or <code>TransactionDate</code>, Spanner must read every single row in the <code>Transactions</code> table to check if it matches the filter. In a database with millions of rows, this full table scan causes heavy CPU load and high latency.</div>
+            <div class="callout-title">Bottleneck: Full Table Scan</div>
+            <div class="callout-content">Without a primary or secondary index covering <code>Merchant</code> and <code>TransactionDate</code>, Spanner must scan every row in <code>Transactions</code> on every query execution. In a table with millions of rows, this means heavy CPU usage, high read latency, and wasted I/O — all for a query that should return a handful of rows.</div>
           </div>
         </div>
 
@@ -1402,8 +1762,8 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Run the query with profile enabled</span>
-              <span class="task-desc">Verify that the gcloud CLI outputs the execution plan and run statistics.</span>
+              <span class="task-label">Run the query in Explanation Only mode</span>
+              <span class="task-desc">Select "Explanation Only" from the Run dropdown and confirm the Explanation tab opens.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t2_2">
@@ -1412,23 +1772,82 @@
             </div>
             <div class="task-content">
               <span class="task-label">Identify the Table Scan operator</span>
-              <span class="task-desc">Locate the Table Scan step in the output plan.</span>
+              <span class="task-desc">Locate the Table Scan step in the plan and confirm no index is being used.</span>
+            </div>
+          </li>
+        </ul>
+
+        <h2>3. Run the Query and Observe Real Performance</h2>
+        <p>Now switch back to the normal <strong>Run</strong> mode (no Explanation Only) and execute the same query. This time Spanner will actually scan the table and return matching rows, so you can see the real elapsed time and row statistics in the results pane.</p>
+
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Spanner Studio — SQL</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>SELECT CustomerId, Amount, Status
+FROM   Transactions
+WHERE  Merchant = 'Cloud Cafe'
+  AND  TransactionDate = '2026-07-17';</code></pre>
+        </div>
+
+        <img src="assets/Lab5/11-explanation2.png" alt="Spanner Studio results pane showing query execution time and rows scanned after a full table scan" class="lab-screenshot">
+        <span class="screenshot-caption">Spanner Studio — Results tab after running the query in normal mode. Note the elapsed time and the number of rows scanned versus rows returned.</span>
+
+        <div class="callout callout-warning">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          <div>
+            <div class="callout-title">Observations</div>
+            <div class="callout-content">
+              <ul style="margin: 0.4rem 0 0 1.2rem; line-height: 1.9;">
+                <li><strong>All rows scanned, few rows returned</strong> — Spanner read every row in the <code>Transactions</code> table but returned only the handful that matched the filter. The ratio of rows scanned to rows returned is very high, which is a classic symptom of a missing index.</li>
+                <li><strong>High latency relative to result size</strong> — The elapsed time is disproportionate to the number of matching rows, because the cost is driven by the full table scan rather than the result set size.</li>
+                <li><strong>No index used</strong> — The Explanation tab confirms the plan uses a <em>Table Scan</em> operator rather than an <em>Index Scan</em>. This is the root cause of the slow performance.</li>
+                <li><strong>This gets worse at scale</strong> — With millions of rows the same query would take orders of magnitude longer and consume far more CPU, making it unsuitable for a user-facing dashboard.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <ul class="task-checklist" style="margin-top: 1rem;">
+          <li class="task-checkbox-container" data-task-id="t2_3">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Run the query in normal mode</span>
+              <span class="task-desc">Confirm the results return and note the elapsed time shown at the bottom of the results pane.</span>
+            </div>
+          </li>
+          <li class="task-checkbox-container" data-task-id="t2_4">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Note the performance bottleneck</span>
+              <span class="task-desc">Record the high rows-scanned-to-rows-returned ratio as evidence that a covering index is needed.</span>
             </div>
           </li>
         </ul>
       </section>
 
       <!-- STEP 4: Diagnose Back-Join -->
-      <section class="content-panel" id="panel-3">
+      <section class="content-panel" id="panel-4">
         <h1>Step 3: Diagnosing Back-Join Bottlenecks</h1>
         <p>Let's add a standard secondary index to speed up the query filtering. We will then analyze the new execution plan to identify any remaining bottlenecks.</p>
 
         <h2>1. Create a Standard Secondary Index</h2>
-        <p>Deploy a standard index on <code>Merchant</code> and <code>TransactionDate</code>:</p>
+        <p>Run the following DDL in <strong>Spanner Studio</strong> to deploy a standard index on <code>Merchant</code> and <code>TransactionDate</code>:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <span class="code-lang-badge">Spanner Studio — SQL</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1437,17 +1856,15 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=test-instance \
-  --ddl="CREATE INDEX TransactionsByMerchantDate ON Transactions(Merchant, TransactionDate);"</code></pre>
+          <pre class="code-content"><code>CREATE INDEX TransactionsByMerchantDate ON Transactions(Merchant, TransactionDate);</code></pre>
         </div>
 
-        <h2>2. Profile the Query Again</h2>
-        <p>Run the profile command a second time to see how the plan has changed:</p>
+        <h2>2. Run the Query Again and Check the Execution Plan</h2>
+        <p>Paste the same query into <strong>Spanner Studio</strong> and run it with <strong>Explanation Only</strong> mode to see how the plan has changed now that the index exists:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <span class="code-lang-badge">Spanner Studio — SQL</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1456,28 +1873,30 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
-  --query-mode=PROFILE \
-  --sql="SELECT CustomerId, Amount, Status FROM Transactions WHERE Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17'"</code></pre>
+          <pre class="code-content"><code>SELECT CustomerId, Amount, Status
+FROM   Transactions
+WHERE  Merchant = 'Cloud Cafe'
+  AND  TransactionDate = '2026-07-17';</code></pre>
         </div>
 
         <h2>3. Examine the Back-Join (Key Lookup) Plan</h2>
-        <p>The output plan tree should look similar to this:</p>
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">Execution Plan Concept</span>
-          </div>
-          <pre class="code-content"><code>Distributed Cross Apply
-├── <span class="c-kw">Index Scan</span> (Index: TransactionsByMerchantDate, Condition: Merchant = 'Cloud Cafe')
-└── <span class="c-val">Key Lookup</span> (Table: Transactions, Fetch: Amount, Status)</code></pre>
-        </div>
+        <p>Review the <strong>Explanation</strong> tab in Spanner Studio. Although the full table scan is now gone — Spanner is using the new index — you will notice a second operator has appeared: a <strong>Key Lookup</strong> back to the primary table. This is because <code>Amount</code> and <code>Status</code> are not stored in the index, so Spanner must go back to the base table to fetch them for every matching index row.</p>
+
+        <img src="assets/Lab5/12-explanation3.png" alt="Spanner Studio Explanation tab showing Index Scan followed by a Key Lookup back-join on the Transactions table" class="lab-screenshot">
+        <span class="screenshot-caption">Spanner Studio Explanation tab — Index Scan on <code>TransactionsByMerchantDate</code> is now used, but a Key Lookup (back-join) is still required to fetch <code>Amount</code> and <code>Status</code> from the base table.</span>
+
+        <p>Key operators to spot in the plan:</p>
+        <ul style="margin: 0.5rem 0 1rem 1.4rem; line-height: 1.9;">
+          <li><strong>Index Scan</strong> on <code>TransactionsByMerchantDate</code> — good, the filter on <code>Merchant</code> and <code>TransactionDate</code> is now satisfied by the index instead of a full table scan.</li>
+          <li><strong>Key Lookup / Distributed Cross Apply</strong> — Spanner takes each index row's primary key and issues a separate lookup back into the <code>Transactions</code> base table to retrieve <code>Amount</code> and <code>Status</code>, which are not stored in the index.</li>
+          <li><strong>Two storage accesses per matching row</strong> — one index read plus one base-table read. At scale this doubles the I/O and introduces cross-node latency for each row.</li>
+        </ul>
 
         <div class="callout callout-warning">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
           <div>
             <div class="callout-title">Bottleneck: Key Lookup (Back-Join)</div>
-            <div class="callout-content">Spanner uses the index to quickly find rows matching <code>Merchant = 'Cloud Cafe'</code>. However, because the index table does not contain the <code>Amount</code> and <code>Status</code> columns, Spanner must perform a back-join to fetch those values from the primary table. At scale, this back-join cross-network lookup becomes a major performance bottleneck.</div>
+            <div class="callout-content">Spanner uses the index to quickly find rows matching <code>Merchant = 'Cloud Cafe'</code>. However, because the index does not contain the <code>Amount</code> and <code>Status</code> columns, Spanner must perform a back-join to fetch those values from the primary table for every matching row. At scale — millions of transactions — this back-join cross-node lookup becomes a major performance bottleneck, adding latency and consuming extra CPU even though the index itself is efficient.</div>
           </div>
         </div>
 
@@ -1504,16 +1923,16 @@
       </section>
 
       <!-- STEP 5: Deploy Storing Index -->
-      <section class="content-panel" id="panel-4">
+      <section class="content-panel" id="panel-5">
         <h1>Step 4: Deploying a Storing Covered Index</h1>
         <p>To eliminate the back-join, we will replace the standard index with a **Storing Covered Index**. This copies the query's returned columns directly into the secondary index table.</p>
 
         <h2>1. Drop the Standard Index</h2>
-        <p>Remove the suboptimal standard index first:</p>
+        <p>Run the following DDL in <strong>Spanner Studio</strong> to remove the suboptimal standard index first:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <span class="code-lang-badge">Spanner Studio — SQL</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1522,9 +1941,7 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=test-instance \
-  --ddl="DROP INDEX TransactionsByMerchantDate;"</code></pre>
+          <pre class="code-content"><code>DROP INDEX TransactionsByMerchantDate;</code></pre>
         </div>
 
         <h2>2. Create the Storing Covered Index</h2>
@@ -1532,7 +1949,7 @@
 
         <div class="code-block-container shell">
           <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <span class="code-lang-badge">Spanner Studio — SQL</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1541,11 +1958,9 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=test-instance \
-  --ddl="CREATE INDEX TransactionsByMerchantDateCovered 
-         ON Transactions(Merchant, TransactionDate) 
-         STORING (Amount, Status);"</code></pre>
+          <pre class="code-content"><code>CREATE INDEX TransactionsByMerchantDateCovered
+  ON Transactions(Merchant, TransactionDate)
+  STORING (Amount, Status);</code></pre>
         </div>
 
         <ul class="task-checklist">
@@ -1571,16 +1986,16 @@
       </section>
 
       <!-- STEP 6: Verify Optimization -->
-      <section class="content-panel" id="panel-5">
+      <section class="content-panel" id="panel-6">
         <h1>Step 5: Verifying the Optimization</h1>
         <p>Now, let's profile the query again to verify that the back-join is gone and the execution plan is optimized.</p>
 
-        <h2>1. Profile the Query a Third Time</h2>
-        <p>Run the query profile command one last time:</p>
+        <h2>1. Run the Query Again in Explanation Only Mode</h2>
+        <p>Paste the same query into <strong>Spanner Studio</strong>, select <strong>Explanation Only</strong>, and run it one final time to confirm the back-join has been eliminated:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <span class="code-lang-badge">Spanner Studio — SQL</span>
             <div class="copy-btn-wrapper">
               <button class="copy-btn" onclick="copyCode(this)">
                 <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -1589,28 +2004,31 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
-  --query-mode=PROFILE \
-  --sql="SELECT CustomerId, Amount, Status FROM Transactions WHERE Merchant = 'Cloud Cafe' AND TransactionDate = '2026-07-17'"</code></pre>
+          <pre class="code-content"><code>SELECT CustomerId, Amount, Status
+FROM   Transactions
+WHERE  Merchant = 'Cloud Cafe'
+  AND  TransactionDate = '2026-07-17';</code></pre>
         </div>
 
-        <h2>2. Analyze the Final Covered Plan</h2>
-        <p>The output plan tree should look similar to this:</p>
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">Execution Plan Concept</span>
-          </div>
-          <pre class="code-content"><code>Distributed Union
-└── Local Distributed Union
-    └── <span class="c-kw">Index Scan</span> (Index: TransactionsByMerchantDateCovered, Condition: Merchant = 'Cloud Cafe')</code></pre>
-        </div>
+        <h2>2. Analyze the Final Execution Plan</h2>
+        <p>Review the <strong>Explanation</strong> tab in Spanner Studio. Compare this plan with what you saw in the previous two steps — the improvement should be clearly visible:</p>
+
+        <img src="assets/Lab5/13-explanation4.png" alt="Spanner Studio Explanation tab showing a clean Index Scan on the covering index with no Key Lookup" class="lab-screenshot">
+        <span class="screenshot-caption">Spanner Studio Explanation tab — a single Index Scan on <code>TransactionsByMerchantDateCovered</code>. No Table Scan. No Key Lookup.</span>
+
+        <p>Key differences from the earlier plans:</p>
+        <ul style="margin: 0.5rem 0 1rem 1.4rem; line-height: 1.9;">
+          <li><strong>No Table Scan</strong> — the full table scan from Step 2 is completely gone.</li>
+          <li><strong>No Key Lookup / Back-Join</strong> — the <em>Distributed Cross Apply</em> and <em>Key Lookup</em> operators from Step 3 are eliminated. Spanner no longer needs to go back to the base table.</li>
+          <li><strong>Single Index Scan only</strong> — Spanner reads <code>TransactionsByMerchantDateCovered</code> once and retrieves <code>CustomerId</code>, <code>Amount</code>, and <code>Status</code> directly from the index because they are stored in the <strong>STORING</strong> clause.</li>
+          <li><strong>One storage access per query</strong> — down from two (index + base table). This halves the I/O and removes the cross-node latency of the back-join entirely.</li>
+        </ul>
 
         <div class="callout callout-success">
           <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
           <div>
             <div class="callout-title">Success: No Key Lookup Operator!</div>
-            <div class="callout-content">Observe that the **Key Lookup** step is gone. Spanner retrieved all requested fields directly from the index, achieving sub-millisecond query latency.</div>
+            <div class="callout-content">The Key Lookup step is completely gone. Spanner retrieved all requested columns — <code>CustomerId</code>, <code>Amount</code>, and <code>Status</code> — directly from the covering index in a single scan, achieving sub-millisecond query latency regardless of how large the <code>Transactions</code> table grows.</div>
           </div>
         </div>
 
@@ -1620,8 +2038,8 @@
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
             <div class="task-content">
-              <span class="task-label">Profile the optimized query</span>
-              <span class="task-desc">Verify that the execution plan uses Index Scan and has no Key Lookup step.</span>
+              <span class="task-label">Run the query in Explanation Only mode</span>
+              <span class="task-desc">Verify that the execution plan uses only an Index Scan and has no Key Lookup step.</span>
             </div>
           </li>
           <li class="task-checkbox-container" data-task-id="t5_2">
@@ -1637,7 +2055,7 @@
       </section>
 
       <!-- STEP 6: Knowledge Check -->
-      <section class="content-panel" id="panel-6">
+      <section class="content-panel" id="panel-7">
         <h1>Step 6: Knowledge Check</h1>
         <p>Complete this quick self-check to evaluate your understanding of query profiling and covered index optimization.</p>
 
@@ -1718,7 +2136,7 @@
       </section>
 
       <!-- STEP 8: Certificate of Completion -->
-      <section class="content-panel certificate-panel" id="panel-7">
+      <section class="content-panel certificate-panel" id="panel-8">
         <h1>Lab Certificate of Completion</h1>
         <p class="subtitle">Once you complete the required tasks and pass the quiz, you can generate your certificate.</p>
 
@@ -1777,12 +2195,13 @@
 
   <script>
     // Constants & State
-    const totalSteps = 8;
+    const totalSteps = 9;
     let currentStep = 0;
     
     // Checklist configuration
     const taskStatus = {
       t0_1: false,
+      t_setup_1: false, t_setup_2: false, t_setup_3: false,
       t1_1: false, t1_2: false,
       t2_1: false, t2_2: false,
       t3_1: false, t3_2: false,
