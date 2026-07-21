@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud Spanner Lab 3 Instructor Guide</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --accent: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: rgba(15, 23, 42, 0.12);
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --code-bg: #f8fafc;
+      --code-border: #dbe3ee;
+      --code-text: #1f2937;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+    }
+
+    body.dark-theme {
+      --bg: #07111f;
+      --panel: #0f172a;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --accent: #38bdf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: rgba(255,255,255,0.12);
+      --shadow: 0 10px 30px rgba(0,0,0,.24);
+      --code-bg: #020617;
+      --code-border: #2d3748;
+      --code-text: #d4d4d4;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; transition: background 0.2s ease, color 0.2s ease; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 20px 60px; }
+    .hero { background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(16, 185, 129, 0.1)); border: 1px solid var(--border); border-radius: 20px; padding: 28px; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .hero-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: rgba(37, 99, 235, 0.12); color: var(--accent); font-size: 0.84rem; font-weight: 700; margin-bottom: 10px; }
+    .theme-toggle { border: 1px solid var(--border); background: var(--panel); color: var(--text); border-radius: 999px; padding: 8px 12px; cursor: pointer; font-weight: 600; }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { font-size: 2rem; margin: 0 0 8px; }
+    h2 { font-size: 1.3rem; margin: 24px 0 10px; }
+    h3 { font-size: 1.02rem; margin: 16px 0 8px; }
+    p, li { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); margin-bottom: 18px; }
+    .ok { color: var(--success); font-weight: 700; }
+    .warn { color: var(--warning); font-weight: 700; }
+    .danger { color: var(--danger); font-weight: 700; }
+    .checklist { padding-left: 18px; }
+    .checklist li { margin-bottom: 8px; }
+    .note { border-left: 4px solid var(--accent); padding-left: 12px; margin: 14px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    th { color: var(--text); background: rgba(15,23,42,.03); }
+    body.dark-theme th { background: rgba(255,255,255,.04); }
+
+    .code-block-container {
+      margin: 14px 0 10px;
+      border: 1px solid var(--code-border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--code-bg);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+    .code-header {
+      display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--code-border); background: linear-gradient(180deg, rgba(255,255,255,.8), transparent); color: var(--muted); font-size: 0.76rem; font-weight: 700;
+    }
+    body.dark-theme .code-header { background: linear-gradient(180deg, rgba(255,255,255,.06), transparent); }
+    .copy-btn { border: 1px solid var(--code-border); background: transparent; color: var(--text); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; }
+    .copy-btn-icon { width: 14px; height: 14px; fill: currentColor; }
+    .tooltip { opacity: 0; transition: opacity 0.2s ease; font-size: 0.75rem; color: var(--accent); margin-left: 8px; }
+    .code-content { padding: 12px 0; overflow-x: auto; }
+    .code-line { display: flex; padding: 0 16px; }
+    .line-number { color: #94a3b8; text-align: right; width: 34px; padding-right: 12px; user-select: none; font-size: 0.84rem; border-right: 1px solid var(--code-border); margin-right: 12px; }
+    .line-code { color: var(--code-text); font-family: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace; white-space: pre; font-size: 0.86rem; line-height: 1.6; }
+    .c-comment { color: #6a9955 !important; font-style: italic; }
+    .c-kw { color: #2563eb !important; font-weight: 600; }
+    .c-str { color: #a64d03 !important; }
+
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-head">
+        <div>
+          <div class="pill">Instructor Lab Guide</div>
+          <h1>Lab 3: Views and Remote UDFs for Banking Workloads</h1>
+          <p>This guide mirrors the student lab sequence while using a banking scenario for every example, so instructors can teach the same concepts with a more relevant story.</p>
+        </div>
+        <button class="theme-toggle" id="themeToggleBtn">🌗 Dark mode</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Lab Overview</h2>
+        <p><strong>Goal:</strong> show how Cloud Spanner can combine remote serverless logic with SQL views to present banking data in a consumer-friendly way.</p>
+        <p><strong>Audience:</strong> learners who already know basic Spanner DDL and DML.</p>
+        <p><strong>Duration:</strong> 45–60 minutes.</p>
+        <ul class="checklist">
+          <li>Deploy a Cloud Function for balance formatting.</li>
+          <li>Register the function as a Remote UDF in Spanner.</li>
+          <li>Query banking balances through the remote logic.</li>
+          <li>Wrap the logic in a reusable database view.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Instructor Preparation</h2>
+        <ul class="checklist">
+          <li class="ok">Confirm that the learner has a project with billing enabled.</li>
+          <li class="ok">Make sure the Cloud Functions and gcloud CLI are available.</li>
+          <li class="warn">Remind learners that this lab uses serverless execution and can create costs if left running.</li>
+          <li class="danger">Pause early if the deployment endpoint is not returned correctly.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Recommended Teaching Flow</h2>
+      <table>
+        <tr><th>Step</th><th>Instructor Notes</th><th>Estimated Time</th></tr>
+        <tr><td>1. Introduce the banking scenario</td><td>Frame the lab as a customer-facing banking reporting need.</td><td>6 min</td></tr>
+        <tr><td>2. Deploy the function</td><td>Show how serverless code can be reused from SQL.</td><td>10 min</td></tr>
+        <tr><td>3. Register the remote UDF</td><td>Explain the DDL mechanics and endpoint requirement.</td><td>8 min</td></tr>
+        <tr><td>4. Query using the UDF</td><td>Emphasize that the logic runs remotely, but the query remains SQL.</td><td>8 min</td></tr>
+        <tr><td>5. Create a reusable view</td><td>Show how views simplify client access and hide complexity.</td><td>8 min</td></tr>
+        <tr><td>6. Challenge and discussion</td><td>Invite learners to extend the pattern to other banking needs such as alerts or reporting.</td><td>10 min</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Step 1: Introduce the Banking Scenario</h2>
+      <p>Open by framing the problem as a bank operations and customer experience use case. The team wants to present account balances in a polished format without moving the formatting logic into the application.</p>
+      <table>
+        <tr><th>AccountId</th><th>CustomerId</th><th>AccountType</th><th>Balance</th></tr>
+        <tr><td>1001</td><td>501</td><td>Savings</td><td>$15,000.00</td></tr>
+        <tr><td>1002</td><td>502</td><td>Checking</td><td>$8,500.50</td></tr>
+        <tr><td>1003</td><td>503</td><td>Credit</td><td>$1,250.00</td></tr>
+      </table>
+      <div class="note">
+        <strong>Instructor focus:</strong> connect the lab to real banking reporting needs like statements, dashboards, and customer portals.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 2: Deploy the Cloud Function</h2>
+      <p>Use a serverless function that formats a numeric balance into US currency. This keeps the presentation logic outside the database and makes it reusable.</p>
+      <div class="code-block-container javascript">
+        <div class="code-header">
+          <span>Node.js</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>const functions = require('@google-cloud/functions-framework');
+
+functions.http('formatAccountBalance', (req, res) => {
+  const requestBody = req.body;
+  const calls = requestBody.calls || [];
+
+  const replies = calls.map(args => {
+    const amount = parseFloat(args[0]);
+    if (isNaN(amount)) return null;
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+  });
+
+  res.status(200).json({ replies });
+});</code></pre>
+      </div>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud functions deploy formatAccountBalance \
+  --runtime=nodejs20 \
+  --trigger-http \
+  --allow-unauthenticated \
+  --entry-point=formatAccountBalance \
+  --region=us-central1</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> show that the function is the presentation layer, not the data source.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 3: Register the Remote UDF</h2>
+      <p>Register the deployed function as a Remote UDF inside your Spanner database. The endpoint is the bridge between SQL and serverless execution.</p>
+      <div class="code-block-container sql">
+        <div class="code-header">
+          <span>DDL SQL</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>CREATE SCHEMA udf;
+
+CREATE OR REPLACE FUNCTION udf.formatAccountBalance (amount NUMERIC) RETURNS STRING
+  NOT DETERMINISTIC
+  LANGUAGE REMOTE
+  OPTIONS (
+    endpoint = 'https://us-central1-[PROJECT_ID].cloudfunctions.net/formatAccountBalance'
+  );</code></pre>
+      </div>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+  --instance=multi-region-spanner \
+  --ddl="CREATE SCHEMA udf" \
+  --ddl="CREATE OR REPLACE FUNCTION udf.formatAccountBalance (amount NUMERIC) \
+    RETURNS STRING \
+    NOT DETERMINISTIC \
+    LANGUAGE REMOTE \
+    OPTIONS ( \
+      endpoint = 'https://us-central1-[PROJECT_ID].cloudfunctions.net/formatAccountBalance' \
+    )"</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> explain that the function name and endpoint are both part of the contract between Spanner and the serverless service.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 4: Query Using the Remote UDF</h2>
+      <p>Once the function is in place, run SQL that calls it directly. The query remains simple while the formatting logic comes from the cloud function.</p>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+  --instance=multi-region-spanner \
+  --ddl="ALTER TABLE BankAccounts ADD COLUMN Balance NUMERIC"
+
+gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="UPDATE BankAccounts SET Balance = 12500.75 WHERE AccountId = 1001"
+
+gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="UPDATE BankAccounts SET Balance = 945000.50 WHERE AccountId = 1002"
+
+gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="SELECT AccountId, CustomerId, udf.formatAccountBalance(Balance) AS FormattedBalance FROM BankAccounts"</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> highlight that the SQL query stays readable while the formatting work is delegated to the remote service.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 5: Create a Database View</h2>
+      <p>Wrap the formatted account query in a view so downstream applications can query a clean semantic interface.</p>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+  --instance=multi-region-spanner \
+  --ddl="CREATE OR REPLACE VIEW AccountPortfolioView \
+    SQL SECURITY INVOKER \
+    AS SELECT \
+      BankAccounts.AccountId, \
+      BankAccounts.CustomerId, \
+      BankAccounts.AccountType, \
+      udf.formatAccountBalance(BankAccounts.Balance) AS FormattedBalance \
+    FROM BankAccounts"
+
+gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="SELECT * FROM AccountPortfolioView"</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> explain that the view offers a stable contract to client apps while the implementation details remain flexible.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 6: Challenge Extension</h2>
+      <p>Encourage learners to extend the pattern for a banking compliance use case such as high-value account monitoring.</p>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+  --instance=multi-region-spanner \
+  --ddl="CREATE OR REPLACE VIEW HighValueAccountView \
+    SQL SECURITY INVOKER \
+    AS SELECT \
+      BankAccounts.AccountId, \
+      BankAccounts.CustomerId, \
+      BankAccounts.AccountType, \
+      udf.formatAccountBalance(BankAccounts.Balance) AS FormattedBalance \
+    FROM BankAccounts \
+    WHERE BankAccounts.Balance >= 100000"</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> propose how this could be used for monitoring, fraud review, or client relationship reporting.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 7: Wrap-Up Discussion</h2>
+      <ul class="checklist">
+        <li>Why might a bank prefer a view over exposing the raw account table directly?</li>
+        <li>When would a remote UDF be better than doing the formatting in the application tier?</li>
+        <li>How would this pattern help with dashboards, statements, or compliance reporting?</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Step 8: Cleanup and Final Notes</h2>
+      <p>Scale the Spanner instance back down and remind learners that serverless functions and remote UDFs are powerful but should be used thoughtfully in production.</p>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud spanner instances update multi-region-spanner \
+  --processing-units=100</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      setupTheme();
+      decorateCodeBlocks();
+    });
+
+    function setupTheme() {
+      const btn = document.getElementById("themeToggleBtn");
+      const updateLabel = () => {
+        const dark = document.body.classList.contains("dark-theme");
+        btn.textContent = dark ? "☀️ Light mode" : "🌗 Dark mode";
+      };
+      updateLabel();
+      btn.addEventListener("click", () => {
+        document.body.classList.toggle("dark-theme");
+        updateLabel();
+      });
+    }
+
+    function decorateCodeBlocks() {
+      document.querySelectorAll(".code-block-container").forEach((container) => {
+        const codeElement = container.querySelector("code");
+        if (!codeElement) return;
+        const codeText = codeElement.textContent.trim();
+        let lang = "shell";
+        if (container.classList.contains("javascript")) lang = "javascript";
+        if (container.classList.contains("sql")) lang = "sql";
+
+        const header = document.createElement("div");
+        header.className = "code-header";
+        header.innerHTML = `
+          <span>${lang === "javascript" ? "Node.js" : lang === "sql" ? "DDL SQL" : "Terminal"}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+            <span class="tooltip">Copied!</span>
+          </div>`;
+
+        container.insertBefore(header, container.firstChild);
+        const codePre = container.querySelector("pre");
+        codePre.className = "code-content";
+        codePre.innerHTML = "";
+
+        codeText.split("\n").forEach((lineText) => {
+          const lineDiv = document.createElement("div");
+          lineDiv.className = "code-line";
+          const lineNum = document.createElement("span");
+          lineNum.className = "line-number";
+          lineNum.textContent = "";
+          const lineCode = document.createElement("span");
+          lineCode.className = "line-code";
+          lineCode.innerHTML = highlightSyntax(lineText, lang);
+          lineDiv.appendChild(lineNum);
+          lineDiv.appendChild(lineCode);
+          codePre.appendChild(lineDiv);
+        });
+      });
+    }
+
+    function copyCode(btn) {
+      const container = btn.closest(".code-block-container");
+      const codeText = container.querySelector("code")?.textContent || "";
+      navigator.clipboard.writeText(codeText).then(() => {
+        const tooltip = btn.parentElement.querySelector(".tooltip");
+        if (tooltip) {
+          tooltip.style.opacity = "1";
+          setTimeout(() => (tooltip.style.opacity = "0"), 1400);
+        }
+      });
+    }
+
+    function highlightSyntax(text, lang) {
+      let html = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      if (lang === "javascript") {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/(\/\/.*)$/g, '<span class="c-comment">$1</span>');
+      } else if (lang === "sql") {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/\b(CREATE|OR|REPLACE|FUNCTION|RETURNS|NOT|DETERMINISTIC|LANGUAGE|REMOTE|OPTIONS|SELECT|AS|FROM|WHERE|VIEW|SQL|SECURITY|INVOKER|TABLE|ALTER|ADD|COLUMN|UPDATE|SET|VALUES)\b/gi, '<span class="c-kw">$1</span>');
+      } else {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/(#.*)$/g, '<span class="c-comment">$1</span>');
+        const keywords = ['gcloud','spanner','create','describe','update','select','delete','instance','database','backup','restore'];
+        keywords.forEach((kw) => {
+          const regex = new RegExp(`\\b(${kw})\\b`, 'gi');
+          html = html.replace(regex, '<span class="c-kw">$1</span>');
+        });
+      }
+      return html;
+    }
+  </script>
+</body>
+</html>

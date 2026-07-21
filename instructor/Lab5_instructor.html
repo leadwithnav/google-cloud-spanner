@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud Spanner Lab: Interleaved vs Non-Interleaved Tables</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --panel: #111827;
+      --panel-2: #0f172a;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --blue: #60a5fa;
+      --indigo: #818cf8;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --red: #f87171;
+      --code-bg: #070a13;
+      --code-text: #bfdbfe;
+      --shadow: 0 14px 38px rgba(0, 0, 0, 0.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(59,130,246,.12), transparent 32%),
+        radial-gradient(circle at 85% 10%, rgba(99,102,241,.12), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 72px;
+    }
+
+    .hero {
+      padding: 42px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background:
+        linear-gradient(135deg, rgba(59,130,246,.14), rgba(99,102,241,.08)),
+        rgba(17,24,39,.92);
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid rgba(96,165,250,.35);
+      border-radius: 999px;
+      color: #bfdbfe;
+      background: rgba(59,130,246,.08);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    h1, h2, h3 { line-height: 1.25; margin-top: 0; }
+    h1 {
+      font-size: clamp(34px, 5vw, 58px);
+      margin-bottom: 14px;
+      letter-spacing: -0.03em;
+    }
+    h2 {
+      font-size: 28px;
+      margin-bottom: 16px;
+      color: #f8fafc;
+    }
+    h3 {
+      font-size: 19px;
+      margin-top: 28px;
+      margin-bottom: 10px;
+      color: #dbeafe;
+    }
+
+    .subtitle {
+      max-width: 850px;
+      color: var(--muted);
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .toc {
+      position: sticky;
+      top: 20px;
+      padding: 20px;
+      border-radius: 18px;
+      background: rgba(15,23,42,.92);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .toc h2 { font-size: 16px; margin-bottom: 12px; }
+    .toc a {
+      display: block;
+      padding: 7px 8px;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .toc a:hover {
+      background: rgba(59,130,246,.10);
+      color: #dbeafe;
+      text-decoration: none;
+    }
+
+    main section {
+      margin-bottom: 24px;
+      padding: 28px;
+      background: rgba(17,24,39,.88);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 8px 26px rgba(0,0,0,.18);
+    }
+
+    .callout {
+      margin: 18px 0;
+      padding: 15px 16px;
+      border-radius: 12px;
+      border-left: 4px solid var(--blue);
+      background: rgba(59,130,246,.08);
+      color: #dbeafe;
+    }
+    .callout.tip {
+      border-left-color: var(--green);
+      background: rgba(16,185,129,.08);
+    }
+    .callout.warn {
+      border-left-color: var(--amber);
+      background: rgba(245,158,11,.08);
+    }
+
+    pre {
+      position: relative;
+      overflow-x: auto;
+      margin: 14px 0 20px;
+      padding: 18px 20px;
+      border-radius: 14px;
+      border: 1px solid #172033;
+      background: var(--code-bg);
+      color: var(--code-text);
+      font: 14px/1.6 "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      tab-size: 2;
+    }
+
+    code {
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+    }
+
+    p code, li code, td code {
+      background: rgba(148,163,184,.10);
+      color: #bfdbfe;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: .92em;
+    }
+
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .steps > li {
+      counter-increment: step;
+      margin: 12px 0;
+      padding-left: 42px;
+      position: relative;
+    }
+
+    .steps > li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: white;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 8px;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #0f172a;
+      color: #dbeafe;
+    }
+
+    td { background: rgba(15,23,42,.45); }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(99,102,241,.10);
+      border: 1px solid rgba(129,140,248,.25);
+      color: #c7d2fe;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 18px;
+    }
+
+    .mini {
+      padding: 18px;
+      background: rgba(15,23,42,.68);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .footer {
+      margin-top: 30px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .print-note {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .toc { position: static; }
+      .two-col { grid-template-columns: 1fr; }
+      .hero { padding: 28px; }
+      main section { padding: 22px; }
+    }
+
+    @media print {
+      body { background: #fff; color: #111827; }
+      .page { width: 100%; padding: 0; }
+      .hero, main section, .toc {
+        box-shadow: none;
+        background: #fff;
+        color: #111827;
+        border-color: #cbd5e1;
+      }
+      .toc { display: none; }
+      .grid { display: block; }
+      h1, h2, h3 { color: #111827; }
+      p, li, td, th { color: #111827; }
+      pre {
+        background: #f8fafc;
+        color: #0f172a;
+        border-color: #cbd5e1;
+        white-space: pre-wrap;
+      }
+      .callout { color: #111827; background: #eff6ff; }
+      .callout.tip { background: #ecfdf5; }
+      .callout.warn { background: #fffbeb; }
+      section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="eyebrow">Google Cloud Spanner Hands-on Lab</div>
+      <h1>Interleaved vs Non-Interleaved Tables</h1>
+      <p class="subtitle">
+        Create equivalent schemas, load identical datasets, run the same joins, and compare execution plans to understand data locality and join behavior in Cloud Spanner.
+      </p>
+      <div class="badge-row">
+        <span class="badge">Level: Intermediate</span>
+        <span class="badge">Estimated Time: 45–60 minutes</span>
+        <span class="badge">Platform: Cloud Spanner</span>
+        <span class="badge">Focus: Execution Plans</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <aside class="toc">
+        <h2>Lab Navigation</h2>
+        <a href="#objective">1. Objective</a>
+        <a href="#interleaved">2. Interleaved tables</a>
+        <a href="#regular">3. Non-interleaved tables</a>
+        <a href="#verify-schema">4. Verify schema</a>
+        <a href="#load-data">5. Load identical data</a>
+        <a href="#validate-data">6. Validate data</a>
+        <a href="#experiment-1">7. Single-customer join</a>
+        <a href="#experiment-2">8. Range join</a>
+        <a href="#experiment-3">9. Full join</a>
+        <a href="#experiment-4">10. Non-key filter</a>
+        <a href="#indexes">11. Optional index test</a>
+        <a href="#plan">12. View execution plan</a>
+        <a href="#worksheet">13. Comparison worksheet</a>
+        <a href="#operators">14. Operator guide</a>
+        <a href="#conclusion">15. Conclusion</a>
+      </aside>
+
+      <main>
+        <section id="objective">
+          <h2>1. Lab Objective</h2>
+          <p>This lab creates two equivalent customer-order schemas:</p>
+          <div class="two-col">
+            <div class="mini">
+              <h3>Interleaved design</h3>
+              <p><code>CustomersInterleaved</code> → <code>OrdersInterleaved</code></p>
+            </div>
+            <div class="mini">
+              <h3>Regular design</h3>
+              <p><code>CustomersRegular</code> + <code>OrdersRegular</code></p>
+            </div>
+          </div>
+
+          <p>Both schemas use the same columns, primary keys, row counts, and values. The only intentional difference is the parent-child interleaving relationship.</p>
+
+          <div class="callout warn">
+            Run this lab on a real Cloud Spanner instance. The emulator is useful for functional testing, but it does not provide the same execution-plan and runtime profiling experience as the managed service.
+          </div>
+
+          <h3>Learning outcomes</h3>
+          <ul>
+            <li>Create interleaved and non-interleaved tables.</li>
+            <li>Insert identical datasets into both designs.</li>
+            <li>Run equivalent joins.</li>
+            <li>Compare scans, distributed operators, join strategies, rows read, CPU time, and latency.</li>
+            <li>Explain when interleaving helps and when an index is still required.</li>
+          </ul>
+        </section>
+
+        <section id="interleaved">
+          <h2>2. Create the Interleaved Tables</h2>
+
+          <h3>2.1 Parent table</h3>
+<pre><code>CREATE TABLE CustomersInterleaved (
+  CustomerId INT64 NOT NULL,
+  CustomerName STRING(100) NOT NULL,
+  CustomerType STRING(20),
+  City STRING(50),
+) PRIMARY KEY (CustomerId);</code></pre>
+
+          <h3>2.2 Interleaved child table</h3>
+<pre><code>CREATE TABLE OrdersInterleaved (
+  CustomerId INT64 NOT NULL,
+  OrderId INT64 NOT NULL,
+  OrderDate DATE NOT NULL,
+  Amount NUMERIC NOT NULL,
+  OrderStatus STRING(20),
+) PRIMARY KEY (CustomerId, OrderId),
+  INTERLEAVE IN PARENT CustomersInterleaved
+  ON DELETE CASCADE;</code></pre>
+
+          <div class="callout tip">
+            The child primary key starts with the complete parent primary key. This is required for parent-child interleaving.
+          </div>
+
+<pre><code>Parent key: (CustomerId)
+Child key:  (CustomerId, OrderId)</code></pre>
+        </section>
+
+        <section id="regular">
+          <h2>3. Create the Non-Interleaved Tables</h2>
+
+          <h3>3.1 Regular parent table</h3>
+<pre><code>CREATE TABLE CustomersRegular (
+  CustomerId INT64 NOT NULL,
+  CustomerName STRING(100) NOT NULL,
+  CustomerType STRING(20),
+  City STRING(50),
+) PRIMARY KEY (CustomerId);</code></pre>
+
+          <h3>3.2 Regular orders table</h3>
+<pre><code>CREATE TABLE OrdersRegular (
+  CustomerId INT64 NOT NULL,
+  OrderId INT64 NOT NULL,
+  OrderDate DATE NOT NULL,
+  Amount NUMERIC NOT NULL,
+  OrderStatus STRING(20),
+) PRIMARY KEY (CustomerId, OrderId);</code></pre>
+
+          <div class="callout">
+            Keep the primary keys identical in both designs. This isolates physical locality as the main variable instead of changing the logical key design.
+          </div>
+        </section>
+
+        <section id="verify-schema">
+          <h2>4. Verify the Schema</h2>
+<pre><code>SELECT
+  TABLE_NAME,
+  PARENT_TABLE_NAME,
+  ON_DELETE_ACTION,
+  INTERLEAVE_TYPE
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_NAME IN (
+  'CustomersInterleaved',
+  'OrdersInterleaved',
+  'CustomersRegular',
+  'OrdersRegular'
+)
+ORDER BY TABLE_NAME;</code></pre>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Table</th>
+                <th>Expected parent</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>CustomersInterleaved</code></td><td>NULL</td></tr>
+              <tr><td><code>OrdersInterleaved</code></td><td><code>CustomersInterleaved</code></td></tr>
+              <tr><td><code>CustomersRegular</code></td><td>NULL</td></tr>
+              <tr><td><code>OrdersRegular</code></td><td>NULL</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="load-data">
+          <h2>5. Insert Identical Data</h2>
+          <p>The following example creates 1,000 customers and 20 orders per customer in each design.</p>
+
+          <h3>5.1 Insert customers into the interleaved parent table</h3>
+<pre><code>INSERT INTO CustomersInterleaved (
+  CustomerId,
+  CustomerName,
+  CustomerType,
+  City
+)
+SELECT
+  CustomerId,
+  CONCAT('Customer-', CAST(CustomerId AS STRING)),
+  CASE
+    WHEN MOD(CustomerId, 3) = 0 THEN 'Premium'
+    ELSE 'Standard'
+  END,
+  CASE MOD(CustomerId, 5)
+    WHEN 0 THEN 'Delhi'
+    WHEN 1 THEN 'Mumbai'
+    WHEN 2 THEN 'Bengaluru'
+    WHEN 3 THEN 'London'
+    ELSE 'Singapore'
+  END
+FROM UNNEST(GENERATE_ARRAY(1, 1000)) AS CustomerId;</code></pre>
+
+          <h3>5.2 Insert customers into the regular parent table</h3>
+<pre><code>INSERT INTO CustomersRegular (
+  CustomerId,
+  CustomerName,
+  CustomerType,
+  City
+)
+SELECT
+  CustomerId,
+  CONCAT('Customer-', CAST(CustomerId AS STRING)),
+  CASE
+    WHEN MOD(CustomerId, 3) = 0 THEN 'Premium'
+    ELSE 'Standard'
+  END,
+  CASE MOD(CustomerId, 5)
+    WHEN 0 THEN 'Delhi'
+    WHEN 1 THEN 'Mumbai'
+    WHEN 2 THEN 'Bengaluru'
+    WHEN 3 THEN 'London'
+    ELSE 'Singapore'
+  END
+FROM UNNEST(GENERATE_ARRAY(1, 1000)) AS CustomerId;</code></pre>
+
+          <h3>5.3 Insert orders into the interleaved child table</h3>
+<pre><code>INSERT INTO OrdersInterleaved (
+  CustomerId,
+  OrderId,
+  OrderDate,
+  Amount,
+  OrderStatus
+)
+SELECT
+  CustomerId,
+  OrderNumber,
+  DATE_ADD(
+    DATE '2026-01-01',
+    INTERVAL MOD(CustomerId + OrderNumber, 180) DAY
+  ),
+  CAST(
+    100 + MOD((CustomerId * 17) + (OrderNumber * 31), 5000)
+    AS NUMERIC
+  ),
+  CASE MOD(OrderNumber, 4)
+    WHEN 0 THEN 'PENDING'
+    WHEN 1 THEN 'COMPLETED'
+    WHEN 2 THEN 'SHIPPED'
+    ELSE 'CANCELLED'
+  END
+FROM UNNEST(GENERATE_ARRAY(1, 1000)) AS CustomerId
+CROSS JOIN UNNEST(GENERATE_ARRAY(1, 20)) AS OrderNumber;</code></pre>
+
+          <h3>5.4 Insert orders into the regular table</h3>
+<pre><code>INSERT INTO OrdersRegular (
+  CustomerId,
+  OrderId,
+  OrderDate,
+  Amount,
+  OrderStatus
+)
+SELECT
+  CustomerId,
+  OrderNumber,
+  DATE_ADD(
+    DATE '2026-01-01',
+    INTERVAL MOD(CustomerId + OrderNumber, 180) DAY
+  ),
+  CAST(
+    100 + MOD((CustomerId * 17) + (OrderNumber * 31), 5000)
+    AS NUMERIC
+  ),
+  CASE MOD(OrderNumber, 4)
+    WHEN 0 THEN 'PENDING'
+    WHEN 1 THEN 'COMPLETED'
+    WHEN 2 THEN 'SHIPPED'
+    ELSE 'CANCELLED'
+  END
+FROM UNNEST(GENERATE_ARRAY(1, 1000)) AS CustomerId
+CROSS JOIN UNNEST(GENERATE_ARRAY(1, 20)) AS OrderNumber;</code></pre>
+
+          <div class="callout warn">
+            If the console rejects a large DML operation, load the data in smaller customer ranges or use a client application with batched mutations.
+          </div>
+        </section>
+
+        <section id="validate-data">
+          <h2>6. Validate the Dataset</h2>
+
+          <h3>6.1 Compare row counts</h3>
+<pre><code>SELECT
+  (SELECT COUNT(*) FROM CustomersInterleaved)
+    AS InterleavedCustomers,
+  (SELECT COUNT(*) FROM OrdersInterleaved)
+    AS InterleavedOrders,
+  (SELECT COUNT(*) FROM CustomersRegular)
+    AS RegularCustomers,
+  (SELECT COUNT(*) FROM OrdersRegular)
+    AS RegularOrders;</code></pre>
+
+          <p>Expected counts:</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Interleaved customers</th>
+                <th>Interleaved orders</th>
+                <th>Regular customers</th>
+                <th>Regular orders</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1,000</td>
+                <td>20,000</td>
+                <td>1,000</td>
+                <td>20,000</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>6.2 Compare aggregate values</h3>
+<pre><code>SELECT
+  'Interleaved' AS SchemaType,
+  COUNT(*) AS OrderCount,
+  SUM(Amount) AS TotalAmount,
+  MIN(OrderDate) AS FirstOrderDate,
+  MAX(OrderDate) AS LastOrderDate
+FROM OrdersInterleaved
+
+UNION ALL
+
+SELECT
+  'Regular',
+  COUNT(*),
+  SUM(Amount),
+  MIN(OrderDate),
+  MAX(OrderDate)
+FROM OrdersRegular;</code></pre>
+        </section>
+
+        <section id="experiment-1">
+          <h2>7. Experiment 1: Join for One Customer</h2>
+
+          <h3>Interleaved query</h3>
+<pre><code>SELECT
+  c.CustomerId,
+  c.CustomerName,
+  o.OrderId,
+  o.OrderDate,
+  o.Amount,
+  o.OrderStatus
+FROM CustomersInterleaved AS c
+JOIN OrdersInterleaved AS o
+  ON c.CustomerId = o.CustomerId
+WHERE c.CustomerId = 500;</code></pre>
+
+          <h3>Non-interleaved query</h3>
+<pre><code>SELECT
+  c.CustomerId,
+  c.CustomerName,
+  o.OrderId,
+  o.OrderDate,
+  o.Amount,
+  o.OrderStatus
+FROM CustomersRegular AS c
+JOIN OrdersRegular AS o
+  ON c.CustomerId = o.CustomerId
+WHERE c.CustomerId = 500;</code></pre>
+
+          <h3>Observe</h3>
+          <ul>
+            <li>Parent and child scan types.</li>
+            <li>Key ranges used.</li>
+            <li>Join operator selected.</li>
+            <li>Presence of distributed operators.</li>
+            <li>Rows read versus rows returned.</li>
+            <li>CPU time and elapsed time.</li>
+          </ul>
+        </section>
+
+        <section id="experiment-2">
+          <h2>8. Experiment 2: Join a Customer Range</h2>
+
+          <h3>Interleaved query</h3>
+<pre><code>SELECT
+  c.CustomerId,
+  c.CustomerName,
+  o.OrderId,
+  o.Amount
+FROM CustomersInterleaved AS c
+JOIN OrdersInterleaved AS o
+  ON c.CustomerId = o.CustomerId
+WHERE c.CustomerId BETWEEN 400 AND 500;</code></pre>
+
+          <h3>Non-interleaved query</h3>
+<pre><code>SELECT
+  c.CustomerId,
+  c.CustomerName,
+  o.OrderId,
+  o.Amount
+FROM CustomersRegular AS c
+JOIN OrdersRegular AS o
+  ON c.CustomerId = o.CustomerId
+WHERE c.CustomerId BETWEEN 400 AND 500;</code></pre>
+
+          <div class="callout">
+            Expected result volume: 101 customers × 20 orders = 2,020 rows.
+          </div>
+        </section>
+
+        <section id="experiment-3">
+          <h2>9. Experiment 3: Join All Customers and Orders</h2>
+
+          <h3>Interleaved full join</h3>
+<pre><code>SELECT
+  c.CustomerType,
+  COUNT(*) AS OrderCount,
+  SUM(o.Amount) AS TotalAmount
+FROM CustomersInterleaved AS c
+JOIN OrdersInterleaved AS o
+  ON c.CustomerId = o.CustomerId
+GROUP BY c.CustomerType;</code></pre>
+
+          <h3>Non-interleaved full join</h3>
+<pre><code>SELECT
+  c.CustomerType,
+  COUNT(*) AS OrderCount,
+  SUM(o.Amount) AS TotalAmount
+FROM CustomersRegular AS c
+JOIN OrdersRegular AS o
+  ON c.CustomerId = o.CustomerId
+GROUP BY c.CustomerType;</code></pre>
+
+          <div class="callout tip">
+            For larger inputs, the optimizer may choose Hash Join, Merge Join, Apply, or Distributed Apply. Interleaving does not force one specific operator.
+          </div>
+        </section>
+
+        <section id="experiment-4">
+          <h2>10. Experiment 4: Filter on a Non-Key Column</h2>
+
+          <h3>Interleaved query</h3>
+<pre><code>SELECT
+  c.CustomerId,
+  c.CustomerName,
+  o.OrderId,
+  o.Amount
+FROM CustomersInterleaved AS c
+JOIN OrdersInterleaved AS o
+  ON c.CustomerId = o.CustomerId
+WHERE o.OrderStatus = 'PENDING';</code></pre>
+
+          <h3>Regular query</h3>
+<pre><code>SELECT
+  c.CustomerId,
+  c.CustomerName,
+  o.OrderId,
+  o.Amount
+FROM CustomersRegular AS c
+JOIN OrdersRegular AS o
+  ON c.CustomerId = o.CustomerId
+WHERE o.OrderStatus = 'PENDING';</code></pre>
+
+          <div class="callout warn">
+            Interleaving organizes data around <code>CustomerId</code>. It does not organize all rows globally by <code>OrderStatus</code>. This query may still require broad scans.
+          </div>
+        </section>
+
+        <section id="indexes">
+          <h2>11. Optional Secondary-Index Experiment</h2>
+
+          <h3>Create equivalent covered indexes</h3>
+<pre><code>CREATE INDEX OrdersInterleavedByStatus
+ON OrdersInterleaved (
+  OrderStatus,
+  CustomerId,
+  OrderId
+)
+STORING (
+  Amount,
+  OrderDate
+);</code></pre>
+
+<pre><code>CREATE INDEX OrdersRegularByStatus
+ON OrdersRegular (
+  OrderStatus,
+  CustomerId,
+  OrderId
+)
+STORING (
+  Amount,
+  OrderDate
+);</code></pre>
+
+          <h3>Force the index for the interleaved query</h3>
+<pre><code>SELECT
+  c.CustomerId,
+  c.CustomerName,
+  o.OrderId,
+  o.Amount
+FROM CustomersInterleaved AS c
+JOIN OrdersInterleaved@{FORCE_INDEX=OrdersInterleavedByStatus} AS o
+  ON c.CustomerId = o.CustomerId
+WHERE o.OrderStatus = 'PENDING';</code></pre>
+
+          <h3>Force the index for the regular query</h3>
+<pre><code>SELECT
+  c.CustomerId,
+  c.CustomerName,
+  o.OrderId,
+  o.Amount
+FROM CustomersRegular AS c
+JOIN OrdersRegular@{FORCE_INDEX=OrdersRegularByStatus} AS o
+  ON c.CustomerId = o.CustomerId
+WHERE o.OrderStatus = 'PENDING';</code></pre>
+        </section>
+
+        <section id="plan">
+          <h2>12. View the Execution Plan</h2>
+          <ol class="steps">
+            <li>Open Google Cloud Console.</li>
+            <li>Go to <strong>Spanner</strong>.</li>
+            <li>Select the instance and database.</li>
+            <li>Open <strong>Spanner Studio</strong> or the query editor.</li>
+            <li>Paste one of the lab queries.</li>
+            <li>Open <strong>Execution settings</strong>.</li>
+            <li>Select <strong>Plan</strong> to inspect the optimizer plan without runtime statistics.</li>
+            <li>Select <strong>Profile</strong> to execute the query and collect runtime statistics.</li>
+            <li>Run the query and inspect the <strong>Execution plan</strong> tab.</li>
+          </ol>
+
+          <div class="callout tip">
+            Use Profile for the final comparison because it exposes actual rows, CPU time, elapsed time, and operator-level runtime behavior.
+          </div>
+        </section>
+
+        <section id="worksheet">
+          <h2>13. Execution-Plan Comparison Worksheet</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Observation</th>
+                <th>Interleaved</th>
+                <th>Non-interleaved</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Parent rows scanned</td><td></td><td></td></tr>
+              <tr><td>Child rows scanned</td><td></td><td></td></tr>
+              <tr><td>Join operator</td><td></td><td></td></tr>
+              <tr><td>Distributed Union present</td><td></td><td></td></tr>
+              <tr><td>Distributed Apply present</td><td></td><td></td></tr>
+              <tr><td>Hash Join present</td><td></td><td></td></tr>
+              <tr><td>Merge Join present</td><td></td><td></td></tr>
+              <tr><td>Rows returned</td><td></td><td></td></tr>
+              <tr><td>CPU time</td><td></td><td></td></tr>
+              <tr><td>Elapsed time</td><td></td><td></td></tr>
+              <tr><td>Execution count</td><td></td><td></td></tr>
+            </tbody>
+          </table>
+
+          <p class="print-note">Tip: print this section or export the page to PDF for classroom use.</p>
+        </section>
+
+        <section id="operators">
+          <h2>14. Operator Guide</h2>
+
+          <h3>Table Scan</h3>
+          <p>Reads rows from a base table. Check whether it is a full scan or a key-range scan and whether filters are pushed down.</p>
+
+          <h3>Apply or Cross Apply</h3>
+          <p>For each row from one side, Spanner performs a lookup on the other side using the join key. This is often effective for selective parent-child access.</p>
+
+          <h3>Distributed Apply</h3>
+          <p>The Apply operation is distributed across multiple Spanner servers or key ranges.</p>
+
+          <h3>Hash Join</h3>
+          <p>Spanner builds or uses a hash representation of join keys. It may be efficient when joining larger input sets.</p>
+
+          <h3>Merge Join</h3>
+          <p>Consumes both inputs in join-key order. Because both designs use <code>(CustomerId, OrderId)</code>, either design may be eligible for an efficient ordered join.</p>
+
+          <h3>Distributed Union</h3>
+          <p>Represents parallel work over multiple splits or remote subplans whose results are combined.</p>
+
+          <div class="callout warn">
+            Do not assume “interleaved means no distributed operators.” A large interleaved hierarchy can still span several splits and servers.
+          </div>
+        </section>
+
+        <section id="conclusion">
+          <h2>15. Final Conclusion</h2>
+          <p>
+            Interleaving is a physical data-locality optimization for parent-child access. It is most helpful when applications retrieve child rows through the parent primary key.
+          </p>
+          <p>
+            It does not replace indexes for unrelated filters, and it does not guarantee a specific join operator. Cloud Spanner’s cost-based optimizer still chooses the final execution strategy based on filters, statistics, cardinality, ordering, and distribution.
+          </p>
+
+          <div class="callout tip">
+            Best teaching takeaway: interleaving improves locality, while the execution plan shows how Spanner actually chose to execute the query.
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="footer">
+      Cloud Spanner Instructor Lab • Interleaved vs Non-Interleaved Tables
+    </footer>
+  </div>
+</body>
+</html>

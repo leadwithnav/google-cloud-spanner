@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud Spanner Lab 2 Instructor Guide</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --accent: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: rgba(15, 23, 42, 0.12);
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --code-bg: #f8fafc;
+      --code-border: #dbe3ee;
+      --code-text: #1f2937;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+    }
+
+    body.dark-theme {
+      --bg: #07111f;
+      --panel: #0f172a;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --accent: #38bdf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: rgba(255,255,255,0.12);
+      --shadow: 0 10px 30px rgba(0,0,0,.24);
+      --code-bg: #020617;
+      --code-border: #2d3748;
+      --code-text: #d4d4d4;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; transition: background 0.2s ease, color 0.2s ease; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 20px 60px; }
+    .hero { background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(16, 185, 129, 0.1)); border: 1px solid var(--border); border-radius: 20px; padding: 28px; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .hero-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: rgba(37, 99, 235, 0.12); color: var(--accent); font-size: 0.84rem; font-weight: 700; margin-bottom: 10px; }
+    .theme-toggle { border: 1px solid var(--border); background: var(--panel); color: var(--text); border-radius: 999px; padding: 8px 12px; cursor: pointer; font-weight: 600; }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { font-size: 2rem; margin: 0 0 8px; }
+    h2 { font-size: 1.3rem; margin: 24px 0 10px; }
+    h3 { font-size: 1.02rem; margin: 16px 0 8px; }
+    p, li { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); margin-bottom: 18px; }
+    .ok { color: var(--success); font-weight: 700; }
+    .warn { color: var(--warning); font-weight: 700; }
+    .danger { color: var(--danger); font-weight: 700; }
+    .checklist { padding-left: 18px; }
+    .checklist li { margin-bottom: 8px; }
+    .note { border-left: 4px solid var(--accent); padding-left: 12px; margin: 14px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    th { color: var(--text); background: rgba(15,23,42,.03); }
+    body.dark-theme th { background: rgba(255,255,255,.04); }
+
+    .code-block-container {
+      margin: 14px 0 10px;
+      border: 1px solid var(--code-border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--code-bg);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+    .code-header {
+      display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--code-border); background: linear-gradient(180deg, rgba(255,255,255,.8), transparent); color: var(--muted); font-size: 0.76rem; font-weight: 700;
+    }
+    body.dark-theme .code-header { background: linear-gradient(180deg, rgba(255,255,255,.06), transparent); }
+    .copy-btn { border: 1px solid var(--code-border); background: transparent; color: var(--text); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; }
+    .copy-btn-icon { width: 14px; height: 14px; fill: currentColor; }
+    .tooltip { opacity: 0; transition: opacity 0.2s ease; font-size: 0.75rem; color: var(--accent); margin-left: 8px; }
+    .code-content { padding: 12px 0; overflow-x: auto; }
+    .code-line { display: flex; padding: 0 16px; }
+    .line-number { color: #94a3b8; text-align: right; width: 34px; padding-right: 12px; user-select: none; font-size: 0.84rem; border-right: 1px solid var(--code-border); margin-right: 12px; }
+    .line-code { color: var(--code-text); font-family: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace; white-space: pre; font-size: 0.86rem; line-height: 1.6; }
+    .c-comment { color: #6a9955 !important; font-style: italic; }
+    .c-kw { color: #2563eb !important; font-weight: 600; }
+    .c-str { color: #a64d03 !important; }
+    .c-num { color: #15803d !important; }
+
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-head">
+        <div>
+          <div class="pill">Instructor Lab Guide</div>
+          <h1>Lab 2: Multi-Region Deployments, PITR, and Recovery Workflows</h1>
+          <p>This guide mirrors the student lab flow but adds instructor notes, timing guidance, and focus points for teaching the recovery concepts clearly.</p>
+        </div>
+        <button class="theme-toggle" id="themeToggleBtn">🌗 Dark mode</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Lab Overview</h2>
+        <p><strong>Goal:</strong> teach learners how Spanner supports high availability, historical recovery, and point-in-time recovery with a multi-region setup.</p>
+        <p><strong>Audience:</strong> intermediate learners who already know the basics of Spanner DDL/DML.</p>
+        <p><strong>Duration:</strong> 45–60 minutes.</p>
+        <ul class="checklist">
+          <li>Deploy a multi-region Spanner instance.</li>
+          <li>Configure version retention for PITR.</li>
+          <li>Simulate logical failure by deleting rows.</li>
+          <li>Recover data using stale reads and database restore.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Instructor Preparation</h2>
+        <ul class="checklist">
+          <li class="ok">Confirm the learner has a live Google Cloud project and billing-enabled account.</li>
+          <li class="ok">Have the gcloud CLI and Python SDK ready before the session.</li>
+          <li class="warn">Explain that multi-region deployments create real costs and should be cleaned up afterwards.</li>
+          <li class="danger">Pause if credentials or project selection fail; do not move on until the environment is connected.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Recommended Teaching Flow</h2>
+      <table>
+        <tr><th>Step</th><th>Instructor Notes</th><th>Estimated Time</th></tr>
+        <tr><td>1. Introduce the concepts</td><td>Help learners separate infrastructure failure from logical data failure.</td><td>8 min</td></tr>
+        <tr><td>2. Deploy multi-region instance</td><td>Show how the configuration template changes availability and resilience.</td><td>10 min</td></tr>
+        <tr><td>3. Configure PITR retention</td><td>Emphasize that recovery depends on historical versions being retained.</td><td>8 min</td></tr>
+        <tr><td>4. Simulate data loss</td><td>Keep the deletion step dramatic but safe and clearly explain why it matters.</td><td>8 min</td></tr>
+        <tr><td>5. Recover with stale reads and restore</td><td>Compare ad-hoc recovery with full database restore.</td><td>15 min</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Step 1: Introduce the Recovery Scenario</h2>
+      <p>Open by distinguishing between two classes of incidents:</p>
+      <ul class="checklist">
+        <li><strong>Infrastructure failure:</strong> a zone or region becomes unavailable. Spanner’s replicas protect availability.</li>
+        <li><strong>Logical failure:</strong> bad data is written, a table is deleted, or records are corrupted. PITR is the recovery tool.</li>
+      </ul>
+      <p>Use a simple banking story: a support engineer accidentally deletes the latest account rows during a maintenance window, and the operations team needs to recover balances for customer accounts quickly while preserving audit readiness.</p>
+      <table>
+        <tr><th>CustomerId</th><th>AccountId</th><th>AccountType</th><th>Balance</th></tr>
+        <tr><td>501</td><td>1001</td><td>Savings</td><td>$15,000.00</td></tr>
+        <tr><td>502</td><td>1002</td><td>Checking</td><td>$8,500.50</td></tr>
+        <tr><td>503</td><td>1003</td><td>Credit</td><td>$1,250.00</td></tr>
+      </table>
+      <div class="note">
+        <strong>Teaching tip:</strong> spend a few minutes on the difference between resilience and recovery; many learners confuse the two concepts.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 2: Deploy a Multi-Region Instance</h2>
+      <p>Walk learners through finding the regional configuration and creating the instance. Make clear that this is a production-style activity and incurs billing.</p>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud spanner instance-configs list --filter="name:nam"
+
+gcloud spanner instances create multi-region-spanner \
+  --config=nam3 \
+  --description="HA Multi-Region Instance" \
+  --processing-units=100</code></pre>
+      </div>
+
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud spanner databases create test-database --instance=multi-region-spanner
+
+gcloud spanner databases ddl update test-database \
+  --instance=multi-region-spanner \
+  --ddl="CREATE TABLE BankAccounts (AccountId INT64 NOT NULL, CustomerId INT64 NOT NULL, AccountType STRING(32), Balance NUMERIC) PRIMARY KEY (AccountId)"</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> point out that the instance is being created in a multi-region config, but the lab still uses a simple table so the recovery story stays clear.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 3: Configure PITR Retention</h2>
+      <p>Explain that PITR needs historical versions to exist before recovery can be performed. The retention window can be set from 1 hour up to 7 days.</p>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+  --instance=multi-region-spanner \
+  --ddl="ALTER DATABASE \`test-database\` SET OPTIONS (version_retention_period = '3d')"
+
+gcloud spanner databases describe test-database --instance=multi-region-spanner</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> explain that longer retention increases storage cost, so teams pick a reasonable window based on recovery needs.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 4: Simulate Data Failure</h2>
+      <p>Keep this step theatrical but controlled. The goal is to show how a logical failure can wipe or corrupt banking records and leave the operations team with a recovery problem.</p>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="INSERT INTO BankAccounts (AccountId, CustomerId, AccountType, Balance) VALUES (1001, 501, 'Savings', 15000.00), (1002, 502, 'Checking', 8500.50)"
+
+gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="SELECT CURRENT_TIMESTAMP()"
+
+gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="DELETE FROM BankAccounts WHERE 1=1"
+
+gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="SELECT * FROM BankAccounts"</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> point out that the table is empty after the delete, which mirrors a common accidental data loss mistake.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 5: Recover with Stale Reads</h2>
+      <p>Show that the historical rows still exist inside Spanner’s retained versions. Stale reads let you query the past without restoring the whole database.</p>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --read-timestamp="2026-07-17T13:05:00.123456Z" \
+  --sql="SELECT * FROM BankAccounts"</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> explain that stale reads are great for investigation and targeted recovery, but they are not the same as full restoration.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 6: Restore in Place with Python</h2>
+      <p>Use the Python sample to repopulate the active table by replaying the historical rows into the current table.</p>
+      <div class="code-block-container python">
+        <div class="code-header">
+          <span>Python</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>import datetime
+from google.cloud import spanner
+
+INSTANCE_ID = "multi-region-spanner"
+DATABASE_ID = "test-database"
+TIMESTAMP_STR = "2026-07-17T13:05:00.123456Z"
+
+client = spanner.Client()
+instance = client.instance(INSTANCE_ID)
+database = instance.database(DATABASE_ID)
+recovery_time = datetime.datetime.fromisoformat(TIMESTAMP_STR.replace("Z", "+00:00"))
+
+with database.snapshot(read_timestamp=recovery_time) as snapshot:
+    rows = list(snapshot.execute_sql("SELECT AccountId, CustomerId, AccountType, Balance FROM BankAccounts"))
+
+if rows:
+    database.run_in_transaction(lambda tx, rows=rows: tx.insert_or_update(
+        table="BankAccounts",
+        columns=["AccountId", "CustomerId", "AccountType", "Balance"],
+        values=rows
+    ))
+    print("Bank account restoration completed")</code></pre>
+      </div>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>python Lab2/restore.py</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> this is a good moment to explain that in-place restore is often a practical operational response for targeted data recovery.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 7: Restore the Database from Backup</h2>
+      <p>For full disaster recovery, restore the database from a backup that was created using the historical version time.</p>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud spanner backups create test-database-backup \
+  --instance=multi-region-spanner \
+  --database=test-database \
+  --version-time="2026-07-17T13:05:00.123456Z" \
+  --retention-period=3d --async
+
+gcloud spanner backups describe test-database-backup --instance=multi-region-spanner
+
+gcloud spanner databases restore \
+  --destination-database=recovered-db \
+  --destination-instance=multi-region-spanner \
+  --backup=test-database-backup \
+  --backup-instance=multi-region-spanner</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> compare this to stale reads and point out that backup/restore is the more complete enterprise recovery path.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Wrap-Up and Discussion</h2>
+      <div class="note">
+        <strong>Discussion 1: Why Does Spanner Require a Primary Key?</strong>
+      </div>
+      <ul class="checklist">
+        <li>Why is PITR more useful for logical corruption than for a full regional outage?</li>
+        <li>When would you choose stale reads over a full database restore?</li>
+        <li>What operational overhead comes with keeping a longer retention window?</li>
+        <li>How would you explain this lab to a stakeholder who cares more about business continuity than database internals?</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      setupTheme();
+      decorateCodeBlocks();
+    });
+
+    function setupTheme() {
+      const btn = document.getElementById("themeToggleBtn");
+      const updateLabel = () => {
+        const dark = document.body.classList.contains("dark-theme");
+        btn.textContent = dark ? "☀️ Light mode" : "🌗 Dark mode";
+      };
+      updateLabel();
+      btn.addEventListener("click", () => {
+        document.body.classList.toggle("dark-theme");
+        updateLabel();
+      });
+    }
+
+    function decorateCodeBlocks() {
+      document.querySelectorAll(".code-block-container").forEach((container) => {
+        const codeElement = container.querySelector("code");
+        if (!codeElement) return;
+        const codeText = codeElement.textContent.trim();
+        let lang = "shell";
+        if (container.classList.contains("python")) lang = "python";
+
+        const header = document.createElement("div");
+        header.className = "code-header";
+        header.innerHTML = `
+          <span>${lang === "python" ? "Python" : "Terminal"}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+            <span class="tooltip">Copied!</span>
+          </div>`;
+
+        container.insertBefore(header, container.firstChild);
+        const codePre = container.querySelector("pre");
+        codePre.className = "code-content";
+        codePre.innerHTML = "";
+
+        codeText.split("\n").forEach((lineText) => {
+          const lineDiv = document.createElement("div");
+          lineDiv.className = "code-line";
+          const lineNum = document.createElement("span");
+          lineNum.className = "line-number";
+          lineNum.textContent = "";
+          const lineCode = document.createElement("span");
+          lineCode.className = "line-code";
+          lineCode.innerHTML = highlightSyntax(lineText, lang);
+          lineDiv.appendChild(lineNum);
+          lineDiv.appendChild(lineCode);
+          codePre.appendChild(lineDiv);
+        });
+      });
+    }
+
+    function copyCode(btn) {
+      const container = btn.closest(".code-block-container");
+      const codeText = container.querySelector("code")?.textContent || "";
+      navigator.clipboard.writeText(codeText).then(() => {
+        const tooltip = btn.parentElement.querySelector(".tooltip");
+        if (tooltip) {
+          tooltip.style.opacity = "1";
+          setTimeout(() => (tooltip.style.opacity = "0"), 1400);
+        }
+      });
+    }
+
+    function highlightSyntax(text, lang) {
+      let html = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      if (lang === "python") {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/(#.*)$/g, '<span class="c-comment">$1</span>');
+      } else {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/(#.*)$/g, '<span class="c-comment">$1</span>');
+        const keywords = ['gcloud','spanner','create','describe','update','select','delete','instance','database','backup','restore'];
+        keywords.forEach((kw) => {
+          const regex = new RegExp(`\\b(${kw})\\b`, 'gi');
+          html = html.replace(regex, '<span class="c-kw">$1</span>');
+        });
+      }
+      return html;
+    }
+  </script>
+</body>
+</html>

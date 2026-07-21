@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud Spanner Lab 1 Instructor Guide</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --panel-2: #f8fafc;
+      --text: #0f172a;
+      --muted: #475569;
+      --accent: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: rgba(15, 23, 42, 0.12);
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --code-bg: #f8fafc;
+      --code-border: #dbe3ee;
+      --code-text: #1f2937;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+    }
+
+    body.dark-theme {
+      --bg: #07111f;
+      --panel: #0f172a;
+      --panel-2: #111c2f;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --accent: #38bdf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: rgba(255,255,255,0.12);
+      --shadow: 0 10px 30px rgba(0,0,0,.24);
+      --code-bg: #020617;
+      --code-border: #2d3748;
+      --code-text: #d4d4d4;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; transition: background 0.2s ease, color 0.2s ease; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 20px 60px; }
+    .hero { background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(16, 185, 129, 0.1)); border: 1px solid var(--border); border-radius: 20px; padding: 28px; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .hero-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: rgba(37, 99, 235, 0.12); color: var(--accent); font-size: .84rem; font-weight: 700; margin-bottom: 10px; }
+    .theme-toggle { border: 1px solid var(--border); background: var(--panel); color: var(--text); border-radius: 999px; padding: 8px 12px; cursor: pointer; font-weight: 600; }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { font-size: 2rem; margin: 0 0 8px; }
+    h2 { font-size: 1.3rem; margin: 28px 0 12px; }
+    h3 { font-size: 1.02rem; margin: 18px 0 8px; }
+    p, li { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); margin-bottom: 18px; }
+    .ok { color: var(--success); font-weight: 700; }
+    .warn { color: var(--warning); font-weight: 700; }
+    .danger { color: var(--danger); font-weight: 700; }
+    .checklist { padding-left: 18px; }
+    .checklist li { margin-bottom: 8px; }
+    .note { border-left: 4px solid var(--accent); padding-left: 12px; margin: 14px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    th { color: var(--text); background: rgba(15,23,42,.03); }
+    body.dark-theme th { background: rgba(255,255,255,.04); }
+
+    .code-block-container {
+      margin: 16px 0 10px;
+      border: 1px solid var(--code-border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--code-bg);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+    .code-header {
+      display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--code-border); background: linear-gradient(180deg, rgba(255,255,255,.8), transparent);
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+    body.dark-theme .code-header { background: linear-gradient(180deg, rgba(255,255,255,.06), transparent); }
+    .editor-left { display: flex; align-items: center; gap: 10px; }
+    .mac-dots { display: flex; gap: 6px; }
+    .mac-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .mac-dot.red { background: #ff5f56; }
+    .mac-dot.yellow { background: #ffbd2e; }
+    .mac-dot.green { background: #27c93f; }
+    .editor-tab { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 6px; background: rgba(15,23,42,.06); }
+    body.dark-theme .editor-tab { background: rgba(255,255,255,.08); }
+    .copy-btn { border: 1px solid var(--code-border); background: transparent; color: var(--text); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; }
+    .copy-btn-icon { width: 14px; height: 14px; fill: currentColor; }
+    .tooltip { opacity: 0; transition: opacity 0.2s ease; font-size: 0.75rem; color: var(--accent); margin-left: 8px; }
+    .code-content { padding: 12px 0; overflow-x: auto; }
+    .code-line { display: flex; padding: 0 16px; }
+    .line-number { color: #94a3b8; text-align: right; width: 34px; padding-right: 12px; user-select: none; font-size: 0.84rem; border-right: 1px solid var(--code-border); margin-right: 12px; }
+    .line-code { color: var(--code-text); font-family: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace; white-space: pre; font-size: 0.86rem; line-height: 1.6; }
+    .c-comment { color: #6a9955 !important; font-style: italic; }
+    .c-kw { color: #2563eb !important; font-weight: 600; }
+    .c-str { color: #a64d03 !important; }
+    .c-num { color: #15803d !important; }
+    .c-func { color: #7c3aed !important; }
+
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-head">
+        <div>
+          <div class="pill">Instructor Lab Guide</div>
+          <h1>Lab 1: Banking System Setup in Spanner, Emulator Basics, and DDL/DML</h1>
+          <p>This guide is meant for the instructor to run the lab smoothly, anticipate learner issues, and keep the session on pace using a banking scenario.</p>
+        </div>
+        <button class="theme-toggle" id="themeToggleBtn">🌗 Dark mode</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Lab Overview</h2>
+        <p><strong>Goal:</strong> help learners create a Google Cloud Spanner instance with <strong>100 PU</strong>, start the emulator, and run basic DDL and DML operations for a simple banking application.</p>
+        <p><strong>Audience:</strong> beginners who are new to Spanner and want a practical first experience.</p>
+        <p><strong>Duration:</strong> 30–45 minutes.</p>
+        <ul class="checklist">
+          <li>Provision a Spanner instance with <strong>100 PU</strong> or use the emulator.</li>
+          <li>Create a database and banking-focused schema.</li>
+          <li>Insert, read, update, and delete sample account and transaction data.</li>
+          <li>Explain the differences between schema setup and data operations.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Instructor Preparation</h2>
+        <ul class="checklist">
+          <li class="ok">Ensure learners have a Google Cloud account or emulator access.</li>
+          <li class="ok">Confirm the Google Cloud CLI is installed and authenticated.</li>
+          <li class="ok">Have the emulator commands ready before the session.</li>
+          <li class="warn">If learners hit auth issues, pause and troubleshoot before moving on.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Recommended Teaching Flow</h2>
+      <table>
+        <tr><th>Step</th><th>Instructor Notes</th><th>Estimated Time</th></tr>
+        <tr><td>1. Introduce Spanner</td><td>Explain that Spanner is a globally distributed relational database with strong consistency and horizontal scalability.</td><td>5 min</td></tr>
+        <tr><td>2. Provision instance</td><td>Walk learners through creating an instance and database. Keep the commands simple and use a clear naming convention.</td><td>8 min</td></tr>
+        <tr><td>3. Start emulator</td><td>Show the emulator flow as a lightweight local setup. Emphasize that this is ideal for learning.</td><td>7 min</td></tr>
+        <tr><td>4. Create tables</td><td>Use a small schema and explain primary keys and columns.</td><td>7 min</td></tr>
+        <tr><td>5. Run DML</td><td>Demonstrate insert, select, update, and delete operations in sequence.</td><td>8 min</td></tr>
+        <tr><td>6. Wrap-up</td><td>Connect this lab to later labs on schema design and optimization.</td><td>5 min</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Suggested Demo Commands</h2>
+      <div class="code-block-container shell">
+        <pre><code>gcloud config set project YOUR_PROJECT_ID
+
+gcloud spanner instances create banking-instance \
+  --config=regional-us-central1 \
+  --description="Banking lab instance" \
+  --processing-units=100
+
+gcloud spanner databases create banking-db \
+  --instance=banking-instance \
+  --ddl='CREATE TABLE Customers (CustomerId STRING(36) NOT NULL, FullName STRING(100) NOT NULL, Email STRING(255), CreatedAt TIMESTAMP NOT NULL, PRIMARY KEY (CustomerId))'</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor tip:</strong> if you are using the emulator, keep the setup commands shorter and focus on the banking data lifecycle rather than cloud-specific details.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Run Spanner Emulator with Docker</h2>
+      <div class="code-block-container shell">
+        <pre><code># Start the emulator container
+docker run --rm -d --name spanner-emulator \
+  -p 9010:9010 -p 9020:9020 \
+  gcr.io/cloud-spanner-emulator/emulator:latest
+
+# Create a new local gcloud configuration profile
+gcloud config configurations create emulator
+
+# Set the endpoint override to route Spanner commands to the local emulator
+gcloud config set api_endpoint_overrides/spanner http://localhost:9020/
+
+# Set a dummy project ID (required by gcloud commands but ignored by the emulator)
+gcloud config set project emulator-project
+
+# Disable credentials since the local emulator doesn't require authentication
+gcloud config set auth/disable_credentials true</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor tip:</strong> after the emulator is running, learners can create a database and run the banking DDL/DML commands exactly as they would against a real instance.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Banking Schema Example</h2>
+      <div class="code-block-container sql">
+        <pre><code>CREATE TABLE Customers (
+  CustomerId STRING(36) NOT NULL,
+  FullName STRING(100) NOT NULL,
+  Email STRING(255),
+  CreatedAt TIMESTAMP NOT NULL,
+) PRIMARY KEY (CustomerId);
+
+CREATE TABLE Accounts (
+  AccountId STRING(36) NOT NULL,
+  CustomerId STRING(36) NOT NULL,
+  AccountType STRING(20) NOT NULL,
+  Balance NUMERIC,
+  Status STRING(20) NOT NULL,
+) PRIMARY KEY (AccountId);
+</code></pre>
+      </div>
+      <div class="code-block-container sql">
+        <pre><code>INSERT INTO Customers (CustomerId, FullName, Email, CreatedAt)
+VALUES ('C1001', 'Aisha Khan', 'aisha.khan@example.com', CURRENT_TIMESTAMP());
+
+INSERT INTO Accounts (AccountId, CustomerId, AccountType, Balance, Status)
+VALUES ('A1001', 'C1001', 'Savings', 15000, 'Active');
+
+SELECT * FROM Customers WHERE CustomerId = 'C1001';
+
+UPDATE Accounts
+SET Balance = 16000
+WHERE AccountId = 'A1001';</code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Common Issues and Fixes</h2>
+      <ul class="checklist">
+        <li><span class="danger">Auth issue:</span> run <code>gcloud auth login</code> and verify the active account.</li>
+        <li><span class="danger">Project not found:</span> confirm that the project exists and is selected with <code>gcloud config set project</code>.</li>
+        <li><span class="danger">Instance creation failed:</span> check the region, quota, or API enablement.</li>
+        <li><span class="warn">Emulator not reachable:</span> verify that the emulator process is running and that the environment variable points to the correct endpoint.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Suggested Discussion Questions</h2>
+      <ul class="checklist">
+        <li>Why do we need a primary key in Spanner for a banking table?</li>
+        <li>How is DDL different from DML in the context of accounts and customers?</li>
+        <li>What happens when a customer record exists but no account record is linked to it?</li>
+        <li>Why might you prefer the emulator for learning before using a real instance with 100 PU?</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Wrap-Up Notes</h2>
+      <p>Conclude the lab by reminding learners that this first exercise is about getting comfortable with the workflow: create, define schema, insert data, and query it. That foundation will make later labs on optimization and design much easier.</p>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      setupTheme();
+      decorateCodeBlocks();
+    });
+
+    function setupTheme() {
+      const btn = document.getElementById("themeToggleBtn");
+      const updateLabel = () => {
+        const dark = document.body.classList.contains("dark-theme");
+        btn.textContent = dark ? "☀️ Light mode" : "🌗 Dark mode";
+      };
+
+      updateLabel();
+      btn.addEventListener("click", () => {
+        document.body.classList.toggle("dark-theme");
+        updateLabel();
+      });
+    }
+
+    function decorateCodeBlocks() {
+      document.querySelectorAll(".code-block-container").forEach((container) => {
+        const codeElement = container.querySelector("code");
+        if (!codeElement) return;
+
+        const codeText = codeElement.textContent.trim();
+        let lang = "shell";
+        let filename = "commands.sh";
+        if (container.classList.contains("sql")) {
+          lang = "sql";
+          filename = "schema.sql";
+        } else if (container.classList.contains("python")) {
+          lang = "python";
+          filename = "restore.py";
+        }
+
+        const header = document.createElement("div");
+        header.className = "code-header";
+        header.innerHTML = `
+          <div class="editor-left">
+            <div class="mac-dots">
+              <span class="mac-dot red"></span>
+              <span class="mac-dot yellow"></span>
+              <span class="mac-dot green"></span>
+            </div>
+            <div class="editor-tab">${filename}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="copy-btn" onclick="copyCode(this)">
+              <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+              Copy
+            </button>
+            <span class="tooltip">Copied!</span>
+          </div>`;
+
+        container.insertBefore(header, container.firstChild);
+        const codePre = container.querySelector("pre");
+        codePre.className = "code-content";
+        codePre.innerHTML = "";
+
+        codeText.split("\n").forEach((lineText) => {
+          const lineDiv = document.createElement("div");
+          lineDiv.className = "code-line";
+          const lineNum = document.createElement("span");
+          lineNum.className = "line-number";
+          lineNum.textContent = "";
+          const lineCode = document.createElement("span");
+          lineCode.className = "line-code";
+          lineCode.innerHTML = highlightSyntax(lineText, lang);
+          lineDiv.appendChild(lineNum);
+          lineDiv.appendChild(lineCode);
+          codePre.appendChild(lineDiv);
+        });
+      });
+    }
+
+    function copyCode(btn) {
+      const container = btn.closest(".code-block-container");
+      const codeText = container.querySelector("code")?.textContent || container.querySelector(".code-content")?.textContent || "";
+      navigator.clipboard.writeText(codeText).then(() => {
+        const tooltip = btn.parentElement.querySelector(".tooltip");
+        if (tooltip) {
+          tooltip.style.opacity = "1";
+          setTimeout(() => (tooltip.style.opacity = "0"), 1400);
+        }
+      });
+    }
+
+    function highlightSyntax(text, lang) {
+      let html = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      if (lang === "sql") {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/(#.*)$/g, '<span class="c-comment">$1</span>');
+        const keywords = ['CREATE','TABLE','PRIMARY','KEY','INSERT','INTO','SELECT','FROM','WHERE','UPDATE','SET','VALUES','TIMESTAMP','STRING','NUMERIC'];
+        keywords.forEach((kw) => {
+          const regex = new RegExp(`\\b(${kw})\\b`, 'gi');
+          html = html.replace(regex, '<span class="c-kw">$1</span>');
+        });
+      } else if (lang === "shell") {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/(#.*)$/g, '<span class="c-comment">$1</span>');
+        const keywords = ['gcloud','docker','export','set','create','config','spanner','database','instance'];
+        keywords.forEach((kw) => {
+          const regex = new RegExp(`\\b(${kw})\\b`, 'gi');
+          html = html.replace(regex, '<span class="c-kw">$1</span>');
+        });
+      }
+      return html;
+    }
+  </script>
+</body>
+</html>

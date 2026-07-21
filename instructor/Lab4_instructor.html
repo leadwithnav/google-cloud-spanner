@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud Spanner Lab 4 Instructor Guide</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --accent: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: rgba(15, 23, 42, 0.12);
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --code-bg: #f8fafc;
+      --code-border: #dbe3ee;
+      --code-text: #1f2937;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+    }
+
+    body.dark-theme {
+      --bg: #07111f;
+      --panel: #0f172a;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --accent: #38bdf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: rgba(255,255,255,0.12);
+      --shadow: 0 10px 30px rgba(0,0,0,.24);
+      --code-bg: #020617;
+      --code-border: #2d3748;
+      --code-text: #d4d4d4;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; transition: background 0.2s ease, color 0.2s ease; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 20px 60px; }
+    .hero { background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(16, 185, 129, 0.1)); border: 1px solid var(--border); border-radius: 20px; padding: 28px; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .hero-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: rgba(37, 99, 235, 0.12); color: var(--accent); font-size: 0.84rem; font-weight: 700; margin-bottom: 10px; }
+    .theme-toggle { border: 1px solid var(--border); background: var(--panel); color: var(--text); border-radius: 999px; padding: 8px 12px; cursor: pointer; font-weight: 600; }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { font-size: 2rem; margin: 0 0 8px; }
+    h2 { font-size: 1.3rem; margin: 24px 0 10px; }
+    h3 { font-size: 1.02rem; margin: 16px 0 8px; }
+    p, li { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); margin-bottom: 18px; }
+    .ok { color: var(--success); font-weight: 700; }
+    .warn { color: var(--warning); font-weight: 700; }
+    .danger { color: var(--danger); font-weight: 700; }
+    .checklist { padding-left: 18px; }
+    .checklist li { margin-bottom: 8px; }
+    .note { border-left: 4px solid var(--accent); padding-left: 12px; margin: 14px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    th { color: var(--text); background: rgba(15,23,42,.03); }
+    body.dark-theme th { background: rgba(255,255,255,.04); }
+
+    .code-block-container {
+      margin: 14px 0 10px;
+      border: 1px solid var(--code-border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--code-bg);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+    .code-header {
+      display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--code-border); background: linear-gradient(180deg, rgba(255,255,255,.8), transparent); color: var(--muted); font-size: 0.76rem; font-weight: 700;
+    }
+    body.dark-theme .code-header { background: linear-gradient(180deg, rgba(255,255,255,.06), transparent); }
+    .copy-btn { border: 1px solid var(--code-border); background: transparent; color: var(--text); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; }
+    .copy-btn-icon { width: 14px; height: 14px; fill: currentColor; }
+    .tooltip { opacity: 0; transition: opacity 0.2s ease; font-size: 0.75rem; color: var(--accent); margin-left: 8px; }
+    .code-content { padding: 12px 0; overflow-x: auto; }
+    .code-line { display: flex; padding: 0 16px; }
+    .line-number { color: #94a3b8; text-align: right; width: 34px; padding-right: 12px; user-select: none; font-size: 0.84rem; border-right: 1px solid var(--code-border); margin-right: 12px; }
+    .line-code { color: var(--code-text); font-family: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace; white-space: pre; font-size: 0.86rem; line-height: 1.6; }
+    .c-comment { color: #6a9955 !important; font-style: italic; }
+    .c-kw { color: #2563eb !important; font-weight: 600; }
+    .c-str { color: #a64d03 !important; }
+
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-head">
+        <div>
+          <div class="pill">Instructor Lab Guide</div>
+          <h1>Lab 4: Banking Schema Refactoring and Index Optimization</h1>
+          <p>This guide mirrors the student lab flow while using a banking example for every schema and query pattern.</p>
+        </div>
+        <button class="theme-toggle" id="themeToggleBtn">🌗 Dark mode</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Lab Overview</h2>
+      <p><strong>Goal:</strong> show how to refactor a normalized banking schema into a Spanner-friendly structure using interleaving and covered indexes.</p>
+      <p><strong>Audience:</strong> learners who are ready to think about data locality and read performance.</p>
+      <p><strong>Duration:</strong> 45–60 minutes.</p>
+      <ul class="checklist">
+        <li>Analyze a legacy banking schema.</li>
+        <li>Refactor tables with interleaving.</li>
+        <li>Add indexes that support account and transaction lookups.</li>
+        <li>Deploy and verify the schema in the emulator.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Recommended Teaching Flow</h2>
+      <table>
+        <tr><th>Step</th><th>Instructor Notes</th><th>Estimated Time</th></tr>
+        <tr><td>1. Introduce the banking scenario</td><td>Explain why account and transaction data should be stored close together.</td><td>6 min</td></tr>
+        <tr><td>2. Analyze the legacy schema</td><td>Point out the issues with joins and query paths.</td><td>8 min</td></tr>
+        <tr><td>3. Refactor with interleaving</td><td>Show how parent-child keys make locality explicit.</td><td>10 min</td></tr>
+        <tr><td>4. Optimize indexes</td><td>Explain how STORING avoids back-joins.</td><td>8 min</td></tr>
+        <tr><td>5. Deploy and verify</td><td>Let learners see the schema in metadata and inspect query behavior.</td><td>10 min</td></tr>
+        <tr><td>6. Challenge and discussion</td><td>Invite learners to extend the pattern to fraud alerts or card activity.</td><td>10 min</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Step 1: Introduce the Banking Scenario</h2>
+      <p>Open with a realistic example: a retail bank must review customer accounts and recent transactions quickly. The system needs to serve account statements and fraud monitoring screens efficiently.</p>
+      <table>
+        <tr><th>CustomerId</th><th>AccountId</th><th>TransactionId</th><th>Amount</th><th>PostedAt</th></tr>
+        <tr><td>501</td><td>1001</td><td>9001</td><td>$1,250.00</td><td>2026-07-17</td></tr>
+        <tr><td>501</td><td>1001</td><td>9002</td><td>$-40.00</td><td>2026-07-18</td></tr>
+        <tr><td>502</td><td>1002</td><td>9003</td><td>$850.50</td><td>2026-07-18</td></tr>
+      </table>
+      <div class="note">
+        <strong>Instructor focus:</strong> frame this as a performance and availability challenge for customer-facing banking services.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 2: Analyze the Legacy Schema</h2>
+      <p>A traditional normalized design might place customer, account, and transaction records in separate tables. That is fine for transactional systems, but it creates latency when Spanner must read across many splits.</p>
+      <div class="code-block-container sql">
+        <div class="code-header">
+          <span>Legacy Schema DDL</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>CREATE TABLE Customers (
+  CustomerId INT64 NOT NULL,
+  Name STRING(255),
+  PRIMARY KEY (CustomerId)
+);
+
+CREATE TABLE Accounts (
+  AccountId INT64 NOT NULL,
+  CustomerId INT64 NOT NULL,
+  AccountType STRING(32),
+  Balance NUMERIC,
+  PRIMARY KEY (AccountId)
+);
+
+CREATE TABLE Transactions (
+  TransactionId INT64 NOT NULL,
+  AccountId INT64 NOT NULL,
+  TransactionDate DATE,
+  Amount NUMERIC,
+  Status STRING(32),
+  PRIMARY KEY (TransactionId)
+);</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> point out that joins between customers, accounts, and transactions are expensive at scale and should be co-located.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 3: Refactor with Interleaving</h2>
+      <p>Make the schema hierarchical: each customer has accounts, and each account has transactions. The child tables inherit the parent key prefix.</p>
+      <div class="code-block-container sql">
+        <div class="code-header">
+          <span>Interleaved Schema DDL</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>CREATE TABLE Customers (
+  CustomerId INT64 NOT NULL,
+  Name STRING(255),
+  PRIMARY KEY (CustomerId)
+);
+
+CREATE TABLE Accounts (
+  CustomerId INT64 NOT NULL,
+  AccountId INT64 NOT NULL,
+  AccountType STRING(32),
+  Balance NUMERIC,
+  PRIMARY KEY (CustomerId, AccountId)
+) INTERLEAVE IN PARENT Customers ON DELETE CASCADE;
+
+CREATE TABLE Transactions (
+  CustomerId INT64 NOT NULL,
+  AccountId INT64 NOT NULL,
+  TransactionId INT64 NOT NULL,
+  TransactionDate DATE,
+  Amount NUMERIC,
+  Status STRING(32),
+  PRIMARY KEY (CustomerId, AccountId, TransactionId)
+) INTERLEAVE IN PARENT Accounts ON DELETE CASCADE;</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> explain that the child key must start with the parent key prefix for interleaving to work.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 4: Optimize Indexes</h2>
+      <p>To query transactions by date, use a secondary index. To reduce back-joins, store commonly requested columns directly inside the index.</p>
+      <div class="code-block-container sql">
+        <div class="code-header">
+          <span>Index DDL</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>CREATE INDEX TransactionsByDate
+ON Transactions(TransactionDate);
+
+CREATE INDEX TransactionsByDateCovered
+ON Transactions(TransactionDate)
+STORING (Amount, Status);</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> demonstrate that STORING removes the need for an extra read of the base table for common columns.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 5: Deploy the Schema</h2>
+      <p>Write the DDL into a schema file and apply it with the emulator using the gcloud CLI.</p>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
+  --instance=multi-region-spanner \
+  --ddl-file=schema.ddl</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> make sure learners can inspect the metadata and see that tables and indexes are registered properly.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 6: Checkout Plans</h2>
+      <p>Insert sample account and transaction rows, then query them to show how locality improves reads.</p>
+      <div class="code-block-container shell">
+        <div class="code-header">
+          <span>Terminal</span>
+          <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+        </div>
+        <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="INSERT INTO Customers (CustomerId, Name) VALUES (501, 'Ava Patel')"
+
+gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="INSERT INTO Accounts (CustomerId, AccountId, AccountType, Balance) VALUES (501, 1001, 'Savings', 15000.00)"
+
+gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="INSERT INTO Transactions (CustomerId, AccountId, TransactionId, TransactionDate, Amount, Status) VALUES (501, 1001, 9001, '2026-07-17', 1250.00, 'Posted')"
+
+gcloud spanner databases execute-sql test-database \
+  --instance=multi-region-spanner \
+  --sql="SELECT CustomerId, AccountId, TransactionId, Amount FROM Transactions@{FORCE_INDEX=TransactionsByDateCovered} WHERE TransactionDate = '2026-07-17'"</code></pre>
+      </div>
+      <div class="note">
+        <strong>Instructor focus:</strong> connect the query result to the fact that the index can serve the request without extra reads for the stored columns.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Discussion 1: Who Owns the Schema?</h2>
+      <p><strong>Scenario:</strong> The banking application is becoming slow when displaying account statements.</p>
+      <details style="margin-top: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: rgba(37, 99, 235, 0.05);">
+        <summary style="cursor: pointer; font-weight: 700; color: var(--accent);">DBA Perspective</summary>
+        <ul class="checklist" style="margin-top: 10px;">
+          <li>Existing schema causes expensive joins.</li>
+          <li>Missing indexes.</li>
+          <li>Need to analyze query plans.</li>
+          <li>Identify hotspots.</li>
+          <li>Optimize storage layout.</li>
+        </ul>
+      </details>
+      <details style="margin-top: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: rgba(16, 185, 129, 0.05);">
+        <summary style="cursor: pointer; font-weight: 700; color: var(--success);">Application Engineer Perspective</summary>
+        <ul class="checklist" style="margin-top: 10px;">
+          <li>Designed tables without considering access patterns.</li>
+          <li>Fetches customer → account → transaction separately.</li>
+          <li>Makes multiple network calls.</li>
+          <li>ORM generates inefficient SQL.</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2>Discussion 2: Normalize Everything?</h2>
+      <p><strong>Which is more important?</strong></p>
+      <ul class="checklist">
+        <li><strong>Perfect normalization?</strong></li>
+        <li><strong>Read performance?</strong></li>
+      </ul>
+      <details style="margin-top: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: rgba(37, 99, 235, 0.05);">
+        <summary style="cursor: pointer; font-weight: 700; color: var(--accent);">DBA Perspective</summary>
+        <ul class="checklist" style="margin-top: 10px;">
+          <li>Normalization avoids redundancy.</li>
+        </ul>
+      </details>
+      <details style="margin-top: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: rgba(16, 185, 129, 0.05);">
+        <summary style="cursor: pointer; font-weight: 700; color: var(--success);">Application Engineer Perspective</summary>
+        <ul class="checklist" style="margin-top: 10px;">
+          <li>My screen always loads account + transactions together.</li>
+          <li>Spanner favors access pattern driven schema design.</li>
+          <li>Schema should reflect how the application actually reads data.</li>
+        </ul>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2>Discussion 3: When NOT to Interleave?</h2>
+      <details style="margin-top: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: rgba(37, 99, 235, 0.05);">
+        <summary style="cursor: pointer; font-weight: 700; color: var(--accent);">Good Candidates</summary>
+        <ul class="checklist" style="margin-top: 10px;">
+          <li>Orders → OrderItems</li>
+          <li>Account → Transactions</li>
+          <li>Customer → Addresses</li>
+        </ul>
+      </details>
+      <details style="margin-top: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: rgba(239, 68, 68, 0.08);">
+        <summary style="cursor: pointer; font-weight: 700; color: var(--danger);">Poor Candidates</summary>
+        <ul class="checklist" style="margin-top: 10px;">
+          <li>Audit logs</li>
+          <li>Login history</li>
+          <li>Marketing campaigns</li>
+        </ul>
+      </details>
+      <div class="note" style="margin-top: 12px;">
+        <strong>Interleave when:</strong> parent and child are almost always accessed together.
+      </div>
+      <div class="note">
+        <strong>Avoid when:</strong> child grows independently, has different access patterns, or has a different lifecycle.
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      setupTheme();
+      decorateCodeBlocks();
+    });
+
+    function setupTheme() {
+      const btn = document.getElementById("themeToggleBtn");
+      const updateLabel = () => {
+        const dark = document.body.classList.contains("dark-theme");
+        btn.textContent = dark ? "☀️ Light mode" : "🌗 Dark mode";
+      };
+      updateLabel();
+      btn.addEventListener("click", () => {
+        document.body.classList.toggle("dark-theme");
+        updateLabel();
+      });
+    }
+
+    function decorateCodeBlocks() {
+      document.querySelectorAll(".code-block-container").forEach((container) => {
+        const codeElement = container.querySelector("code");
+        if (!codeElement) return;
+        const codeText = codeElement.textContent.trim();
+        let lang = "shell";
+        if (container.classList.contains("sql")) lang = "sql";
+
+        const header = document.createElement("div");
+        header.className = "code-header";
+        header.innerHTML = `
+          <span>${lang === "sql" ? "SQL" : "Terminal"}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="copy-btn" onclick="copyCode(this)"><svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>
+            <span class="tooltip">Copied!</span>
+          </div>`;
+
+        container.insertBefore(header, container.firstChild);
+        const codePre = container.querySelector("pre");
+        codePre.className = "code-content";
+        codePre.innerHTML = "";
+
+        codeText.split("\n").forEach((lineText) => {
+          const lineDiv = document.createElement("div");
+          lineDiv.className = "code-line";
+          const lineNum = document.createElement("span");
+          lineNum.className = "line-number";
+          lineNum.textContent = "";
+          const lineCode = document.createElement("span");
+          lineCode.className = "line-code";
+          lineCode.innerHTML = highlightSyntax(lineText, lang);
+          lineDiv.appendChild(lineNum);
+          lineDiv.appendChild(lineCode);
+          codePre.appendChild(lineDiv);
+        });
+      });
+    }
+
+    function copyCode(btn) {
+      const container = btn.closest(".code-block-container");
+      const codeText = container.querySelector("code")?.textContent || "";
+      navigator.clipboard.writeText(codeText).then(() => {
+        const tooltip = btn.parentElement.querySelector(".tooltip");
+        if (tooltip) {
+          tooltip.style.opacity = "1";
+          setTimeout(() => (tooltip.style.opacity = "0"), 1400);
+        }
+      });
+    }
+
+    function highlightSyntax(text, lang) {
+      let html = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      if (lang === "sql") {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/\b(CREATE|TABLE|PRIMARY|KEY|INTERLEAVE|IN|PARENT|ON|DELETE|CASCADE|INDEX|STORING|SELECT|FROM|WHERE|VALUES|INSERT|INTO|UPDATE|SET|AS)\b/gi, '<span class="c-kw">$1</span>');
+      } else {
+        html = html.replace(/(["'])(.*?)\1/g, '<span class="c-str">$1$2$1</span>');
+        html = html.replace(/(#.*)$/g, '<span class="c-comment">$1</span>');
+        const keywords = ['gcloud','spanner','create','describe','update','select','delete','instance','database'];
+        keywords.forEach((kw) => {
+          const regex = new RegExp(`\\b(${kw})\\b`, 'gi');
+          html = html.replace(regex, '<span class="c-kw">$1</span>');
+        });
+      }
+      return html;
+    }
+  </script>
+</body>
+</html>

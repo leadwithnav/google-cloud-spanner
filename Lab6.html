@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 5: Fine-Grained Access Control (FGAC). Learn how to declare database roles, restrict column privileges, design row-level security (RLS) policies, and test access control.">
+  <meta name="description" content="Lab 6: Fine-Grained Access Control (FGAC). Learn how to declare database roles, restrict column privileges with GRANT statements, and test access control using database roles in Cloud Spanner.">
   <title>Cloud Spanner Lab: Fine-Grained Access Control (FGAC)</title>
   
   <!-- Typography & Icons -->
@@ -1126,7 +1126,7 @@
         </div>
       </div>
       
-      <ul class="steps-list" id="stepsList">
+            <ul class="steps-list" id="stepsList">
         <li class="step-item active" data-step="0">
           <span class="step-indicator">
             <span class="step-number">1</span>
@@ -1160,25 +1160,53 @@
             <span class="step-number">5</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Row-Level (RLS) Setup</span>
+          <span>Verify & Test Roles</span>
         </li>
         <li class="step-item" data-step="5">
           <span class="step-indicator">
             <span class="step-number">6</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Verify & Test Roles</span>
+          <span>Grant INSERT & UPDATE</span>
         </li>
         <li class="step-item" data-step="6">
           <span class="step-indicator">
             <span class="step-number">7</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Knowledge Check</span>
+          <span>Test Writes & DELETE</span>
         </li>
         <li class="step-item" data-step="7">
           <span class="step-indicator">
             <span class="step-number">8</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>REVOKE Privileges</span>
+        </li>
+        <li class="step-item" data-step="8">
+          <span class="step-indicator">
+            <span class="step-number">9</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Role Inheritance</span>
+        </li>
+        <li class="step-item" data-step="9">
+          <span class="step-indicator">
+            <span class="step-number">10</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Row Filtering with Views</span>
+        </li>
+        <li class="step-item" data-step="10">
+          <span class="step-indicator">
+            <span class="step-number">11</span>
+            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span>Knowledge Check</span>
+        </li>
+        <li class="step-item" data-step="11">
+          <span class="step-indicator">
+            <span class="step-number">12</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
           <span>Get Certificate</span>
@@ -1210,7 +1238,7 @@
         <div class="lab-meta">
           <div class="meta-item">
             <svg class="meta-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-            <span>Estimated Duration: <strong>45 mins</strong></span>
+            <span>Estimated Duration: <strong>75 mins</strong></span>
           </div>
           <div class="meta-item">
             <svg class="meta-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
@@ -1222,11 +1250,11 @@
       <!-- STEP 1: Overview -->
       <section class="content-panel active" id="panel-0">
         <h1>Implementing Fine-Grained Access Control (FGAC)</h1>
-        <p class="subtitle">Welcome! In this hands-on lab, you will learn how to secure table resources in Google Cloud Spanner using Fine-Grained Access Control (FGAC) by declaring database roles, column-level select limits, and row-level security (RLS) policies.</p>
+        <p class="subtitle">Welcome! In this hands-on lab, you will learn how to secure table resources in Google Cloud Spanner using Fine-Grained Access Control (FGAC) by declaring database roles and applying column-level SELECT, INSERT, and UPDATE privileges, revoking access, inheriting roles, and filtering rows through definer-rights views.</p>
         
         <h2>Why Do We Need FGAC?</h2>
         <p>In standard enterprise deployments, Google Cloud IAM manages database access at the resource level (e.g. assigning the <code>roles/spanner.databaseUser</code> role grants full select/write access to all tables in the database). However, modern security architectures demand the **Principle of Least Privilege**, restricting users or client microservices to specific rows and columns.</p>
-        <p>Spanner supports this using **Fine-Grained Access Control (FGAC)**. With FGAC, you define custom **Database Roles** in the schema. You then grant privileges (like <code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>) to these roles for specific tables, views, or subsets of columns. You can also configure **Row-Level Security (RLS)** filters using conditions that restrict query scopes dynamically.</p>
+        <p>Spanner supports this using **Fine-Grained Access Control (FGAC)**. With FGAC, you define custom **Database Roles** in the schema. You then grant privileges (like <code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>) to these roles for specific tables or subsets of columns — ensuring each role sees only the data it needs.</p>
 
         <div class="callout callout-info">
           <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
@@ -1235,7 +1263,7 @@
             <div class="callout-content">We have a table storing employee records. We will create two database roles:
               <ul>
                 <li><strong>hr_role</strong>: Can view all fields and all rows.</li>
-                <li><strong>staff_role</strong>: Can only view standard columns (excluding sensitive data like Salary and SSN), and is restricted to viewing rows belonging to their own department (Engineering).</li>
+                <li><strong>staff_role</strong>: Can only view standard columns (excluding sensitive data like Salary and SSN).</li>
               </ul>
             </div>
           </div>
@@ -1273,8 +1301,8 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=test-instance \
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database1 \
+  --instance=test-instance1 \
   --ddl="CREATE TABLE Employees (
     EmployeeId INT64 NOT NULL,
     Name STRING(255),
@@ -1299,8 +1327,8 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
   --sql="INSERT INTO Employees (EmployeeId, Name, Email, Department, Salary, SSN) VALUES
   (201, 'Bob Miller', 'bob@company.com', 'Engineering', 95000, 'SSN-999-11'),
   (202, 'Alice Croft', 'alice@company.com', 'Engineering', 105000, 'SSN-999-22'),
@@ -1348,8 +1376,8 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=test-instance \
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database1 \
+  --instance=test-instance1 \
   --ddl="CREATE ROLE hr_role; CREATE ROLE staff_role;"</code></pre>
         </div>
 
@@ -1390,8 +1418,8 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=test-instance \
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database1 \
+  --instance=test-instance1 \
   --ddl="GRANT SELECT ON TABLE Employees TO ROLE hr_role; 
          GRANT SELECT (EmployeeId, Name, Email, Department) ON TABLE Employees TO ROLE staff_role;"</code></pre>
         </div>
@@ -1409,57 +1437,11 @@
         </ul>
       </section>
 
-      <!-- STEP 5: Row-Level Setup -->
+
+
+      <!-- STEP 5: Verify & Test Roles -->
       <section class="content-panel" id="panel-4">
-        <h1>Step 4: Row-Level Security (RLS) Policies</h1>
-        <p>Row-Level Security (RLS) allows you to define filter conditions on tables for specific database roles. When users query a table with an active RLS policy, Spanner automatically filters the returned rows to match the policy's conditions.</p>
-
-        <h2>Create an RLS Policy</h2>
-        <p>We want to restrict <code>staff_role</code> to only see employee records belonging to the <strong>Engineering</strong> department. We define this policy using a DDL statement:</p>
-
-        <div class="code-block-container shell">
-          <div class="code-header">
-            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
-          </div>
-          <pre class="code-content"><code>gcloud spanner databases ddl update test-database \
-  --instance=test-instance \
-  --ddl="CREATE POLICY engineering_only_policy ON Employees
-         FOR SELECT
-         TO ROLE staff_role
-         USING (Department = 'Engineering');"</code></pre>
-        </div>
-
-        <div class="callout callout-info">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">Multiple Policies</div>
-            <div class="callout-content">You can attach multiple RLS policies to a table. Spanner combines policies using logical <strong>OR</strong> operators. If no RLS policies are defined for a role, that role can access all rows (assuming they have table-level permissions).</div>
-          </div>
-        </div>
-
-        <ul class="task-checklist">
-          <li class="task-checkbox-container" data-task-id="t4_1">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Deploy the RLS Policy</span>
-              <span class="task-desc">Deploy the CREATE POLICY statement to restrict row visibility for staff_role.</span>
-            </div>
-          </li>
-        </ul>
-      </section>
-
-      <!-- STEP 6: Verify & Test Roles -->
-      <section class="content-panel" id="panel-5">
-        <h1>Step 5: Testing and Verifying FGAC Rules</h1>
+        <h1>Step 4: Testing and Verifying FGAC Rules</h1>
         <p>Let's verify that the access control rules are working as expected by querying the database using different active roles.</p>
 
         <h2>1. Test hr_role Access</h2>
@@ -1476,8 +1458,8 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
   --database-role=hr_role \
   --sql="SELECT * FROM Employees"</code></pre>
         </div>
@@ -1496,15 +1478,15 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
   --database-role=staff_role \
   --sql="SELECT * FROM Employees"</code></pre>
         </div>
         <p>Confirm that Spanner blocks the request, returning a permission denied error.</p>
 
-        <h2>3. Test staff_role Allowed Column & Row Access</h2>
-        <p>Run a query as `staff_role` requesting only the permitted columns. The query should succeed, and the results should be filtered to only show employees in the **Engineering** department (filtering out Sales employees):</p>
+        <h2>3. Test staff_role Allowed Column Query</h2>
+        <p>Run a query as `staff_role` requesting only the permitted columns. The query should succeed and return the allowed columns for all employees:</p>
 
         <div class="code-block-container shell">
           <div class="code-header">
@@ -1517,8 +1499,8 @@
               <span class="tooltip">Copied!</span>
             </div>
           </div>
-          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database \
-  --instance=test-instance \
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
   --database-role=staff_role \
   --sql="SELECT EmployeeId, Name, Email, Department FROM Employees"</code></pre>
         </div>
@@ -1539,15 +1521,430 @@
             </div>
             <div class="task-content">
               <span class="task-label">Test the Staff role permissions</span>
-              <span class="task-desc">Verify that staff_role is blocked from viewing sensitive columns, and restricted to Engineering rows.</span>
+              <span class="task-desc">Verify that staff_role is blocked from viewing sensitive columns (Salary and SSN).</span>
             </div>
           </li>
         </ul>
       </section>
 
-      <!-- STEP 7: Quiz / Knowledge Check -->
+
+      <!-- STEP 6 -->
+      <section class="content-panel" id="panel-5">
+        <h1>Step 5: Grant Column-Level INSERT and UPDATE</h1>
+        <p>Spanner supports column-level privileges for <code>SELECT</code>, <code>INSERT</code>, and <code>UPDATE</code>.</p>
+
+        <h2>1. Grant Column-Level INSERT to hr_role</h2>
+        <p>The omitted <code>Salary</code> and <code>SSN</code> columns are nullable in this lab.</p>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database1 \
+  --instance=test-instance1 \
+  --ddl="GRANT INSERT (EmployeeId, Name, Email, Department)
+         ON TABLE Employees TO ROLE hr_role;" </code></pre>
+        </div>
+
+        <h2>2. Grant Column-Level UPDATE to staff_role</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database1 \
+  --instance=test-instance1 \
+  --ddl="GRANT UPDATE (Email)
+         ON TABLE Employees TO ROLE staff_role;" </code></pre>
+        </div>
+
+        <div class="callout callout-info">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          <div><div class="callout-title">Predicate columns also matter</div>
+          <div class="callout-content">The role also needs <code>SELECT</code> access to columns referenced in expressions and <code>WHERE</code> predicates.</div></div>
+        </div>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t5_new">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Grant column-level write privileges</span>
+              <span class="task-desc">Grant INSERT to hr_role and UPDATE(Email) to staff_role.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 7 -->
       <section class="content-panel" id="panel-6">
-        <h1>Step 6: Knowledge Check</h1>
+        <h1>Step 6: Test Column-Level INSERT and UPDATE</h1>
+
+        <h2>1. Allowed INSERT as hr_role</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
+  --database-role=hr_role \
+  --sql="INSERT INTO Employees
+         (EmployeeId, Name, Email, Department)
+         VALUES (204, 'Diana Prince', 'diana@company.com', 'HR')" </code></pre>
+        </div>
+
+        <h2>2. Disallowed INSERT into Salary</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
+  --database-role=hr_role \
+  --sql="INSERT INTO Employees
+         (EmployeeId, Name, Email, Department, Salary)
+         VALUES (205, 'Evan Stone', 'evan@company.com', 'Sales', 85000)" </code></pre>
+        </div>
+        <p>This should fail because <code>Salary</code> was not included in the INSERT grant.</p>
+
+        <h2>3. Allowed UPDATE as staff_role</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
+  --database-role=staff_role \
+  --sql="UPDATE Employees
+         SET Email='bob.miller@company.com'
+         WHERE EmployeeId=201" </code></pre>
+        </div>
+
+        <h2>4. Disallowed UPDATE of Department</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
+  --database-role=staff_role \
+  --sql="UPDATE Employees
+         SET Department='Finance'
+         WHERE EmployeeId=201" </code></pre>
+        </div>
+
+        <div class="callout callout-warning">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          <div><div class="callout-title">DELETE cannot be column-level</div>
+          <div class="callout-content"><code>DELETE</code> removes the complete row. It can only be granted at table level.</div></div>
+        </div>
+        <div class="code-block-container">
+          <div class="code-header">
+            <span class="code-lang-badge">Spanner DDL</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>-- Invalid
+GRANT DELETE (EmployeeId) ON TABLE Employees TO ROLE staff_role;
+
+-- Valid table-level syntax
+GRANT DELETE ON TABLE Employees TO ROLE staff_role;</code></pre>
+        </div>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t6_new">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Test column-level writes</span>
+              <span class="task-desc">Verify allowed and denied INSERT/UPDATE operations and table-level DELETE behavior.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 8 -->
+      <section class="content-panel" id="panel-7">
+        <h1>Step 7: REVOKE and Test Again</h1>
+
+        <h2>1. Revoke UPDATE on Email</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database1 \
+  --instance=test-instance1 \
+  --ddl="REVOKE UPDATE (Email)
+         ON TABLE Employees FROM ROLE staff_role;" </code></pre>
+        </div>
+
+        <h2>2. Confirm UPDATE Now Fails</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
+  --database-role=staff_role \
+  --sql="UPDATE Employees
+         SET Email='blocked@company.com'
+         WHERE EmployeeId=201" </code></pre>
+        </div>
+
+        <h2>3. Confirm SELECT Still Works</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
+  --database-role=staff_role \
+  --sql="SELECT EmployeeId, Name, Email, Department
+         FROM Employees WHERE EmployeeId=201" </code></pre>
+        </div>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t7_new">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Revoke and retest staff_role</span>
+              <span class="task-desc">Confirm UPDATE is denied after REVOKE while SELECT remains available.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 9 -->
+      <section class="content-panel" id="panel-8">
+        <h1>Step 8: Role Inheritance</h1>
+        <p>One Spanner database role can inherit privileges from another role.</p>
+
+        <h2>1. Create the Role Hierarchy</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database1 \
+  --instance=test-instance1 \
+  --ddl="CREATE ROLE employee_reader_role;
+         CREATE ROLE manager_role;
+         GRANT SELECT (EmployeeId, Name, Email, Department)
+           ON TABLE Employees TO ROLE employee_reader_role;
+         GRANT SELECT (Salary)
+           ON TABLE Employees TO ROLE manager_role;
+         GRANT ROLE employee_reader_role TO ROLE manager_role;" </code></pre>
+        </div>
+
+        <h2>2. Test Inherited and Direct Privileges</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
+  --database-role=manager_role \
+  --sql="SELECT EmployeeId, Name, Department, Salary
+         FROM Employees" </code></pre>
+        </div>
+
+        <h2>3. Confirm SSN Is Still Restricted</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
+  --database-role=manager_role \
+  --sql="SELECT * FROM Employees" </code></pre>
+        </div>
+        <p>The final query should fail because neither role has access to <code>SSN</code>.</p>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t8_new">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Test role inheritance</span>
+              <span class="task-desc">Confirm manager_role receives inherited and directly granted privileges.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 10 -->
+      <section class="content-panel" id="panel-9">
+        <h1>Step 9: Row Filtering Through Views</h1>
+        <p>Spanner does not support PostgreSQL-style <code>CREATE POLICY</code>. Use a definer-rights view to expose selected rows without granting access to the base table.</p>
+
+        <h2>1. Create a Filtered Definer-Rights View</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases ddl update test-database1 \
+  --instance=test-instance1 \
+  --ddl="CREATE ROLE engineering_role;
+         CREATE VIEW EngineeringEmployees
+         SQL SECURITY DEFINER AS
+         SELECT EmployeeId, Name, Email, Department
+         FROM Employees
+         WHERE Department = 'Engineering';
+         GRANT SELECT ON VIEW EngineeringEmployees
+         TO ROLE engineering_role;" </code></pre>
+        </div>
+
+        <h2>2. Query the Filtered View</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
+  --database-role=engineering_role \
+  --sql="SELECT * FROM EngineeringEmployees" </code></pre>
+        </div>
+
+        <h2>3. Confirm Base-Table Access Is Denied</h2>
+        <div class="code-block-container shell">
+          <div class="code-header">
+            <span class="code-lang-badge">Terminal (Bash / PowerShell)</span>
+            <div class="copy-btn-wrapper">
+              <button class="copy-btn" onclick="copyCode(this)">
+                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy
+              </button>
+              <span class="tooltip">Copied!</span>
+            </div>
+          </div>
+          <pre class="code-content"><code>gcloud spanner databases execute-sql test-database1 \
+  --instance=test-instance1 \
+  --database-role=engineering_role \
+  --sql="SELECT EmployeeId, Name FROM Employees" </code></pre>
+        </div>
+
+        <div class="callout callout-warning">
+          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          <div><div class="callout-title">Why SQL SECURITY DEFINER?</div>
+          <div class="callout-content">An invoker-rights view requires the caller to have privileges on underlying objects. A definer-rights view supports access through the view without direct base-table access.</div></div>
+        </div>
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t9_new">
+            <div class="custom-checkbox">
+              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <div class="task-content">
+              <span class="task-label">Implement row-filtered access</span>
+              <span class="task-desc">Test allowed Engineering rows and denied direct access to Employees.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 11: Quiz / Knowledge Check -->
+      <section class="content-panel" id="panel-10">
+        <h1>Step 10: Knowledge Check</h1>
         <p>Complete this quick self-check to evaluate your understanding of Spanner FGAC configurations.</p>
 
         <div class="quiz-container">
@@ -1573,19 +1970,19 @@
 
           <!-- Question 2 -->
           <div class="quiz-card" data-question-id="q2">
-            <div class="quiz-question">2. Which clause is used to define filter conditions for Row-Level Security (RLS) policies?</div>
+            <div class="quiz-question">2. Which DDL syntax correctly grants SELECT access to specific columns for a database role?</div>
             <div class="quiz-options">
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. WHERE
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                B. FILTER BY
+                A. ALLOW SELECT (Name, Email) ON TABLE Employees TO ROLE staff_role;
               </button>
               <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                C. USING
+                B. GRANT SELECT (Name, Email) ON TABLE Employees TO ROLE staff_role;
               </button>
               <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. CHECK
+                C. PERMIT SELECT (Name, Email) FROM Employees FOR ROLE staff_role;
+              </button>
+              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
+                D. ASSIGN SELECT (Name, Email) OF Employees TO ROLE staff_role;
               </button>
             </div>
             <div class="quiz-feedback"></div>
@@ -1613,7 +2010,7 @@
         </div>
 
         <ul class="task-checklist">
-          <li class="task-checkbox-container" data-task-id="t6_1">
+          <li class="task-checkbox-container" data-task-id="t10_1">
             <div class="custom-checkbox">
               <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
             </div>
@@ -1625,8 +2022,8 @@
         </ul>
       </section>
 
-      <!-- STEP 8: Certificate of Completion -->
-      <section class="content-panel certificate-panel" id="panel-7">
+      <!-- STEP 12: Certificate of Completion -->
+      <section class="content-panel certificate-panel" id="panel-11">
         <h1>Lab Certificate of Completion</h1>
         <p class="subtitle">Once you complete the required tasks and pass the quiz, you can generate your certificate.</p>
 
@@ -1685,7 +2082,7 @@
 
   <script>
     // Constants & State
-    const totalSteps = 8;
+    const totalSteps = 12;
     let currentStep = 0;
     
     // Checklist configuration
@@ -1694,9 +2091,13 @@
       t1_1: false, t1_2: false,
       t2_1: false,
       t3_1: false,
-      t4_1: false,
       t5_1: false, t5_2: false,
-      t6_1: false
+      t5_new: false,
+      t6_new: false,
+      t7_new: false,
+      t8_new: false,
+      t9_new: false,
+      t10_1: false
     };
 
     // Quiz score trackers
@@ -1794,12 +2195,15 @@
       
       markStepCompletion("t0_1", 0);
       markStepCompletion("t1_1", 1, ["t1_1", "t1_2"]);
-      markStepCompletion("t2_1", 2, ["t2_1"]);
-      markStepCompletion("t3_1", 3, ["t3_1"]);
-      markStepCompletion("t4_1", 4, ["t4_1"]);
-      markStepCompletion("t5_1", 5, ["t5_1", "t5_2"]);
-      markStepCompletion("t6_1", 6, ["t6_1"]);
-      
+      markStepCompletion("t2_1", 2);
+      markStepCompletion("t3_1", 3);
+      markStepCompletion("t5_1", 4, ["t5_1", "t5_2"]);
+      markStepCompletion("t5_new", 5);
+      markStepCompletion("t6_new", 6);
+      markStepCompletion("t7_new", 7);
+      markStepCompletion("t8_new", 8);
+      markStepCompletion("t9_new", 9);
+      markStepCompletion("t10_1", 10);      
       checkCertificateUnlock();
     }
 
@@ -1862,7 +2266,7 @@
         
         const explanations = {
           q1: "Correct! FGAC roles and permissions are defined directly in the database DDL using schema syntax. This allows security rules to be tracked alongside table migrations.",
-          q2: "Correct! RLS policies use the 'USING' clause to specify the boolean expression that rows must satisfy to be visible to the role.",
+          q2: "Correct! Column-level access is granted with GRANT SELECT (col1, col2) ON TABLE ... TO ROLE ... syntax, restricting the role to only those specified columns.",
           q3: "Correct! You assume a database role by passing the '--database-role' parameter to gcloud CLI commands."
         };
         feedback.textContent = explanations[questionId];
@@ -1870,7 +2274,7 @@
       } else {
         optionBtn.classList.add("incorrect");
         feedback.className = "quiz-feedback show incorrect";
-        feedback.textContent = "Incorrect. Review the role declarations and RLS syntax descriptions.";
+        feedback.textContent = "Incorrect. Review the FGAC role and privilege concepts in previous steps.";
         quizResults[questionId] = false;
       }
       
