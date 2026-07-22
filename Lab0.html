@@ -2071,5 +2071,59 @@ docker info</code></pre>
 
 <!-- Copyright Footer -->
 <footer class="copyright-footer">&copy; 2026 LeadWithNav Academy &middot; Navdeep Kaur &middot; Unauthorized commercial use prohibited. All rights reserved.</footer>
+
+  <script>
+    /* -- Copyright Footer Guard (MutationObserver) -- */
+    (function() {
+      const FOOTER_HTML = '<footer class="copyright-footer">&copy; 2026 LeadWithNav Academy &middot; Navdeep Kaur &middot; Unauthorized commercial use prohibited. All rights reserved.</footer>';
+      const FOOTER_TEXT = '\u00a9 2026 LeadWithNav Academy \u00b7 Navdeep Kaur \u00b7 Unauthorized commercial use prohibited. All rights reserved.';
+
+      function ensureFooter() {
+        let footer = document.querySelector('footer.copyright-footer');
+        if (!footer) {
+          document.body.insertAdjacentHTML('beforeend', FOOTER_HTML);
+          return;
+        }
+        // Restore if text tampered
+        if (footer.textContent.trim() !== FOOTER_TEXT) {
+          footer.innerHTML = FOOTER_HTML.replace(/<\/?footer[^>]*>/g, '');
+        }
+        // Restore if hidden
+        const s = footer.style;
+        if (s.display === 'none' || s.visibility === 'hidden' || s.opacity === '0') {
+          s.display = '';
+          s.visibility = '';
+          s.opacity = '';
+        }
+      }
+
+      // Run on DOM ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', ensureFooter);
+      } else {
+        ensureFooter();
+      }
+
+      // Watch for DOM mutations
+      const observer = new MutationObserver(function(mutations) {
+        for (const m of mutations) {
+          if (m.type === 'childList' || m.type === 'characterData' || m.type === 'attributes') {
+            ensureFooter();
+            break;
+          }
+        }
+      });
+
+      document.addEventListener('DOMContentLoaded', function() {
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+          characterData: true,
+          attributes: true,
+          attributeFilter: ['style', 'class']
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
