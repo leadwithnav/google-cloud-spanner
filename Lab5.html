@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Lab 4: Query Analysis & Execution Plans. Learn how to profile queries using execute-sql profile mode, diagnose table scans, identify back-joins, and optimize performance using covered indexes.">
+  <meta name="author" content="Navdeep Kaur — LeadWithNav Academy">
+  <meta name="copyright" content="© 2026 LeadWithNav Academy. All rights reserved. Unauthorized use prohibited.">
   <title>Cloud Spanner Lab: Execution Plans & Storing Index Optimization</title>
   
   <!-- Typography & Icons -->
@@ -82,6 +84,7 @@
       background-color: var(--bg-primary);
       color: var(--text-primary);
       scroll-behavior: smooth;
+      padding-bottom: 28px;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
 
@@ -1216,6 +1219,26 @@
         padding: 16px;
       }
     }
+
+    .copyright-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #0f172a;
+      color: #64748b;
+      text-align: center;
+      padding: 5px 16px;
+      font-size: 0.68rem;
+      line-height: 1.4;
+      border-top: 1px solid #1e293b;
+      user-select: none;
+      z-index: 1000;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .copyright-footer strong { color: #e2e8f0; }
   </style>
 </head>
 <body class="light-theme">
@@ -2620,5 +2643,9 @@ WHERE  Merchant = 'Cloud Cafe'
       return html;
     }
   </script>
+
+<!-- Copyright Footer -->
+<footer class="copyright-footer">© 2026 LeadWithNav Academy · Navdeep Kaur · Unauthorized commercial use prohibited. All rights reserved.</footer>
+
 </body>
 </html>

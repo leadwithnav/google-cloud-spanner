@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -82,6 +82,7 @@
       background-color: var(--bg-primary);
       color: var(--text-primary);
       scroll-behavior: smooth;
+      padding-bottom: 28px;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
 
@@ -1127,7 +1128,27 @@
         padding: 16px;
       }
     }
-  </style>
+
+    /* -- Copyright Footer -- */
+    .copyright-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #0f172a;
+      color: #64748b;
+      text-align: center;
+      padding: 5px 16px;
+      font-size: 0.68rem;
+      line-height: 1.4;
+      border-top: 1px solid #1e293b;
+      user-select: none;
+      z-index: 1000;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .copyright-footer strong { color: #e2e8f0; }  </style>
 </head>
 <body>
 
@@ -2594,5 +2615,8 @@ main().catch(console.error);</code></pre>
       document.getElementById("certActions").style.display = "flex";
     }
   </script>
+
+<!-- Copyright Footer -->
+<footer class="copyright-footer">&copy; 2026 LeadWithNav Academy &middot; Navdeep Kaur &middot; Unauthorized commercial use prohibited. All rights reserved.</footer>
 </body>
 </html>

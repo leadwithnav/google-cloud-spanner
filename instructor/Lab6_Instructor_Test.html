@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab 6 — Instructor Command Test Sheet (FGAC)</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-code: #1e1e1e;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --accent: #d97706;
+      --accent-light: #fef3c7;
+      --accent-border: #fde68a;
+      --success: #059669;
+      --success-light: #d1fae5;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
+      --skip: #6b7280;
+      --skip-light: #f3f4f6;
+      --pending: #94a3b8;
+      --radius: 10px;
+      --shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Top Banner ── */
+    .instructor-banner {
+      background: linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%);
+      color: #fff;
+      text-align: center;
+      padding: 10px 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    /* ── Sticky Header ── */
+    .page-header {
+      background: #fff;
+      border-bottom: 2px solid var(--accent);
+      padding: 20px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .page-header-left h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .page-header-left p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .progress-summary {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .stat-pill.total  { background: #f1f5f9; color: var(--text-muted); border: 1px solid var(--border); }
+    .stat-pill.pass   { background: var(--success-light); color: var(--success); }
+    .stat-pill.fail   { background: var(--danger-light); color: var(--danger); }
+    .stat-pill.skip   { background: var(--skip-light); color: var(--skip); }
+    .stat-pill .dot   { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    .progress-bar-wrap {
+      width: 100%;
+      max-width: 280px;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--success);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    /* ── Main Layout ── */
+    .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    /* ── Config Card ── */
+    .config-card {
+      background: var(--accent-light);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .config-card h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 8px;
+      width: 100%;
+    }
+    .config-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .config-field label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .config-field input {
+      padding: 6px 10px;
+      border: 1px solid var(--accent-border);
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      background: #fff;
+      color: var(--text);
+      width: 220px;
+    }
+    .config-field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .config-apply-btn {
+      margin-top: 22px;
+      padding: 7px 18px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .config-apply-btn:hover { background: #b45309; }
+
+    /* ── Step Section ── */
+    .step-section {
+      margin-bottom: 36px;
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--border);
+    }
+    .step-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .step-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      flex: 1;
+    }
+    .step-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+    .step-pass-count {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* ── Command Card ── */
+    .cmd-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .cmd-card.state-pass { border-color: var(--success); border-left: 4px solid var(--success); }
+    .cmd-card.state-fail-expected { border-color: #f97316; border-left: 4px solid #f97316; }
+    .cmd-card.state-fail-actual  { border-color: var(--danger); border-left: 4px solid var(--danger); }
+    .cmd-card.state-skip { border-color: #cbd5e1; border-left: 4px solid #cbd5e1; opacity: 0.7; }
+
+    .cmd-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #fafafa;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .cmd-num {
+      background: var(--text);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .cmd-title { font-size: 0.85rem; font-weight: 600; color: var(--text); flex: 1; }
+    .cmd-type-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .cmd-type-badge.ddl { background: #ede9fe; color: #6d28d9; }
+    .cmd-type-badge.dml { background: #dbeafe; color: #1d4ed8; }
+    .cmd-type-badge.query { background: #dcfce7; color: #15803d; }
+
+    .expect-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .expect-badge.success { background: var(--success-light); color: var(--success); }
+    .expect-badge.fail    { background: #fff7ed; color: #ea580c; }
+
+    .cmd-body { padding: 14px; }
+
+    .cmd-note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    .cmd-note strong { color: var(--text); }
+
+    /* ── Code Block ── */
+    .code-wrap {
+      position: relative;
+      background: var(--bg-code);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .code-wrap pre {
+      padding: 14px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 1.65;
+      color: #d4d4d4;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #2d2d2d;
+      border: 1px solid #3d3d3d;
+      color: #a0a0a0;
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+    .copy-btn:hover { background: #3a3a3a; color: #fff; }
+    .copy-btn.copied { color: #4ade80; border-color: #4ade80; }
+
+    /* ── Expected Output ── */
+    .expected-output {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .expected-output .eo-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+    .expected-output.success-eo { border-color: #a7f3d0; background: #f0fdf4; }
+    .expected-output.success-eo .eo-label { color: var(--success); }
+    .expected-output.fail-eo    { border-color: #fed7aa; background: #fff7ed; }
+    .expected-output.fail-eo    .eo-label { color: #ea580c; }
+    .expected-output code {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem;
+      white-space: pre-wrap;
+      color: inherit;
+    }
+
+    /* ── Action Buttons ── */
+    .cmd-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+    .cmd-actions label { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
+    .action-btn {
+      padding: 5px 14px;
+      border-radius: 6px;
+      border: 1.5px solid;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: transparent;
+      transition: background 0.15s, color 0.15s;
+    }
+    .action-btn.btn-pass   { border-color: var(--success); color: var(--success); }
+    .action-btn.btn-pass:hover,
+    .action-btn.btn-pass.active { background: var(--success); color: #fff; }
+    .action-btn.btn-fail   { border-color: var(--danger); color: var(--danger); }
+    .action-btn.btn-fail:hover,
+    .action-btn.btn-fail.active { background: var(--danger); color: #fff; }
+    .action-btn.btn-skip   { border-color: #cbd5e1; color: var(--skip); }
+    .action-btn.btn-skip:hover,
+    .action-btn.btn-skip.active { background: #e2e8f0; color: var(--skip); }
+    .status-text { font-size: 0.78rem; font-weight: 600; margin-left: auto; }
+    .status-text.pass { color: var(--success); }
+    .status-text.fail { color: var(--danger); }
+    .status-text.skip { color: var(--skip); }
+
+    /* ── Teardown Section ── */
+    .teardown-section {
+      margin-top: 48px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--danger);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+    .teardown-section h2 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--danger);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .teardown-section p { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px; }
+
+    /* ── Summary Footer ── */
+    .summary-footer {
+      margin-top: 40px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .summary-footer h3 { font-size: 0.85rem; font-weight: 700; width: 100%; margin-bottom: -8px; }
+    .summary-stat { text-align: center; flex: 1; min-width: 80px; }
+    .summary-stat .num { font-size: 2rem; font-weight: 800; }
+    .summary-stat .lbl { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .summary-stat.pass .num { color: var(--success); }
+    .summary-stat.fail .num { color: var(--danger); }
+    .summary-stat.skip .num { color: var(--skip); }
+    .summary-stat.total .num { color: var(--text); }
+
+    .reset-btn {
+      margin-top: 12px;
+      padding: 8px 20px;
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .reset-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* Syntax colors in code blocks */
+    .c-kw   { color: #569cd6; }
+    .c-str  { color: #ce9178; }
+    .c-flag { color: #9cdcfe; }
+    .c-cmt  { color: #6a9955; font-style: italic; }
+
+    @media (max-width: 600px) {
+      .page-header { flex-direction: column; align-items: flex-start; }
+      .config-field input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="instructor-banner">🔒 Instructor Use Only — Lab 6: Fine-Grained Access Control (FGAC) — Command Test Sheet</div>
+
+<!-- Sticky header with live progress -->
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Lab 6 — Command Test Sheet</h1>
+    <p>Run each command against your Spanner emulator and mark Pass / Fail / Skip</p>
+  </div>
+  <div class="progress-summary">
+    <span class="stat-pill total"><span class="dot"></span> <span id="stat-total">22</span> Commands</span>
+    <span class="stat-pill pass"><span class="dot"></span> <span id="stat-pass">0</span> Pass</span>
+    <span class="stat-pill fail"><span class="dot"></span> <span id="stat-fail">0</span> Fail</span>
+    <span class="stat-pill skip"><span class="dot"></span> <span id="stat-skip">0</span> Skip</span>
+    <div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Config Card -->
+  <div class="config-card">
+    <h3>⚙ Environment Variables — Edit before running commands</h3>
+    <div class="config-field">
+      <label>Instance</label>
+      <input type="text" id="cfg-instance" value="test-instance1" oninput="applyConfig()">
+    </div>
+    <div class="config-field">
+      <label>Database</label>
+      <input type="text" id="cfg-database" value="test-database1" oninput="applyConfig()">
+    </div>
+    <div class="config-field">
+      <label>Project (optional)</label>
+      <input type="text" id="cfg-project" value="" placeholder="my-project-id" oninput="applyConfig()">
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STEP 1 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="step-section" data-step="1">
+    <div class="step-header">
+      <span class="step-badge">Step 1</span>
+      <span class="step-title">Creating the Employees Schema</span>
+      <span class="step-time">~5 min</span>
+      <span class="step-pass-count" id="step1-count"></span>
+    </div>
+
+    <!-- CMD 1 -->
+    <div class="cmd-card" id="card-1">
+      <div class="cmd-card-header">
+        <span class="cmd-num">1</span>
+        <span class="cmd-title">Create Employees table via DDL</span>
+        <span class="cmd-type-badge ddl">DDL</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">Creates the <strong>Employees</strong> table with EmployeeId, Name, Email, Department, Salary (NUMERIC), and SSN columns.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-1">gcloud spanner databases ddl update <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --ddl=<span class="c-str">"CREATE TABLE Employees (
+    EmployeeId INT64 NOT NULL,
+    Name STRING(255),
+    Email STRING(255),
+    Department STRING(100),
+    Salary NUMERIC,
+    SSN STRING(50)
+  ) PRIMARY KEY (EmployeeId);"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output</div>
+          <code>Schema was updated successfully.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(1,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(1,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(1,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-1"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMD 2 -->
+    <div class="cmd-card" id="card-2">
+      <div class="cmd-card-header">
+        <span class="cmd-num">2</span>
+        <span class="cmd-title">Insert 3 seed employees</span>
+        <span class="cmd-type-badge dml">DML</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">Inserts Bob (Engineering), Alice (Engineering), Charlie (Sales) — mixing departments for later view/filter tests.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-2">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --sql=<span class="c-str">"INSERT INTO Employees (EmployeeId, Name, Email, Department, Salary, SSN) VALUES
+  (201, 'Bob Miller', 'bob@company.com', 'Engineering', 95000, 'SSN-999-11'),
+  (202, 'Alice Croft', 'alice@company.com', 'Engineering', 105000, 'SSN-999-22'),
+  (203, 'Charlie Dave', 'charlie@company.com', 'Sales', 80000, 'SSN-999-33')"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output</div>
+          <code>Statement 1 affected 3 rows.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(2,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(2,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(2,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-2"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STEP 2 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="step-section" data-step="2">
+    <div class="step-header">
+      <span class="step-badge">Step 2</span>
+      <span class="step-title">Defining Database Roles</span>
+      <span class="step-time">~5 min</span>
+      <span class="step-pass-count" id="step2-count"></span>
+    </div>
+
+    <!-- CMD 3 -->
+    <div class="cmd-card" id="card-3">
+      <div class="cmd-card-header">
+        <span class="cmd-num">3</span>
+        <span class="cmd-title">CREATE ROLE hr_role and staff_role</span>
+        <span class="cmd-type-badge ddl">DDL</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note"><strong>Key point:</strong> Database roles are schema objects, defined via DDL — not via Cloud IAM. Both roles start with zero privileges.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-3">gcloud spanner databases ddl update <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --ddl=<span class="c-str">"CREATE ROLE hr_role; CREATE ROLE staff_role;"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output</div>
+          <code>Schema was updated successfully.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(3,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(3,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(3,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-3"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STEP 3 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="step-section" data-step="3">
+    <div class="step-header">
+      <span class="step-badge">Step 3</span>
+      <span class="step-title">Column-Level Access Control (GRANT SELECT)</span>
+      <span class="step-time">~5 min</span>
+      <span class="step-pass-count" id="step3-count"></span>
+    </div>
+
+    <!-- CMD 4 -->
+    <div class="cmd-card" id="card-4">
+      <div class="cmd-card-header">
+        <span class="cmd-num">4</span>
+        <span class="cmd-title">GRANT SELECT — hr_role (all cols) and staff_role (4 cols)</span>
+        <span class="cmd-type-badge ddl">DDL</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">
+          <strong>hr_role</strong> gets full-table SELECT. <strong>staff_role</strong> gets only EmployeeId, Name, Email, Department — Salary and SSN remain hidden.
+        </div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-4">gcloud spanner databases ddl update <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --ddl=<span class="c-str">"GRANT SELECT ON TABLE Employees TO ROLE hr_role;
+   GRANT SELECT (EmployeeId, Name, Email, Department)
+     ON TABLE Employees TO ROLE staff_role;"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output</div>
+          <code>Schema was updated successfully.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(4,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(4,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(4,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-4"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STEP 4 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="step-section" data-step="4">
+    <div class="step-header">
+      <span class="step-badge">Step 4</span>
+      <span class="step-title">Testing and Verifying FGAC Rules</span>
+      <span class="step-time">~10 min</span>
+      <span class="step-pass-count" id="step4-count"></span>
+    </div>
+
+    <!-- CMD 5 -->
+    <div class="cmd-card" id="card-5">
+      <div class="cmd-card-header">
+        <span class="cmd-num">5</span>
+        <span class="cmd-title">SELECT * as hr_role — full access</span>
+        <span class="cmd-type-badge query">QUERY</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">hr_role has SELECT on all columns. Expect 3 rows with all 6 columns including Salary and SSN.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-5">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --database-role=hr_role \
+  --sql=<span class="c-str">"SELECT * FROM Employees"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output — 3 rows, 6 columns</div>
+          <code>EmployeeId  Name          Email                    Department   Salary   SSN
+201         Bob Miller    bob@company.com          Engineering  95000    SSN-999-11
+202         Alice Croft   alice@company.com        Engineering  105000   SSN-999-22
+203         Charlie Dave  charlie@company.com      Sales        80000    SSN-999-33</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(5,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(5,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(5,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-5"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMD 6 -->
+    <div class="cmd-card" id="card-6">
+      <div class="cmd-card-header">
+        <span class="cmd-num">6</span>
+        <span class="cmd-title">SELECT * as staff_role — restricted (SHOULD FAIL)</span>
+        <span class="cmd-type-badge query">QUERY</span>
+        <span class="expect-badge fail">✗ Should Fail</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">staff_role has no SELECT on Salary or SSN. A <code>SELECT *</code> expands to include those columns → Spanner denies the request.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-6">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --database-role=staff_role \
+  --sql=<span class="c-str">"SELECT * FROM Employees"</span></pre>
+        </div>
+        <div class="expected-output fail-eo">
+          <div class="eo-label">✗ Expected Error — Permission Denied</div>
+          <code>ERROR: (gcloud.spanner.databases.execute-sql) PERMISSION_DENIED:
+Role staff_role does not have SELECT privilege on column Salary of table Employees.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(6,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(6,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(6,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-6"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMD 7 -->
+    <div class="cmd-card" id="card-7">
+      <div class="cmd-card-header">
+        <span class="cmd-num">7</span>
+        <span class="cmd-title">SELECT allowed columns as staff_role</span>
+        <span class="cmd-type-badge query">QUERY</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">Explicitly listing only the 4 granted columns bypasses the restriction. Expect 3 rows with no Salary/SSN.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-7">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --database-role=staff_role \
+  --sql=<span class="c-str">"SELECT EmployeeId, Name, Email, Department FROM Employees"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output — 3 rows, 4 columns only</div>
+          <code>EmployeeId  Name          Email                    Department
+201         Bob Miller    bob@company.com          Engineering
+202         Alice Croft   alice@company.com        Engineering
+203         Charlie Dave  charlie@company.com      Sales</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(7,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(7,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(7,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-7"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STEP 5 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="step-section" data-step="5">
+    <div class="step-header">
+      <span class="step-badge">Step 5</span>
+      <span class="step-title">Grant Column-Level INSERT and UPDATE</span>
+      <span class="step-time">~5 min</span>
+      <span class="step-pass-count" id="step5-count"></span>
+    </div>
+
+    <!-- CMD 8 -->
+    <div class="cmd-card" id="card-8">
+      <div class="cmd-card-header">
+        <span class="cmd-num">8</span>
+        <span class="cmd-title">GRANT INSERT (4 cols) to hr_role</span>
+        <span class="cmd-type-badge ddl">DDL</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">hr_role can INSERT only these 4 columns. Salary and SSN are intentionally omitted (nullable columns).</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-8">gcloud spanner databases ddl update <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --ddl=<span class="c-str">"GRANT INSERT (EmployeeId, Name, Email, Department)
+   ON TABLE Employees TO ROLE hr_role;"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output</div>
+          <code>Schema was updated successfully.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(8,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(8,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(8,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-8"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMD 9 -->
+    <div class="cmd-card" id="card-9">
+      <div class="cmd-card-header">
+        <span class="cmd-num">9</span>
+        <span class="cmd-title">GRANT UPDATE (Email) to staff_role</span>
+        <span class="cmd-type-badge ddl">DDL</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">staff_role can update Email only. This will be revoked in Step 7 to demonstrate REVOKE.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-9">gcloud spanner databases ddl update <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --ddl=<span class="c-str">"GRANT UPDATE (Email)
+   ON TABLE Employees TO ROLE staff_role;"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output</div>
+          <code>Schema was updated successfully.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(9,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(9,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(9,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-9"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STEP 6 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="step-section" data-step="6">
+    <div class="step-header">
+      <span class="step-badge">Step 6</span>
+      <span class="step-title">Test Column-Level INSERT and UPDATE</span>
+      <span class="step-time">~10 min</span>
+      <span class="step-pass-count" id="step6-count"></span>
+    </div>
+
+    <!-- CMD 10 -->
+    <div class="cmd-card" id="card-10">
+      <div class="cmd-card-header">
+        <span class="cmd-num">10</span>
+        <span class="cmd-title">INSERT allowed columns as hr_role</span>
+        <span class="cmd-type-badge dml">DML</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">Inserts row 204 using only the 4 granted columns. Salary/SSN will be NULL.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-10">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --database-role=hr_role \
+  --sql=<span class="c-str">"INSERT INTO Employees (EmployeeId, Name, Email, Department)
+   VALUES (204, 'Diana Prince', 'diana@company.com', 'HR')"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output</div>
+          <code>Statement 1 affected 1 row.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(10,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(10,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(10,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-10"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMD 11 -->
+    <div class="cmd-card" id="card-11">
+      <div class="cmd-card-header">
+        <span class="cmd-num">11</span>
+        <span class="cmd-title">INSERT with Salary as hr_role — SHOULD FAIL</span>
+        <span class="cmd-type-badge dml">DML</span>
+        <span class="expect-badge fail">✗ Should Fail</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">Salary was not included in hr_role's INSERT grant. Including it triggers a PERMISSION_DENIED error.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-11">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --database-role=hr_role \
+  --sql=<span class="c-str">"INSERT INTO Employees (EmployeeId, Name, Email, Department, Salary)
+   VALUES (205, 'Evan Stone', 'evan@company.com', 'Sales', 85000)"</span></pre>
+        </div>
+        <div class="expected-output fail-eo">
+          <div class="eo-label">✗ Expected Error — INSERT on Salary denied</div>
+          <code>ERROR: PERMISSION_DENIED: Role hr_role does not have INSERT privilege
+on column Salary of table Employees.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(11,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(11,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(11,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-11"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMD 12 -->
+    <div class="cmd-card" id="card-12">
+      <div class="cmd-card-header">
+        <span class="cmd-num">12</span>
+        <span class="cmd-title">UPDATE Email as staff_role</span>
+        <span class="cmd-type-badge dml">DML</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">staff_role has UPDATE(Email). This should succeed and update Bob's email address.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-12">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --database-role=staff_role \
+  --sql=<span class="c-str">"UPDATE Employees SET Email='bob.miller@company.com' WHERE EmployeeId=201"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output</div>
+          <code>Statement 1 affected 1 row.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(12,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(12,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(12,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-12"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMD 13 -->
+    <div class="cmd-card" id="card-13">
+      <div class="cmd-card-header">
+        <span class="cmd-num">13</span>
+        <span class="cmd-title">UPDATE Department as staff_role — SHOULD FAIL</span>
+        <span class="cmd-type-badge dml">DML</span>
+        <span class="expect-badge fail">✗ Should Fail</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">staff_role only has UPDATE(Email). Attempting to UPDATE Department triggers denial.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-13">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --database-role=staff_role \
+  --sql=<span class="c-str">"UPDATE Employees SET Department='Finance' WHERE EmployeeId=201"</span></pre>
+        </div>
+        <div class="expected-output fail-eo">
+          <div class="eo-label">✗ Expected Error — UPDATE on Department denied</div>
+          <code>ERROR: PERMISSION_DENIED: Role staff_role does not have UPDATE privilege
+on column Department of table Employees.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(13,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(13,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(13,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-13"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STEP 7 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="step-section" data-step="7">
+    <div class="step-header">
+      <span class="step-badge">Step 7</span>
+      <span class="step-title">REVOKE and Test Again</span>
+      <span class="step-time">~5 min</span>
+      <span class="step-pass-count" id="step7-count"></span>
+    </div>
+
+    <!-- CMD 14 -->
+    <div class="cmd-card" id="card-14">
+      <div class="cmd-card-header">
+        <span class="cmd-num">14</span>
+        <span class="cmd-title">REVOKE UPDATE(Email) from staff_role</span>
+        <span class="cmd-type-badge ddl">DDL</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-14">gcloud spanner databases ddl update <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --ddl=<span class="c-str">"REVOKE UPDATE (Email)
+   ON TABLE Employees FROM ROLE staff_role;"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output</div>
+          <code>Schema was updated successfully.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(14,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(14,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(14,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-14"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMD 15 -->
+    <div class="cmd-card" id="card-15">
+      <div class="cmd-card-header">
+        <span class="cmd-num">15</span>
+        <span class="cmd-title">UPDATE Email as staff_role post-REVOKE — SHOULD FAIL</span>
+        <span class="cmd-type-badge dml">DML</span>
+        <span class="expect-badge fail">✗ Should Fail</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">After revoking UPDATE(Email), the same command that succeeded in #12 must now be denied.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-15">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --database-role=staff_role \
+  --sql=<span class="c-str">"UPDATE Employees SET Email='blocked@company.com' WHERE EmployeeId=201"</span></pre>
+        </div>
+        <div class="expected-output fail-eo">
+          <div class="eo-label">✗ Expected Error — UPDATE revoked</div>
+          <code>ERROR: PERMISSION_DENIED: Role staff_role does not have UPDATE privilege
+on column Email of table Employees.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(15,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(15,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(15,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-15"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMD 16 -->
+    <div class="cmd-card" id="card-16">
+      <div class="cmd-card-header">
+        <span class="cmd-num">16</span>
+        <span class="cmd-title">SELECT still works as staff_role after REVOKE</span>
+        <span class="cmd-type-badge query">QUERY</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">Revoking UPDATE does not affect SELECT. Read access must remain intact.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-16">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --database-role=staff_role \
+  --sql=<span class="c-str">"SELECT EmployeeId, Name, Email, Department FROM Employees WHERE EmployeeId=201"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output — 1 row</div>
+          <code>EmployeeId  Name        Email                      Department
+201         Bob Miller  bob.miller@company.com     Engineering</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(16,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(16,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(16,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-16"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STEP 8 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="step-section" data-step="8">
+    <div class="step-header">
+      <span class="step-badge">Step 8</span>
+      <span class="step-title">Role Inheritance</span>
+      <span class="step-time">~10 min</span>
+      <span class="step-pass-count" id="step8-count"></span>
+    </div>
+
+    <!-- CMD 17 -->
+    <div class="cmd-card" id="card-17">
+      <div class="cmd-card-header">
+        <span class="cmd-num">17</span>
+        <span class="cmd-title">Create role hierarchy: employee_reader_role → manager_role</span>
+        <span class="cmd-type-badge ddl">DDL</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">
+          <strong>employee_reader_role</strong> gets SELECT on 4 cols. <strong>manager_role</strong> gets SELECT on Salary directly, then inherits employee_reader_role via <code>GRANT ROLE</code>. manager_role ends up seeing 5 cols total.
+        </div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-17">gcloud spanner databases ddl update <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --ddl=<span class="c-str">"CREATE ROLE employee_reader_role;
+   CREATE ROLE manager_role;
+   GRANT SELECT (EmployeeId, Name, Email, Department)
+     ON TABLE Employees TO ROLE employee_reader_role;
+   GRANT SELECT (Salary)
+     ON TABLE Employees TO ROLE manager_role;
+   GRANT ROLE employee_reader_role TO ROLE manager_role;"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output</div>
+          <code>Schema was updated successfully.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(17,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(17,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(17,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-17"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMD 18 -->
+    <div class="cmd-card" id="card-18">
+      <div class="cmd-card-header">
+        <span class="cmd-num">18</span>
+        <span class="cmd-title">SELECT inherited + direct columns as manager_role</span>
+        <span class="cmd-type-badge query">QUERY</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">manager_role should see EmployeeId, Name, Department (inherited) + Salary (direct). SSN is still restricted.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-18">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --database-role=manager_role \
+  --sql=<span class="c-str">"SELECT EmployeeId, Name, Department, Salary FROM Employees"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output — 4 cols, all rows</div>
+          <code>EmployeeId  Name          Department   Salary
+201         Bob Miller    Engineering  95000
+202         Alice Croft   Engineering  105000
+203         Charlie Dave  Sales        80000
+204         Diana Prince  HR           NULL</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(18,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(18,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(18,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-18"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMD 19 -->
+    <div class="cmd-card" id="card-19">
+      <div class="cmd-card-header">
+        <span class="cmd-num">19</span>
+        <span class="cmd-title">SELECT * as manager_role — SHOULD FAIL (SSN blocked)</span>
+        <span class="cmd-type-badge query">QUERY</span>
+        <span class="expect-badge fail">✗ Should Fail</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">Neither manager_role nor employee_reader_role was granted access to SSN. SELECT * must still fail.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-19">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --database-role=manager_role \
+  --sql=<span class="c-str">"SELECT * FROM Employees"</span></pre>
+        </div>
+        <div class="expected-output fail-eo">
+          <div class="eo-label">✗ Expected Error — SSN not granted to either role</div>
+          <code>ERROR: PERMISSION_DENIED: Role manager_role does not have SELECT privilege
+on column SSN of table Employees.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(19,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(19,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(19,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-19"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- STEP 9 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="step-section" data-step="9">
+    <div class="step-header">
+      <span class="step-badge">Step 9</span>
+      <span class="step-title">Row Filtering Through Views</span>
+      <span class="step-time">~10 min</span>
+      <span class="step-pass-count" id="step9-count"></span>
+    </div>
+
+    <!-- CMD 20 -->
+    <div class="cmd-card" id="card-20">
+      <div class="cmd-card-header">
+        <span class="cmd-num">20</span>
+        <span class="cmd-title">Create engineering_role, definer-rights view, GRANT on view</span>
+        <span class="cmd-type-badge ddl">DDL</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">
+          <strong>SQL SECURITY DEFINER</strong> means the view executes with the schema owner's privileges, not the caller's — so engineering_role sees Engineering rows through the view without needing base-table access.
+        </div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-20">gcloud spanner databases ddl update <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --ddl=<span class="c-str">"CREATE ROLE engineering_role;
+   CREATE VIEW EngineeringEmployees
+     SQL SECURITY DEFINER AS
+     SELECT EmployeeId, Name, Email, Department
+     FROM Employees
+     WHERE Department = 'Engineering';
+   GRANT SELECT ON VIEW EngineeringEmployees
+     TO ROLE engineering_role;"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output</div>
+          <code>Schema was updated successfully.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(20,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(20,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(20,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-20"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMD 21 -->
+    <div class="cmd-card" id="card-21">
+      <div class="cmd-card-header">
+        <span class="cmd-num">21</span>
+        <span class="cmd-title">SELECT * FROM EngineeringEmployees as engineering_role</span>
+        <span class="cmd-type-badge query">QUERY</span>
+        <span class="expect-badge success">✓ Should Succeed</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">Should return only 2 rows (Bob, Alice) — the Engineering department filter hides Charlie (Sales).</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-21">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --database-role=engineering_role \
+  --sql=<span class="c-str">"SELECT * FROM EngineeringEmployees"</span></pre>
+        </div>
+        <div class="expected-output success-eo">
+          <div class="eo-label">✓ Expected Output — 2 rows (Engineering only)</div>
+          <code>EmployeeId  Name         Email                    Department
+201         Bob Miller   bob.miller@company.com   Engineering
+202         Alice Croft  alice@company.com        Engineering</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(21,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(21,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(21,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-21"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMD 22 -->
+    <div class="cmd-card" id="card-22">
+      <div class="cmd-card-header">
+        <span class="cmd-num">22</span>
+        <span class="cmd-title">Direct base-table query as engineering_role — SHOULD FAIL</span>
+        <span class="cmd-type-badge query">QUERY</span>
+        <span class="expect-badge fail">✗ Should Fail</span>
+      </div>
+      <div class="cmd-body">
+        <div class="cmd-note">engineering_role only has GRANT on the view, not on the Employees table directly. Querying the base table must be denied.</div>
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-22">gcloud spanner databases execute-sql <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --database-role=engineering_role \
+  --sql=<span class="c-str">"SELECT EmployeeId, Name FROM Employees"</span></pre>
+        </div>
+        <div class="expected-output fail-eo">
+          <div class="eo-label">✗ Expected Error — No base-table access</div>
+          <code>ERROR: PERMISSION_DENIED: Role engineering_role does not have SELECT privilege
+on table Employees.</code>
+        </div>
+        <div class="cmd-actions">
+          <label>Result:</label>
+          <button class="action-btn btn-pass" onclick="markCmd(22,'pass',this)">✓ Pass</button>
+          <button class="action-btn btn-fail" onclick="markCmd(22,'fail',this)">✗ Fail</button>
+          <button class="action-btn btn-skip" onclick="markCmd(22,'skip',this)">— Skip</button>
+          <span class="status-text" id="status-22"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- TEARDOWN -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="teardown-section">
+    <h2>🗑 Teardown — Clean Up After Lab</h2>
+    <p>Run these commands to drop the table and roles after the lab session, freeing the database for the next cohort.</p>
+
+    <div class="cmd-card" style="border-left:4px solid var(--danger);">
+      <div class="cmd-card-header" style="background:#fff5f5;">
+        <span class="cmd-num" style="background:var(--danger);">T</span>
+        <span class="cmd-title">Drop all roles and the Employees table + view</span>
+        <span class="cmd-type-badge ddl">DDL</span>
+      </div>
+      <div class="cmd-body">
+        <div class="code-wrap">
+          <button class="copy-btn" onclick="copyCmd(this)">Copy</button>
+          <pre id="code-teardown">gcloud spanner databases ddl update <span class="c-flag" data-role="DATABASE">test-database1</span> \
+  --instance=<span class="c-flag" data-role="INSTANCE">test-instance1</span> \
+  --ddl=<span class="c-str">"DROP VIEW EngineeringEmployees;
+   DROP TABLE Employees;
+   DROP ROLE engineering_role;
+   DROP ROLE employee_reader_role;
+   DROP ROLE manager_role;
+   DROP ROLE staff_role;
+   DROP ROLE hr_role;"</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SUMMARY FOOTER -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="summary-footer">
+    <h3>Session Summary</h3>
+    <div class="summary-stat total"><div class="num" id="sum-total">22</div><div class="lbl">Total</div></div>
+    <div class="summary-stat pass"><div class="num" id="sum-pass">0</div><div class="lbl">Passed</div></div>
+    <div class="summary-stat fail"><div class="num" id="sum-fail">0</div><div class="lbl">Failed</div></div>
+    <div class="summary-stat skip"><div class="num" id="sum-skip">0</div><div class="lbl">Skipped</div></div>
+    <div class="summary-stat" style="flex:2; text-align:left;">
+      <div class="num" id="sum-pct" style="font-size:1.6rem;">0%</div>
+      <div class="lbl">Completion</div>
+      <div class="progress-bar-wrap" style="max-width:100%;margin-top:6px;"><div class="progress-bar-fill" id="progressBar2" style="width:0%"></div></div>
+    </div>
+    <div style="width:100%;display:flex;gap:10px;margin-top:8px;">
+      <button class="reset-btn" onclick="resetAll()">↺ Reset All</button>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  const TOTAL = 22;
+  const states = {}; // id → 'pass' | 'fail' | 'skip' | null
+
+  // Commands per step for step counters
+  const STEP_MAP = {1:[1,2], 2:[3], 3:[4], 4:[5,6,7], 5:[8,9], 6:[10,11,12,13], 7:[14,15,16], 8:[17,18,19], 9:[20,21,22]};
+
+  function markCmd(id, state, btn) {
+    // Toggle off if same button clicked
+    if (states[id] === state) {
+      states[id] = null;
+    } else {
+      states[id] = state;
+    }
+    updateCard(id);
+    updateProgress();
+  }
+
+  function updateCard(id) {
+    const card = document.getElementById('card-' + id);
+    const statusEl = document.getElementById('status-' + id);
+    const s = states[id];
+
+    card.className = 'cmd-card';
+    if (s === 'pass') { card.classList.add('state-pass'); statusEl.textContent = '✓ Passed'; statusEl.className = 'status-text pass'; }
+    else if (s === 'fail') { card.classList.add('state-fail-actual'); statusEl.textContent = '✗ Failed'; statusEl.className = 'status-text fail'; }
+    else if (s === 'skip') { card.classList.add('state-skip'); statusEl.textContent = '— Skipped'; statusEl.className = 'status-text skip'; }
+    else { statusEl.textContent = ''; statusEl.className = 'status-text'; }
+
+    // Update action button active states
+    const btns = card.querySelectorAll('.action-btn');
+    btns.forEach(b => {
+      b.classList.remove('active');
+      if ((s === 'pass' && b.classList.contains('btn-pass')) ||
+          (s === 'fail' && b.classList.contains('btn-fail')) ||
+          (s === 'skip' && b.classList.contains('btn-skip'))) {
+        b.classList.add('active');
+      }
+    });
+  }
+
+  function updateProgress() {
+    let pass = 0, fail = 0, skip = 0;
+    for (let i = 1; i <= TOTAL; i++) {
+      if (states[i] === 'pass') pass++;
+      else if (states[i] === 'fail') fail++;
+      else if (states[i] === 'skip') skip++;
+    }
+    const done = pass + fail + skip;
+    const pct = Math.round((pass / TOTAL) * 100);
+
+    document.getElementById('stat-pass').textContent = pass;
+    document.getElementById('stat-fail').textContent = fail;
+    document.getElementById('stat-skip').textContent = skip;
+    document.getElementById('sum-pass').textContent = pass;
+    document.getElementById('sum-fail').textContent = fail;
+    document.getElementById('sum-skip').textContent = skip;
+    document.getElementById('sum-pct').textContent = pct + '%';
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressBar2').style.width = pct + '%';
+
+    // Update per-step counters
+    Object.entries(STEP_MAP).forEach(([step, ids]) => {
+      const stepPass = ids.filter(i => states[i] === 'pass').length;
+      const el = document.getElementById('step' + step + '-count');
+      if (el) el.textContent = stepPass + '/' + ids.length + ' passed';
+    });
+  }
+
+  function resetAll() {
+    if (!confirm('Reset all command results?')) return;
+    for (let i = 1; i <= TOTAL; i++) {
+      states[i] = null;
+      updateCard(i);
+    }
+    updateProgress();
+  }
+
+  // Copy command text (plain text, strip HTML tags)
+  function copyCmd(btn) {
+    const pre = btn.nextElementSibling;
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+
+  // Live config substitution — update all data-role spans
+  function applyConfig() {
+    const instance = document.getElementById('cfg-instance').value || 'test-instance1';
+    const database = document.getElementById('cfg-database').value || 'test-database1';
+    const project  = document.getElementById('cfg-project').value;
+
+    document.querySelectorAll('[data-role="INSTANCE"]').forEach(el => el.textContent = instance);
+    document.querySelectorAll('[data-role="DATABASE"]').forEach(el => el.textContent = database);
+
+    // Rebuild --project flags in code blocks if project provided
+    document.querySelectorAll('pre[id^="code-"]').forEach(pre => {
+      // Remove existing project flag line if any
+      // (config substitution only handles instance/database spans)
+    });
+  }
+
+  // Keyboard shortcut: press P/F/S to mark focused card
+  // (simple quality of life, no focus tracking needed for v1)
+
+  updateProgress(); // initialise counters on load
+</script>
+
+</body>
+</html>
