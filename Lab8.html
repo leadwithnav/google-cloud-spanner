@@ -449,7 +449,7 @@
             <div class="callout-title">Production Code Location</div>
             <div class="callout-content">
               All complete, working source code files for this lab are located in the workspace folder:
-              <br><code style="font-size: 0.9rem; font-weight: bold;">d:\trainings\google_cloud_spanner\Lab14\</code>
+              <br><code style="font-size: 0.9rem; font-weight: bold;">d:\trainings\google_cloud_spanner\Lab8\</code>
             </div>
           </div>
         </div>
@@ -506,8 +506,8 @@ docker stop spanner-pgadapter 2>/dev/null || true
 docker rm spanner-pgadapter 2>/dev/null || true
 
 <span class="c-comment"># 3. Start New PGAdapter Sidecar Proxy (Replace YOUR_PROJECT_ID, YOUR_INSTANCE_ID, YOUR_DATABASE_ID)</span>
-chmod +x Lab14/start-pgadapter.sh
-./Lab14/start-pgadapter.sh YOUR_PROJECT_ID YOUR_INSTANCE_ID YOUR_DATABASE_ID 5432</code></pre>
+chmod +x Lab8/start-pgadapter.sh
+./Lab8/start-pgadapter.sh YOUR_PROJECT_ID YOUR_INSTANCE_ID YOUR_DATABASE_ID 5432</code></pre>
           </div>
         </div>
 
@@ -530,8 +530,8 @@ docker stop spanner-pgadapter 2>/dev/null || true
 docker rm spanner-pgadapter 2>/dev/null || true
 
 <span class="c-comment"># 3. Start New PGAdapter Sidecar Proxy (Replace YOUR_PROJECT_ID, YOUR_INSTANCE_ID, YOUR_DATABASE_ID)</span>
-chmod +x Lab14/start-pgadapter.sh
-./Lab14/start-pgadapter.sh YOUR_PROJECT_ID YOUR_INSTANCE_ID YOUR_DATABASE_ID 5432</code></pre>
+chmod +x Lab8/start-pgadapter.sh
+./Lab8/start-pgadapter.sh YOUR_PROJECT_ID YOUR_INSTANCE_ID YOUR_DATABASE_ID 5432</code></pre>
           </div>
         </div>
 
@@ -554,7 +554,7 @@ docker stop spanner-pgadapter
 docker rm spanner-pgadapter
 
 <span class="c-comment"># 3. Start New PGAdapter Sidecar Proxy (Replace YOUR_PROJECT_ID, YOUR_INSTANCE_ID, YOUR_DATABASE_ID)</span>
-.\Lab14\start-pgadapter.ps1 -ProjectId YOUR_PROJECT_ID -InstanceId YOUR_INSTANCE_ID -DatabaseId YOUR_DATABASE_ID -Port 5432</code></pre>
+.\Lab8\start-pgadapter.ps1 -ProjectId YOUR_PROJECT_ID -InstanceId YOUR_INSTANCE_ID -DatabaseId YOUR_DATABASE_ID -Port 5432</code></pre>
           </div>
         </div>
 
@@ -946,7 +946,7 @@ docker rm spanner-pgadapter
             </div>
             <pre class="code-content"><code><span class="c-comment"># Set JAVA_HOME to JDK 17 and launch Spring Boot application</span>
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-cd Lab14
+cd Lab8
 mvn spring-boot:run</code></pre>
           </div>
 
@@ -1045,7 +1045,7 @@ curl -X POST "http://localhost:8080/api/v1/banking/transfer" \
             </div>
             <pre class="code-content"><code><span class="c-comment"># Set JAVA_HOME to JDK 17 and launch Spring Boot application</span>
 export JAVA_HOME=$(/usr/libexec/java_home -v 17)
-cd Lab14
+cd Lab8
 mvn spring-boot:run</code></pre>
           </div>
 
@@ -1143,7 +1143,7 @@ curl -X POST "http://localhost:8080/api/v1/banking/transfer" \
               </div>
             </div>
             <pre class="code-content"><code><span class="c-comment"># Set JAVA_HOME to installed JDK 17 and launch Spring Boot application</span>
-cd Lab14
+cd Lab8
 $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.11.9-hotspot"
 mvn spring-boot:run</code></pre>
           </div>

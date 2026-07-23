@@ -1,6 +1,6 @@
-# Lab 15: Production-Grade Cloud Spanner Spring Boot Application with Advanced Best Practices
+# Lab 9: Production-Grade Cloud Spanner Spring Boot Application with Advanced Best Practices
 
-This directory contains the completed production codebase for **Lab 15**, incorporating all 6 Cloud Spanner & PGAdapter engineering recommendations.
+This directory contains the completed production codebase for **Lab 9**, incorporating all Cloud Spanner & PGAdapter engineering recommendations.
 
 ---
 

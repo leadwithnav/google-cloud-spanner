@@ -932,11 +932,11 @@ docker stop spanner-pgadapter 2>/dev/null || true
 docker rm spanner-pgadapter 2>/dev/null || true
 
 <span class="c-comment"># 3. Start New PGAdapter Sidecar Proxy (Replace YOUR_PROJECT_ID, YOUR_INSTANCE_ID, YOUR_DATABASE_ID)</span>
-chmod +x Lab15/start-pgadapter.sh
-./Lab15/start-pgadapter.sh YOUR_PROJECT_ID YOUR_INSTANCE_ID YOUR_DATABASE_ID 5432
+chmod +x Lab9/start-pgadapter.sh
+./Lab9/start-pgadapter.sh YOUR_PROJECT_ID YOUR_INSTANCE_ID YOUR_DATABASE_ID 5432
 
-<span class="c-comment"># 4. Deploy Clean Schema (Includes DROP TABLE IF EXISTS ... CASCADE for Lab 14 tables)</span>
-gcloud spanner databases ddl update YOUR_DATABASE_ID --instance=YOUR_INSTANCE_ID --ddl-file=Lab15/ddl/schema.sql</code></pre>
+<span class="c-comment"># 4. Deploy Clean Schema (Includes DROP TABLE IF EXISTS ... CASCADE for Lab 8 tables)</span>
+gcloud spanner databases ddl update YOUR_DATABASE_ID --instance=YOUR_INSTANCE_ID --ddl-file=Lab9/ddl/schema.sql</code></pre>
           </div>
         </div>
 
@@ -952,11 +952,11 @@ docker stop spanner-pgadapter 2>/dev/null || true
 docker rm spanner-pgadapter 2>/dev/null || true
 
 <span class="c-comment"># 3. Start New PGAdapter Sidecar Proxy (Replace YOUR_PROJECT_ID, YOUR_INSTANCE_ID, YOUR_DATABASE_ID)</span>
-chmod +x Lab15/start-pgadapter.sh
-./Lab15/start-pgadapter.sh YOUR_PROJECT_ID YOUR_INSTANCE_ID YOUR_DATABASE_ID 5432
+chmod +x Lab9/start-pgadapter.sh
+./Lab9/start-pgadapter.sh YOUR_PROJECT_ID YOUR_INSTANCE_ID YOUR_DATABASE_ID 5432
 
-<span class="c-comment"># 4. Deploy Clean Schema (Includes DROP TABLE IF EXISTS ... CASCADE for Lab 14 tables)</span>
-gcloud spanner databases ddl update YOUR_DATABASE_ID --instance=YOUR_INSTANCE_ID --ddl-file=Lab15/ddl/schema.sql</code></pre>
+<span class="c-comment"># 4. Deploy Clean Schema (Includes DROP TABLE IF EXISTS ... CASCADE for Lab 8 tables)</span>
+gcloud spanner databases ddl update YOUR_DATABASE_ID --instance=YOUR_INSTANCE_ID --ddl-file=Lab9/ddl/schema.sql</code></pre>
           </div>
         </div>
 
@@ -972,10 +972,10 @@ docker stop spanner-pgadapter
 docker rm spanner-pgadapter
 
 <span class="c-comment"># 3. Start New PGAdapter Sidecar Proxy (Replace YOUR_PROJECT_ID, YOUR_INSTANCE_ID, YOUR_DATABASE_ID)</span>
-.\Lab15\start-pgadapter.ps1 -ProjectId YOUR_PROJECT_ID -InstanceId YOUR_INSTANCE_ID -DatabaseId YOUR_DATABASE_ID -Port 5432
+.\Lab9\start-pgadapter.ps1 -ProjectId YOUR_PROJECT_ID -InstanceId YOUR_INSTANCE_ID -DatabaseId YOUR_DATABASE_ID -Port 5432
 
-<span class="c-comment"># 4. Deploy Clean Schema (Includes DROP TABLE IF EXISTS ... CASCADE for Lab 14 tables)</span>
-gcloud spanner databases ddl update YOUR_DATABASE_ID --instance=YOUR_INSTANCE_ID --ddl-file=Lab15\ddl\schema.sql</code></pre>
+<span class="c-comment"># 4. Deploy Clean Schema (Includes DROP TABLE IF EXISTS ... CASCADE for Lab 8 tables)</span>
+gcloud spanner databases ddl update YOUR_DATABASE_ID --instance=YOUR_INSTANCE_ID --ddl-file=Lab9\ddl\schema.sql</code></pre>
           </div>
         </div>
 
@@ -1004,7 +1004,7 @@ gcloud spanner databases ddl update YOUR_DATABASE_ID --instance=YOUR_INSTANCE_ID
         <div class="os-content active" data-os="linux">
           <div class="code-block-container sql">
             <pre class="code-content"><code>export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-cd Lab15
+cd Lab9
 mvn spring-boot:run
 
 <span class="c-comment"># Seed Customers &amp; Accounts</span>
@@ -1023,7 +1023,7 @@ curl -X POST "http://localhost:8080/api/v1/banking/accounts/bulk-update?oldType=
         <div class="os-content" data-os="macos">
           <div class="code-block-container sql">
             <pre class="code-content"><code>export JAVA_HOME=$(/usr/libexec/java_home -v 17)
-cd Lab15
+cd Lab9
 mvn spring-boot:run
 
 <span class="c-comment"># Seed Customers &amp; Accounts</span>
@@ -1041,7 +1041,7 @@ curl -X POST "http://localhost:8080/api/v1/banking/accounts/bulk-update?oldType=
 
         <div class="os-content" data-os="powershell">
           <div class="code-block-container sql">
-            <pre class="code-content"><code>cd Lab15
+            <pre class="code-content"><code>cd Lab9
 $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.11.9-hotspot"
 mvn spring-boot:run
 

@@ -1,4 +1,4 @@
-# Lab 14: Cloud Spanner with Java, Spring Boot & Spring Data JPA (via PGAdapter)
+# Lab 8: Cloud Spanner with Java, Spring Boot & Spring Data JPA (via PGAdapter)
 
 A production-ready Spring Boot 3 + Spring Data JPA application demonstrating best practices for integrating Java applications with Google Cloud Spanner using **PGAdapter** (PostgreSQL Dialect).
 
