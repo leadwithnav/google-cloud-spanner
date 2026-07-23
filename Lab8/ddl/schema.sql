@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS customers (
     full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     status VARCHAR(50) NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL OPTIONS (allow_commit_timestamp = true),
+    created_at TIMESTAMPTZ NOT NULL,
     PRIMARY KEY (customer_id)
 );
 
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     account_type VARCHAR(50) NOT NULL,
     currency VARCHAR(10) NOT NULL,
     balance NUMERIC NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL OPTIONS (allow_commit_timestamp = true),
+    updated_at TIMESTAMPTZ NOT NULL,
     PRIMARY KEY (account_id)
 );
 
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
     target_account_id VARCHAR(36) NOT NULL,
     amount NUMERIC NOT NULL,
     status VARCHAR(50) NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL OPTIONS (allow_commit_timestamp = true),
+    created_at TIMESTAMPTZ NOT NULL,
     PRIMARY KEY (transaction_id)
 );
 
