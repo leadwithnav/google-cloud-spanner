@@ -1103,34 +1103,169 @@ Invoke-RestMethod -Uri "http://localhost:8080/api/v1/banking/accounts/bulk-updat
       <!-- STEP 17: Knowledge Assessment -->
       <section class="content-panel" id="panel-16">
         <h1>Step 17: Knowledge Assessment</h1>
-        <p class="subtitle">Test your understanding of Cloud Spanner advanced JPA recommendations.</p>
+        <p class="subtitle">Test your technical mastery of Cloud Spanner, PGAdapter, HikariCP pooling, and Spring Data JPA production recommendations (15 Questions).</p>
 
+        <!-- Q1 -->
         <div class="quiz-card">
-          <div class="quiz-question">1. Why is maximum-pool-size tuned to 25 for a 100 Processing Units (0.1 Node) Spanner instance?</div>
+          <div class="quiz-question">1. Why is HikariCP maximum-pool-size tuned to 20–30 for a 100 Processing Units (0.1 Node) Spanner instance?</div>
           <div class="quiz-options">
-            <div class="quiz-option" data-correct="false">Because HikariCP only supports multiples of 25.</div>
-            <div class="quiz-option" data-correct="true">Because oversizing connection pools on a 100 PUs instance causes session pool lock contention inside Spanner's session pool manager.</div>
-            <div class="quiz-option" data-correct="false">Because 25 is the max number of rows Spanner can store in memory.</div>
+            <div class="quiz-option" data-correct="false">A) HikariCP requires pool sizes to be exact multiples of 25.</div>
+            <div class="quiz-option" data-correct="true">B) Oversizing connection pools (e.g. 500) on a 100 PUs instance causes severe session lock contention and CPU thrashing inside Spanner's session pool manager.</div>
+            <div class="quiz-option" data-correct="false">C) Spanner restricts total database storage based on connection pool size.</div>
           </div>
           <div class="quiz-explanation"></div>
         </div>
 
+        <!-- Q2 -->
         <div class="quiz-card">
-          <div class="quiz-question">2. Does preferQueryMode=extended disable Spanner's SQL Query Engine or Cost-Based Optimizer?</div>
+          <div class="quiz-question">2. Does setting preferQueryMode=extended in the PGAdapter URL bypass Spanner's Cost-Based SQL Query Optimizer?</div>
           <div class="quiz-options">
-            <div class="quiz-option" data-correct="false">Yes, it converts all SQL queries into plain text files.</div>
-            <div class="quiz-option" data-correct="true">No! Complex SELECT, UPDATE, and DELETE statements continue using Spanner's SQL Engine &amp; Optimizer with cached query plans, while simple batch inserts use Spanner Mutations.</div>
-            <div class="quiz-option" data-correct="false">Yes, it forces all queries to run in single-threaded mode.</div>
+            <div class="quiz-option" data-correct="false">A) Yes, it converts all SQL queries into plain text files and bypasses the optimizer entirely.</div>
+            <div class="quiz-option" data-correct="true">B) No! Complex SELECT and UPDATE queries continue using Spanner's SQL Engine &amp; Cost-Based Optimizer with cached query plans, while simple batch inserts use high-speed Spanner Mutations.</div>
+            <div class="quiz-option" data-correct="false">C) Yes, it forces Spanner to execute all queries in single-threaded mode.</div>
           </div>
           <div class="quiz-explanation"></div>
         </div>
 
+        <!-- Q3 -->
         <div class="quiz-card">
-          <div class="quiz-question">3. What is the purpose of minimum-idle: 10 in HikariCP?</div>
+          <div class="quiz-question">3. What is the primary purpose of configuring minimum-idle: 10 in HikariCP?</div>
           <div class="quiz-options">
-            <div class="quiz-option" data-correct="false">It limits the maximum CPU usage of Spanner nodes.</div>
-            <div class="quiz-option" data-correct="true">It pre-warms 10 Spanner sessions and gRPC channels on startup to eliminate cold-start request latency.</div>
-            <div class="quiz-option" data-correct="false">It deletes idle databases after 10 minutes.</div>
+            <div class="quiz-option" data-correct="false">A) It limits the maximum CPU utilization of Spanner compute nodes.</div>
+            <div class="quiz-option" data-correct="true">B) It pre-warms 10 Spanner sessions and gRPC channels on application startup to eliminate cold-start 100ms–300ms request latency.</div>
+            <div class="quiz-option" data-correct="false">C) It automatically deletes idle databases after 10 minutes.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-card">
+          <div class="quiz-question">4. Why should HikariCP max-lifetime be set to 30 minutes (1,800,000 ms)?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="true">A) It retires stale gRPC channels gracefully before cloud network load balancers terminate silent TCP connections.</div>
+            <div class="quiz-option" data-correct="false">B) It prevents PostgreSQL database memory leaks in the local driver.</div>
+            <div class="quiz-option" data-correct="false">C) It automatically restarts the Spring Boot JVM every 30 minutes.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="quiz-card">
+          <div class="quiz-question">5. Why is @Retryable mandatory for Spring @Transactional methods on Cloud Spanner?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="true">A) Spanner uses strict concurrency control and may abort transactions during lock contention, requiring application-level retries.</div>
+            <div class="quiz-option" data-correct="false">B) To retry failed HTTP network requests sent from client web browsers.</div>
+            <div class="quiz-option" data-correct="false">C) Because Spring Boot automatically disables database connection retries by default.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="quiz-card">
+          <div class="quiz-question">6. Why does Google recommend acquiring SELECT FOR UPDATE (@Lock(LockModeType.PESSIMISTIC_WRITE)) at the start of a transaction?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="true">A) It acquires Exclusive Locks immediately, preventing shared-to-exclusive lock upgrade deadlocks and transaction aborts.</div>
+            <div class="quiz-option" data-correct="false">B) It bypasses Spanner's TrueTime transaction commit logs.</div>
+            <div class="quiz-option" data-correct="false">C) It permanently locks rows in the database across multiple HTTP requests.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="quiz-card">
+          <div class="quiz-question">7. What physical layout advantage does INTERLEAVE IN PARENT customers ON DELETE CASCADE provide?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="true">A) Co-locates child account rows on the exact same storage split node as the parent customer row, turning parent-child joins into zero-network-hop local reads.</div>
+            <div class="quiz-option" data-correct="false">B) Automatically compresses customer email addresses using GZIP compression.</div>
+            <div class="quiz-option" data-correct="false">C) Stores child account rows in an external Google Cloud Storage bucket.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="quiz-card">
+          <div class="quiz-question">8. How does adding an INCLUDE (currency, balance, updated_at) clause to a secondary index optimize query performance?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="true">A) Stores non-key payload columns directly in the index split, creating a covering index that avoids 2-step base table backjoins.</div>
+            <div class="quiz-option" data-correct="false">B) Automatically encrypts index columns with customer-managed keys.</div>
+            <div class="quiz-option" data-correct="false">C) Converts secondary index queries into full table scans.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <!-- Q9 -->
+        <div class="quiz-card">
+          <div class="quiz-question">9. What critical problem is solved by using Spanner TrueTime commit timestamps instead of client-side timestamps?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="true">A) Eliminates client clock skew and server drift, ensuring globally synchronized commit ordering guaranteed by atomic clocks and GPS receivers.</div>
+            <div class="quiz-option" data-correct="false">B) Reduces database storage size by 50%.</div>
+            <div class="quiz-option" data-correct="false">C) Speeds up Maven project compilation times.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <!-- Q10 -->
+        <div class="quiz-card">
+          <div class="quiz-question">10. Why is spanner.optimizer_version=LATEST configured in PGAdapter connection strings?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="true">A) Instructs Spanner's Cost-Based Optimizer to generate optimal execution plans using the newest statistical query models.</div>
+            <div class="quiz-option" data-correct="false">B) Upgrades the local PostgreSQL JDBC driver automatically.</div>
+            <div class="quiz-option" data-correct="false">C) Forces all queries to execute using full index scans.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <!-- Q11 -->
+        <div class="quiz-card">
+          <div class="quiz-question">11. When should Partitioned DML (bulkUpdateAccountTypePartitioned) be used instead of standard @Transactional DML?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="true">A) For massive multi-million row batch cleanup or migration operations that would otherwise exceed Spanner's 80,000 mutation per transaction limit.</div>
+            <div class="quiz-option" data-correct="false">B) For real-time financial balance transfers requiring 2-phase commit.</div>
+            <div class="quiz-option" data-correct="false">C) For single-row INSERT statements.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <!-- Q12 -->
+        <div class="quiz-card">
+          <div class="quiz-question">12. Why do Spanner Mutations achieved via saveAll() yield 2x–3x higher throughput for bulk inserts than SQL DML?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="true">A) Mutations bypass SQL parsing, query planning, and constraint validation overhead inside Spanner's transaction engine.</div>
+            <div class="quiz-option" data-correct="false">B) Mutations write data directly to the user's local hard drive.</div>
+            <div class="quiz-option" data-correct="false">C) Mutations run without requiring database primary keys.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <!-- Q13 -->
+        <div class="quiz-card">
+          <div class="quiz-question">13. How do @Transactional(readOnly = true) non-locking snapshot reads improve application concurrency?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="true">A) Serves read queries at a consistent timestamp without acquiring read locks, completely avoiding blocking write transactions.</div>
+            <div class="quiz-option" data-correct="false">B) Automatically deletes old audit logs every 24 hours.</div>
+            <div class="quiz-option" data-correct="false">C) Bypasses the HikariCP connection pool entirely.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <!-- Q14 -->
+        <div class="quiz-card">
+          <div class="quiz-question">14. Why must applications maintain one single, long-lived DataSource per JVM instead of creating connection pools per HTTP request?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="true">A) Opening new connection pools per request incurs TLS handshakes, gRPC channel setup, and Spanner session creation latency (100ms–300ms per request).</div>
+            <div class="quiz-option" data-correct="false">B) Creating multiple connection pools exceeds Java heap memory limits immediately.</div>
+            <div class="quiz-option" data-correct="false">C) Spanner only allows 1 connection pool per GCP billing account.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <!-- Q15 -->
+        <div class="quiz-card">
+          <div class="quiz-question">15. What configuration is required in application.yml to enable effective Hibernate multi-table batching?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="true">A) Set hibernate.jdbc.batch_size: 50, order_inserts: true, and order_updates: true.</div>
+            <div class="quiz-option" data-correct="false">B) Set hibernate.show_sql: false and hibernate.hbm2ddl.auto: update.</div>
+            <div class="quiz-option" data-correct="false">C) Set hibernate.dialect: org.hibernate.dialect.H2Dialect.</div>
           </div>
           <div class="quiz-explanation"></div>
         </div>
@@ -1139,8 +1274,8 @@ Invoke-RestMethod -Uri "http://localhost:8080/api/v1/banking/accounts/bulk-updat
           <li class="task-checkbox-container" data-task-id="t16_1">
             <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
             <div class="task-content">
-              <span class="task-label">Complete Quiz</span>
-              <span class="task-desc">Answer all 3 assessment questions correctly to unlock your completion certificate.</span>
+              <span class="task-label">Complete Knowledge Assessment</span>
+              <span class="task-desc">Answer all 15 assessment questions correctly to unlock your completion certificate.</span>
             </div>
           </li>
         </ul>
