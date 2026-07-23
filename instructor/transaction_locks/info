@@ -1,0 +1,14 @@
+Same row + different columns
+        → usually no lock conflict
+
+Same row + same column
+        → lock conflict possible
+
+Same row + different business columns
+but same VersionNumber/LastModifiedAt
+        → lock conflict
+
+SELECT *
+FOR UPDATE
+        → may lock unnecessary cells
+        → increases contention

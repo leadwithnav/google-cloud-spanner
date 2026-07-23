@@ -31,14 +31,16 @@ public class PaymentTransaction {
     @Column(name = "status", nullable = false)
     private String status;
 
-    // BEST PRACTICE: Server-side Spanner TrueTime Commit Timestamp
-    @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ DEFAULT spanner.commit_timestamp()", insertable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
     @PrePersist
-    public void ensureId() {
+    public void ensureIdAndTimestamp() {
         if (this.transactionId == null) {
             this.transactionId = UUID.randomUUID().toString(); // Anti-Hotspot UUID
+        }
+        if (this.createdAt == null) {
+            this.createdAt = OffsetDateTime.now();
         }
     }
 }

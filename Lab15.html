@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -503,34 +503,34 @@ Account targetAccount = accountRepository.findByAccountIdForUpdate(targetAccount
 
       <!-- STEP 5: Rec 4 - Covering Indexes -->
       <section class="content-panel" id="panel-4">
-        <h1>Step 5: Recommendation 4 – Secondary Covering Indexes (`STORING`)</h1>
-        <p class="subtitle">Include non-key payload columns in secondary indexes to eliminate 2-step table backjoins.</p>
+        <h1>Step 5: Recommendation 4 – Secondary Covering Indexes (`INCLUDE` Clause)</h1>
+        <p class="subtitle">Include non-key payload columns in secondary indexes to eliminate 2-step table backjoins using PostgreSQL dialect <code>INCLUDE</code> clause.</p>
 
         <div class="doc-quote-card">
           <div class="doc-quote-header">📖 Official Google Spanner Documentation:</div>
-          <div class="doc-quote-text">"Using the STORING clause includes additional payload columns in the index. This turns the index into a covering index, allowing Spanner to satisfy queries directly from the index split without an expensive backjoin to the base table split."</div>
+          <div class="doc-quote-text">"Using the INCLUDE clause in PostgreSQL dialect (STORING in Google Standard SQL) includes additional payload columns in the index. This turns the index into a covering index, allowing Spanner to satisfy queries directly from the index split without an expensive backjoin to the base table split."</div>
         </div>
 
         <h2>DDL Implementation (ddl/schema.sql)</h2>
         <div class="code-block-container sql">
           <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> PostgreSQL Dialect DDL</span></div>
-          <pre class="code-content"><code><span class="c-comment">-- Covering Index for Accounts by Account Type:</span>
+          <pre class="code-content"><code><span class="c-comment">-- Covering Index for Accounts by Account Type (PostgreSQL dialect uses INCLUDE):</span>
 <span class="c-kw">CREATE INDEX IF NOT EXISTS</span> idx_accounts_type 
 <span class="c-kw">ON</span> accounts(account_type) 
-<span class="c-kw">STORING</span> (currency, balance, updated_at);
+<span class="c-kw">INCLUDE</span> (currency, balance, updated_at);
 
 <span class="c-comment">-- Covering Index for Transactions by Source Account:</span>
 <span class="c-kw">CREATE INDEX IF NOT EXISTS</span> idx_payments_source 
 <span class="c-kw">ON</span> payment_transactions(source_account_id) 
-<span class="c-kw">STORING</span> (target_account_id, amount, status, created_at);</code></pre>
+<span class="c-kw">INCLUDE</span> (target_account_id, amount, status, created_at);</code></pre>
         </div>
 
         <ul class="task-checklist">
           <li class="task-checkbox-container" data-task-id="t4_1">
             <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
             <div class="task-content">
-              <span class="task-label">Inspect STORING Clause</span>
-              <span class="task-desc">Confirm covering index DDL statements in ddl/schema.sql.</span>
+              <span class="task-label">Inspect INCLUDE Clause</span>
+              <span class="task-desc">Confirm covering index INCLUDE DDL statements in ddl/schema.sql.</span>
             </div>
           </li>
         </ul>
@@ -549,11 +549,12 @@ Account targetAccount = accountRepository.findByAccountIdForUpdate(targetAccount
         <h2>DDL &amp; Java Implementation</h2>
         <div class="code-block-container sql">
           <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> DDL &amp; Java Implementation</span></div>
-          <pre class="code-content"><code><span class="c-comment">-- 1. ddl/schema.sql:</span>
-updated_at <span class="c-type">TIMESTAMPTZ</span> <span class="c-kw">NOT NULL DEFAULT</span> spanner.commit_timestamp() <span class="c-kw">OPTIONS</span> (allow_commit_timestamp = <span class="c-kw">true</span>),
+          <pre class="code-content"><code><span class="c-comment">-- 1. ddl/schema.sql (PostgreSQL Dialect):</span>
+created_at <span class="c-type">TIMESTAMPTZ</span> <span class="c-kw">NOT NULL</span>;
+<span class="c-kw">ALTER TABLE</span> customers <span class="c-kw">ALTER COLUMN</span> created_at <span class="c-kw">SET</span> (allow_commit_timestamp = <span class="c-kw">true</span>);
 
 <span class="c-comment">// 2. Account.java:</span>
-<span class="c-kw">@Column</span>(name = <span class="c-str">"updated_at"</span>, columnDefinition = <span class="c-str">"TIMESTAMPTZ DEFAULT spanner.commit_timestamp()"</span>, insertable = <span class="c-kw">false</span>, updatable = <span class="c-kw">false</span>)
+<span class="c-kw">@Column</span>(name = <span class="c-str">"updated_at"</span>, columnDefinition = <span class="c-str">"TIMESTAMPTZ"</span>, insertable = <span class="c-kw">false</span>, updatable = <span class="c-kw">false</span>)
 <span class="c-kw">private</span> OffsetDateTime updatedAt;</code></pre>
         </div>
 
@@ -900,7 +901,18 @@ spring.jpa.properties.hibernate.batch_versioned_data: <span class="c-kw">true</s
       <!-- STEP 14: Environment Setup -->
       <section class="content-panel" id="panel-13">
         <h1>Step 14: Environment Setup &amp; PGAdapter Launcher</h1>
-        <p class="subtitle">Deploy DDL schema and launch PGAdapter sidecar container for Lab 15.</p>
+        <p class="subtitle">Authenticate with GCP, stop previous PGAdapter containers, deploy Lab 15 DDL schema, and launch PGAdapter sidecar.</p>
+
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠️ MANDATORY: Google Cloud Authentication &amp; Parameter Customization</div>
+          <div class="callout-content">
+            <ul style="margin-left: 18px; line-height: 1.6;">
+              <li><strong>Authenticate with GCP:</strong> You MUST run <code>gcloud auth login</code> and <code>gcloud auth application-default login</code> before starting PGAdapter so the proxy container can acquire valid GCP IAM credentials.</li>
+              <li><strong>Update Parameters:</strong> Replace <code>YOUR_PROJECT_ID</code>, <code>YOUR_INSTANCE_ID</code>, and <code>YOUR_DATABASE_ID</code> in the commands below with your actual GCP Project ID (e.g. <code>instructor-04</code>), Spanner Instance ID (e.g. <code>test-instance1</code>), and Database ID (e.g. <code>spanner-bank-db</code>).</li>
+              <li><strong>Stop Previous Containers:</strong> Command 2 below automatically stops and removes any leftover <code>spanner-pgadapter</code> container from previous labs to prevent port 5432 binding conflicts.</li>
+            </ul>
+          </div>
+        </div>
 
         <div class="os-tab-bar">
           <button class="os-tab-btn active" data-os="linux" onclick="switchOsTab('linux')">🐧 Linux</button>
@@ -910,24 +922,60 @@ spring.jpa.properties.hibernate.batch_versioned_data: <span class="c-kw">true</s
 
         <div class="os-content active" data-os="linux">
           <div class="code-block-container sql">
-            <pre class="code-content"><code>chmod +x Lab15/start-pgadapter.sh
-./Lab15/start-pgadapter.sh instructor-04 test-instance1 spanner-bank-db 5432
-gcloud spanner databases ddl update spanner-bank-db --instance=test-instance1 --ddl-file=Lab15/ddl/schema.sql</code></pre>
+            <pre class="code-content"><code><span class="c-comment"># 1. Authenticate with Google Cloud Platform (Mandatory)</span>
+gcloud auth login
+gcloud auth application-default login
+gcloud config set project YOUR_PROJECT_ID
+
+<span class="c-comment"># 2. Stop &amp; Remove Previous PGAdapter Container (Prevents Port 5432 Conflicts)</span>
+docker stop spanner-pgadapter 2>/dev/null || true
+docker rm spanner-pgadapter 2>/dev/null || true
+
+<span class="c-comment"># 3. Start New PGAdapter Sidecar Proxy (Replace YOUR_PROJECT_ID, YOUR_INSTANCE_ID, YOUR_DATABASE_ID)</span>
+chmod +x Lab15/start-pgadapter.sh
+./Lab15/start-pgadapter.sh YOUR_PROJECT_ID YOUR_INSTANCE_ID YOUR_DATABASE_ID 5432
+
+<span class="c-comment"># 4. Deploy Clean Schema (Includes DROP TABLE IF EXISTS ... CASCADE for Lab 14 tables)</span>
+gcloud spanner databases ddl update YOUR_DATABASE_ID --instance=YOUR_INSTANCE_ID --ddl-file=Lab15/ddl/schema.sql</code></pre>
           </div>
         </div>
 
         <div class="os-content" data-os="macos">
           <div class="code-block-container sql">
-            <pre class="code-content"><code>chmod +x Lab15/start-pgadapter.sh
-./Lab15/start-pgadapter.sh instructor-04 test-instance1 spanner-bank-db 5432
-gcloud spanner databases ddl update spanner-bank-db --instance=test-instance1 --ddl-file=Lab15/ddl/schema.sql</code></pre>
+            <pre class="code-content"><code><span class="c-comment"># 1. Authenticate with Google Cloud Platform (Mandatory)</span>
+gcloud auth login
+gcloud auth application-default login
+gcloud config set project YOUR_PROJECT_ID
+
+<span class="c-comment"># 2. Stop &amp; Remove Previous PGAdapter Container (Prevents Port 5432 Conflicts)</span>
+docker stop spanner-pgadapter 2>/dev/null || true
+docker rm spanner-pgadapter 2>/dev/null || true
+
+<span class="c-comment"># 3. Start New PGAdapter Sidecar Proxy (Replace YOUR_PROJECT_ID, YOUR_INSTANCE_ID, YOUR_DATABASE_ID)</span>
+chmod +x Lab15/start-pgadapter.sh
+./Lab15/start-pgadapter.sh YOUR_PROJECT_ID YOUR_INSTANCE_ID YOUR_DATABASE_ID 5432
+
+<span class="c-comment"># 4. Deploy Clean Schema (Includes DROP TABLE IF EXISTS ... CASCADE for Lab 14 tables)</span>
+gcloud spanner databases ddl update YOUR_DATABASE_ID --instance=YOUR_INSTANCE_ID --ddl-file=Lab15/ddl/schema.sql</code></pre>
           </div>
         </div>
 
         <div class="os-content" data-os="powershell">
           <div class="code-block-container sql">
-            <pre class="code-content"><code>.\Lab15\start-pgadapter.ps1 -ProjectId instructor-04 -InstanceId test-instance1 -DatabaseId spanner-bank-db -Port 5432
-gcloud spanner databases ddl update spanner-bank-db --instance=test-instance1 --ddl-file=Lab15/ddl/schema.sql</code></pre>
+            <pre class="code-content"><code><span class="c-comment"># 1. Authenticate with Google Cloud Platform (Mandatory)</span>
+gcloud auth login
+gcloud auth application-default login
+gcloud config set project YOUR_PROJECT_ID
+
+<span class="c-comment"># 2. Stop &amp; Remove Previous PGAdapter Container (Prevents Port 5432 Conflicts)</span>
+docker stop spanner-pgadapter
+docker rm spanner-pgadapter
+
+<span class="c-comment"># 3. Start New PGAdapter Sidecar Proxy (Replace YOUR_PROJECT_ID, YOUR_INSTANCE_ID, YOUR_DATABASE_ID)</span>
+.\Lab15\start-pgadapter.ps1 -ProjectId YOUR_PROJECT_ID -InstanceId YOUR_INSTANCE_ID -DatabaseId YOUR_DATABASE_ID -Port 5432
+
+<span class="c-comment"># 4. Deploy Clean Schema (Includes DROP TABLE IF EXISTS ... CASCADE for Lab 14 tables)</span>
+gcloud spanner databases ddl update YOUR_DATABASE_ID --instance=YOUR_INSTANCE_ID --ddl-file=Lab15\ddl\schema.sql</code></pre>
           </div>
         </div>
 
@@ -935,8 +983,8 @@ gcloud spanner databases ddl update spanner-bank-db --instance=test-instance1 --
           <li class="task-checkbox-container" data-task-id="t13_1">
             <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
             <div class="task-content">
-              <span class="task-label">Verify PGAdapter &amp; DDL</span>
-              <span class="task-desc">Confirm schema update completed on Spanner database.</span>
+              <span class="task-label">Verify GCP Auth &amp; Clean PGAdapter Startup</span>
+              <span class="task-desc">Confirm gcloud authentication, old container removal, PGAdapter startup, and clean schema deployment.</span>
             </div>
           </li>
         </ul>

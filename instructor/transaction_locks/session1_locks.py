@@ -21,7 +21,7 @@ def hold_lock(transaction):
             SELECT
                 AccountId,
                 AvailableBalance
-            FROM Accounts
+            FROM Account_new
             WHERE AccountId = @account_id
             FOR UPDATE
             """,
@@ -43,7 +43,7 @@ def hold_lock(transaction):
 
     row_count = transaction.execute_update(
         """
-        UPDATE Accounts
+        UPDATE Account_new
         SET
             AvailableBalance = AvailableBalance - 10,
             VersionNumber = VersionNumber + 1,

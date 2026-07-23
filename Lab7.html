@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Lab 6: System Tables & Client Connection Pools. Query query/transaction stats in SPANNER_SYS, and configure client session pool limits in code (Go, Java, Node.js).">
-  <title>Cloud Spanner Lab: Built-in System Tables & Client Connection Pools</title>
+  <meta name="description" content="Lab 7: Built-in System Tables. Query query/transaction stats in SPANNER_SYS to diagnose slow queries and write lock conflicts.">
+  <title>Cloud Spanner Lab: Built-in System Tables</title>
   
   <!-- Typography & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1205,25 +1205,11 @@
             <span class="step-number">5</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
-          <span>Connection Pools Concept</span>
+          <span>Knowledge Check</span>
         </li>
         <li class="step-item" data-step="5">
           <span class="step-indicator">
             <span class="step-number">6</span>
-            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          </span>
-          <span>Configure Client Pools</span>
-        </li>
-        <li class="step-item" data-step="6">
-          <span class="step-indicator">
-            <span class="step-number">7</span>
-            <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          </span>
-          <span>Knowledge Check</span>
-        </li>
-        <li class="step-item" data-step="7">
-          <span class="step-indicator">
-            <span class="step-number">8</span>
             <svg class="step-check-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
           </span>
           <span>Get Certificate</span>
@@ -1250,7 +1236,7 @@
       <header class="top-navbar">
         <div class="lab-badge">
           <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"/></svg>
-          Lab 6: Systems & Pools
+          Lab 7: System Tables
         </div>
         <div class="lab-meta">
           <div class="meta-item">
@@ -1266,12 +1252,11 @@
 
       <!-- STEP 1: Overview -->
       <section class="content-panel active" id="panel-0">
-        <h1>Built-in System Tables & Client Connection Pools</h1>
-        <p class="subtitle">Welcome! In this hands-on lab, you will learn how to diagnose database activity using Spanner's built-in system tables (<code>SPANNER_SYS</code>) and configure client libraries to optimize connection pools and session management.</p>
+        <h1>Built-in System Tables</h1>
+        <p class="subtitle">Welcome! In this hands-on lab, you will learn how to diagnose database activity using Spanner's built-in system tables (<code>SPANNER_SYS</code>) to monitor query performance and transaction statistics.</p>
         
-        <h2>Why System Tables and Connection Pools?</h2>
+        <h2>Why System Tables?</h2>
         <p>In high-traffic production environments, diagnosing slow queries and write lock conflicts cannot depend solely on external logging. Cloud Spanner exposes real-time statistics tables under the <strong>SPANNER_SYS</strong> metadata schema, capturing exact CPU utilization, query latencies, and commit statistics.</p>
-        <p>Additionally, client application performance depends heavily on connection management. Spanner does not use standard persistent socket connections; instead, the client library maintains a **Session Pool** of HTTP/2 gRPC channels. Under-allocating sessions causes requests to block, while over-allocating wastes resources. Configuring these pools correctly is essential for low-latency operations.</p>
 
         <div class="callout callout-info">
           <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
@@ -1281,8 +1266,7 @@
               <ol>
                 <li>Inspect Spanner's diagnostic schemas using SQL queries.</li>
                 <li>Analyze high-CPU query shapes and commit latency details using system views.</li>
-                <li>Understand session pool parameters: Minimum/Maximum Sessions, Write Fractions, and Keep-Alives.</li>
-                <li>Review multi-language client setups (Go, Java, Node.js).</li>
+                <li>Query transaction commit statistics to identify hotspots and latency patterns.</li>
               </ol>
             </div>
           </div>
@@ -1491,162 +1475,10 @@
         </ul>
       </section>
 
-      <!-- STEP 5: Connection Pools Concept -->
+      <!-- STEP 5: Quiz / Knowledge Check -->
       <section class="content-panel" id="panel-4">
-        <h1>Client Connection & Session Pools</h1>
-        <p class="subtitle">Learn how Cloud Spanner manages database sessions and why client libraries require tuning.</p>
-
-        <h2>Session Pool Architecture</h2>
-        <p>In standard databases (like PostgreSQL or MySQL), a connection is a persistent TCP socket. In Spanner, all client communications run over HTTP/2 using gRPC channels. Spanner uses **Sessions** to track active client contexts and transaction states.</p>
-        <p>Because creating a session is expensive (requiring a round-trip to Spanner), client libraries maintain a local pool of sessions. If your pool is misconfigured, your application will suffer from performance bottlenecks.</p>
-
-        <div class="concept-grid">
-          <div class="concept-card">
-            <div class="concept-title">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 16H6v-2h5v2zm0-4H6v-2h5v2zm0-4H6V8h5v2zm0-4H6V4h5v2z"/></svg>
-              Min & Max Sessions
-            </div>
-            <div class="concept-desc">
-              <strong>MinSessions</strong>: Sessions kept pre-warmed. Prevents cold-start delays.<br>
-              <strong>MaxSessions</strong>: Peak concurrent limit. If exceeded, requests block until a session is released.
-            </div>
-          </div>
-          <div class="concept-card">
-            <div class="concept-title">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-              Write Fraction
-            </div>
-            <div class="concept-desc">
-              The percentage of sessions to keep pre-prepared for writes. Writing requires transaction IDs from Spanner. Pre-preparing these sessions reduces write transaction latency.
-            </div>
-          </div>
-        </div>
-
-        <div class="callout callout-danger">
-          <svg class="callout-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          <div>
-            <div class="callout-title">Session Timeouts</div>
-            <div class="callout-content">Idle sessions in Spanner automatically time out after <strong>60 minutes</strong> of inactivity. Client libraries avoid this by running background keep-alive queries (e.g. <code>SELECT 1</code>) on idle sessions every 30 minutes to keep them warm.</div>
-          </div>
-        </div>
-
-        <ul class="task-checklist">
-          <li class="task-checkbox-container" data-task-id="t4_1">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Understand session pool mechanics</span>
-              <span class="task-desc">Review the differences between standard DSN socket pools and session-based gRPC routing.</span>
-            </div>
-          </li>
-        </ul>
-      </section>
-
-      <!-- STEP 6: Configure Client Pools -->
-      <section class="content-panel" id="panel-5">
-        <h1>Step 5: Configuring Connection Pools in Code</h1>
-        <p>Let's review concrete session pool configuration examples across popular language SDKs.</p>
-
-        <h2>1. Go SDK Configuration</h2>
-        <p>Set session configurations in Go using `SessionPoolConfig` parameters:</p>
-
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">Go</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
-          </div>
-          <pre class="code-content"><code>import (
-	"context"
-	"cloud.google.com/go/spanner"
-)
-
-ctx := context.Background()
-client, err := spanner.NewClientWithConfig(ctx, db, spanner.ClientConfig{
-	SessionPoolConfig: spanner.SessionPoolConfig{
-		MinOpened:     100, // Pre-warm 100 sessions
-		MaxOpened:     400, // Upper limit of active sessions
-		WriteFraction: 0.2, // 20% of pool reserved for writes
-	},
-})</code></pre>
-        </div>
-
-        <h2>2. Java SDK Configuration</h2>
-        <p>Configure the session pool in Java using `SessionPoolOptions`:</p>
-
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">Java</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
-          </div>
-          <pre class="code-content"><code>import com.google.cloud.spanner.SpannerOptions;
-import com.google.cloud.spanner.SessionPoolOptions;
-
-SessionPoolOptions sessionPoolOptions = SessionPoolOptions.newBuilder()
-    .setMinSessions(100)
-    .setMaxSessions(400)
-    .setWriteFraction(0.2f)
-    .build();
-
-SpannerOptions options = SpannerOptions.newBuilder()
-    .setSessionPoolOption(sessionPoolOptions)
-    .build();</code></pre>
-        </div>
-
-        <h2>3. Node.js SDK Configuration</h2>
-        <p>In Node.js, pass configuration options when creating the database client instance:</p>
-
-        <div class="code-block-container">
-          <div class="code-header">
-            <span class="code-lang-badge">Javascript (Node.js)</span>
-            <div class="copy-btn-wrapper">
-              <button class="copy-btn" onclick="copyCode(this)">
-                <svg class="copy-btn-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                Copy
-              </button>
-              <span class="tooltip">Copied!</span>
-            </div>
-          </div>
-          <pre class="code-content"><code>const {Spanner} = require('@google-cloud/spanner');
-const spanner = new Spanner();
-
-const instance = spanner.instance('test-instance');
-const database = instance.database('test-database', {
-  max: 400,            // Max sessions
-  min: 100,            // Min sessions
-  incStep: 25,         // Scale step size
-});</code></pre>
-        </div>
-
-        <ul class="task-checklist">
-          <li class="task-checkbox-container" data-task-id="t5_1">
-            <div class="custom-checkbox">
-              <svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
-            <div class="task-content">
-              <span class="task-label">Review Go/Java/Node SDK setups</span>
-              <span class="task-desc">Verify that you understand session pool configuration options in your language of choice.</span>
-            </div>
-          </li>
-        </ul>
-      </section>
-
-      <!-- STEP 7: Quiz / Knowledge Check -->
-      <section class="content-panel" id="panel-6">
-        <h1>Step 6: Knowledge Check</h1>
-        <p>Complete this quick self-check to evaluate your understanding of Spanner diagnostics and session configuration parameters.</p>
+        <h1>Step 5: Knowledge Check</h1>
+        <p>Complete this quick self-check to evaluate your understanding of Spanner's built-in system tables and diagnostic queries.</p>
 
         <div class="quiz-container">
           <!-- Question 1 -->
@@ -1669,45 +1501,6 @@ const database = instance.database('test-database', {
             <div class="quiz-feedback"></div>
           </div>
 
-          <!-- Question 2 -->
-          <div class="quiz-card" data-question-id="q2">
-            <div class="quiz-question">2. When does an idle Spanner session automatically time out and close if no keep-alive query is sent?</div>
-            <div class="quiz-options">
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. After 5 minutes
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                B. After 30 minutes
-              </button>
-              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                C. After 60 minutes
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. Sessions never expire
-              </button>
-            </div>
-            <div class="quiz-feedback"></div>
-          </div>
-
-          <!-- Question 3 -->
-          <div class="quiz-card" data-question-id="q3">
-            <div class="quiz-question">3. What is the role of the Write Fraction config setting in Spanner session pools?</div>
-            <div class="quiz-options">
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                A. It prevents read queries from running.
-              </button>
-              <button class="quiz-option" data-correct="true" onclick="checkAnswer(this)">
-                B. It specifies the fraction of sessions to keep pre-prepared for write operations (with transaction IDs).
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                C. It limits write transaction sizes.
-              </button>
-              <button class="quiz-option" data-correct="false" onclick="checkAnswer(this)">
-                D. It configures the ratio of read to write replicas.
-              </button>
-            </div>
-            <div class="quiz-feedback"></div>
-          </div>
         </div>
 
         <ul class="task-checklist">
@@ -1723,8 +1516,8 @@ const database = instance.database('test-database', {
         </ul>
       </section>
 
-      <!-- STEP 8: Certificate of Completion -->
-      <section class="content-panel certificate-panel" id="panel-7">
+      <!-- STEP 6: Certificate of Completion -->
+      <section class="content-panel certificate-panel" id="panel-5">
         <h1>Lab Certificate of Completion</h1>
         <p class="subtitle">Once you complete the required tasks and pass the quiz, you can generate your certificate.</p>
 
@@ -1783,7 +1576,7 @@ const database = instance.database('test-database', {
 
   <script>
     // Constants & State
-    const totalSteps = 8;
+    const totalSteps = 6;
     let currentStep = 0;
     
     // Checklist configuration
@@ -1792,16 +1585,12 @@ const database = instance.database('test-database', {
       t1_1: false,
       t2_1: false, t2_2: false,
       t3_1: false, t3_2: false,
-      t4_1: false,
-      t5_1: false,
       t6_1: false
     };
 
     // Quiz score trackers
     const quizResults = {
-      q1: false,
-      q2: false,
-      q3: false
+      q1: false
     };
 
     // Initialize Page
@@ -1895,9 +1684,7 @@ const database = instance.database('test-database', {
       markStepCompletion("t1_1", 1, ["t1_1"]);
       markStepCompletion("t2_1", 2, ["t2_1", "t2_2"]);
       markStepCompletion("t3_1", 3, ["t3_1", "t3_2"]);
-      markStepCompletion("t4_1", 4, ["t4_1"]);
-      markStepCompletion("t5_1", 5, ["t5_1"]);
-      markStepCompletion("t6_1", 6, ["t6_1"]);
+      markStepCompletion("t6_1", 4, ["t6_1"]);
       
       checkCertificateUnlock();
     }
@@ -1970,9 +1757,7 @@ const database = instance.database('test-database', {
         feedback.className = "quiz-feedback show correct";
         
         const explanations = {
-          q1: "Correct! The 'SPANNER_SYS.QUERY_STATS_TOP_1HOUR' table compiles query statistics aggregated over a rolling 1-hour time window.",
-          q2: "Correct! Spanner idle sessions expire automatically after 60 minutes. Clients perform keep-alive pings (like 'SELECT 1') in the background to prevent expiration.",
-          q3: "Correct! WriteFraction allocates and warms up write-prepared transaction IDs on a specified percentage of sessions, accelerating write operations."
+          q1: "Correct! The 'SPANNER_SYS.QUERY_STATS_TOP_1HOUR' table compiles query statistics aggregated over a rolling 1-hour time window."
         };
         feedback.textContent = explanations[questionId];
         quizResults[questionId] = true;

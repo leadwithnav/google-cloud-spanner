@@ -17,7 +17,7 @@ def conflicting_update(transaction):
 
     row_count = transaction.execute_update(
         """
-        UPDATE Accounts
+        UPDATE Account_new
         SET
             AvailableBalance = AvailableBalance - 20,
             VersionNumber = VersionNumber + 1,

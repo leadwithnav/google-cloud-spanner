@@ -33,14 +33,15 @@ public class Account {
     @Column(name = "balance", nullable = false)
     private BigDecimal balance;
 
-    // BEST PRACTICE: Server-side Spanner TrueTime Commit Timestamp
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMPTZ DEFAULT spanner.commit_timestamp()", insertable = false, updatable = false)
+    @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
     @PrePersist
-    public void ensureId() {
+    @PreUpdate
+    public void ensureIdAndTimestamp() {
         if (this.accountId == null) {
             this.accountId = UUID.randomUUID().toString(); // Anti-Hotspot UUID
         }
+        this.updatedAt = OffsetDateTime.now();
     }
 }

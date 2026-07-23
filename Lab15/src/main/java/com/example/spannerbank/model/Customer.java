@@ -27,15 +27,16 @@ public class Customer {
     @Column(name = "status", nullable = false)
     private String status;
 
-    // BEST PRACTICE: Server-side Spanner TrueTime Commit Timestamp
-    // Column uses DEFAULT spanner.commit_timestamp() in DDL
-    @Column(name = "created_at", columnDefinition = "TIMESTAMPTZ DEFAULT spanner.commit_timestamp()", insertable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
     @PrePersist
-    public void ensureId() {
+    public void ensureIdAndTimestamp() {
         if (this.customerId == null) {
             this.customerId = UUID.randomUUID().toString(); // Anti-Hotspot UUID
+        }
+        if (this.createdAt == null) {
+            this.createdAt = OffsetDateTime.now();
         }
     }
 }
