@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud Spanner Lab 15: Advanced Enterprise Best Practices &amp; Production Patterns</title>
+  <meta name="description" content="Production-ready hands-on lab implementing official Google Cloud Spanner advanced recommendations for Java Spring Boot &amp; JPA applications using PGAdapter.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-tertiary: #1f2937;
+      --bg-card: rgba(17, 24, 39, 0.7);
+      --bg-code: #0d1117;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --border-highlight: rgba(56, 189, 248, 0.3);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent: #38bdf8;
+      --accent-rgb: 56, 189, 248;
+      --accent-hover: #0284c7;
+      --success: #10b981;
+      --success-rgb: 16, 185, 129;
+      --warning: #f59e0b;
+      --warning-rgb: 245, 158, 11;
+      --danger: #ef4444;
+      --danger-rgb: 239, 68, 68;
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-heading: 'Outfit', sans-serif;
+      --font-mono: 'Fira Code', monospace;
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.25);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.4);
+      --sidebar-width: 330px;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f1f5f9;
+      --bg-card: rgba(255, 255, 255, 0.9);
+      --bg-code: #1e293b;
+      --border-color: rgba(0, 0, 0, 0.08);
+      --border-highlight: rgba(14, 165, 233, 0.4);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-rgb: 2, 132, 199;
+      --accent-hover: #0369a1;
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; bottom: 0; left: 0;
+      z-index: 100; transition: transform 0.3s ease;
+    }
+    .sidebar-header {
+      padding: 20px; border-bottom: 1px solid var(--border-color);
+      background-color: rgba(0,0,0,0.1);
+    }
+    .brand-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 4px 10px; border-radius: 20px;
+      background: rgba(var(--accent-rgb), 0.15);
+      border: 1px solid rgba(var(--accent-rgb), 0.3);
+      color: var(--accent); font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+    }
+    .sidebar-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem; font-weight: 800;
+      color: var(--text-primary); line-height: 1.3;
+    }
+
+    .progress-section {
+      padding: 14px 20px; border-bottom: 1px solid var(--border-color);
+      background-color: var(--bg-tertiary);
+    }
+    .progress-label {
+      display: flex; justify-content: space-between;
+      font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;
+    }
+    .progress-bar-bg {
+      height: 6px; background-color: var(--bg-primary);
+      border-radius: 3px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+      border-radius: 3px; transition: width 0.3s ease;
+    }
+
+    .steps-list {
+      flex: 1; overflow-y: auto; padding: 12px 10px;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .step-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-radius: 6px;
+      color: var(--text-secondary); text-decoration: none;
+      font-size: 0.82rem; font-weight: 500; cursor: pointer;
+      transition: all 0.2s ease; border: 1px solid transparent;
+    }
+    .step-item:hover {
+      background-color: var(--bg-tertiary); color: var(--text-primary);
+    }
+    .step-item.active {
+      background-color: rgba(var(--accent-rgb), 0.12);
+      border-color: rgba(var(--accent-rgb), 0.3);
+      color: var(--accent); font-weight: 700;
+    }
+    .step-item.completed .step-number {
+      background-color: var(--success); color: #ffffff;
+    }
+    .step-number {
+      width: 22px; height: 22px; border-radius: 50%;
+      background-color: var(--bg-tertiary); color: var(--text-muted);
+      font-size: 0.72rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.2s ease;
+    }
+
+    .sidebar-footer {
+      padding: 14px 20px; border-top: 1px solid var(--border-color);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .theme-toggle-btn {
+      background: none; border: 1px solid var(--border-color);
+      color: var(--text-secondary); padding: 5px 10px; border-radius: 6px;
+      cursor: pointer; font-size: 0.78rem; display: flex; align-items: center; gap: 6px;
+    }
+    .theme-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Main Layout */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex: 1; display: flex; flex-direction: column; min-width: 0;
+    }
+    .top-header {
+      height: 60px; border-bottom: 1px solid var(--border-color);
+      background-color: rgba(11, 15, 25, 0.8); backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 90;
+      display: flex; justify-content: space-between; align-items: center; padding: 0 32px;
+    }
+    .lab-time-tag {
+      font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    .content-container {
+      max-width: 1000px; width: 100%; margin: 0 auto; padding: 36px 32px 100px;
+    }
+    .content-panel { display: none; animation: fadeIn 0.3s ease forwards; }
+    .content-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    h1 { font-family: var(--font-heading); font-size: 2.1rem; font-weight: 800; margin-bottom: 10px; color: var(--text-primary); letter-spacing: -0.5px; }
+    h2 { font-family: var(--font-heading); font-size: 1.35rem; font-weight: 700; margin: 28px 0 14px; color: var(--text-primary); }
+    p { font-size: 0.98rem; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.7; }
+    .subtitle { font-size: 1.05rem; color: var(--text-secondary); margin-bottom: 24px; }
+
+    /* Callout & Cards */
+    .callout {
+      border-radius: 10px; padding: 16px 18px; border-left: 4px solid;
+      margin: 20px 0; display: flex; gap: 14px; align-items: flex-start;
+      box-shadow: var(--shadow-sm);
+    }
+    .callout-info { background-color: rgba(var(--accent-rgb), 0.08); border-color: var(--accent); }
+    .callout-warning { background-color: rgba(var(--warning-rgb), 0.08); border-color: var(--warning); }
+    .callout-success { background-color: rgba(var(--success-rgb), 0.08); border-color: var(--success); }
+    .callout-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 4px; color: var(--text-primary); }
+    .callout-content { font-size: 0.88rem; line-height: 1.6; color: var(--text-secondary); }
+
+    .doc-quote-card {
+      background-color: var(--bg-tertiary); border: 1px solid var(--border-highlight);
+      border-radius: 10px; padding: 16px 20px; margin: 18px 0;
+    }
+    .doc-quote-header { font-weight: 700; font-size: 0.85rem; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; }
+    .doc-quote-text { font-size: 0.9rem; font-style: italic; color: var(--text-primary); line-height: 1.6; }
+
+    /* OS Selector Tabs */
+    .os-tab-bar { display: flex; gap: 8px; margin: 18px 0 12px; }
+    .os-tab-btn {
+      padding: 7px 14px; border-radius: 6px; border: 1px solid var(--border-color);
+      background-color: var(--bg-secondary); color: var(--text-secondary);
+      font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .os-tab-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+    .os-tab-btn.active {
+      background-color: rgba(var(--accent-rgb), 0.15); color: var(--accent);
+      border-color: var(--accent); font-weight: 700;
+    }
+    .os-content { display: none; }
+    .os-content.active { display: block; }
+
+    /* Code Container */
+    .code-block-container {
+      background-color: var(--bg-code); border: 1px solid var(--border-color);
+      border-radius: 10px; overflow: hidden; margin: 18px 0; box-shadow: var(--shadow-sm);
+    }
+    .code-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 16px; background-color: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .code-lang-badge { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted); }
+    .code-lang-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent); }
+    .copy-btn-wrapper { position: relative; }
+    .copy-btn {
+      background-color: var(--bg-tertiary); border: 1px solid var(--border-color);
+      color: var(--text-primary); padding: 4px 10px; border-radius: 6px;
+      font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .tooltip {
+      position: absolute; top: -30px; right: 0; background-color: var(--success);
+      color: #ffffff; padding: 3px 6px; border-radius: 4px; font-size: 0.7rem;
+      font-weight: 700; opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    }
+    .tooltip.visible { opacity: 1; }
+    pre.code-content { padding: 16px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.86rem; line-height: 1.65; color: #e2e8f0; }
+
+    /* Syntax Tokens */
+    .c-kw { color: #38bdf8; font-weight: 600; }
+    .c-str { color: #34d399; }
+    .c-comment { color: #64748b; font-style: italic; }
+    .c-type { color: #fbbf24; }
+
+    /* Task Checklist */
+    .task-checklist { list-style: none; margin: 24px 0; display: flex; flex-direction: column; gap: 10px; }
+    .task-checkbox-container {
+      display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px;
+      background-color: var(--bg-secondary); border: 1px solid var(--border-color);
+      border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .task-checkbox-container:hover { border-color: var(--accent); transform: translateX(3px); }
+    .task-checkbox-container.checked { border-color: var(--success); background-color: rgba(var(--success-rgb), 0.05); }
+    .custom-checkbox {
+      width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--text-muted);
+      margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;
+    }
+    .task-checkbox-container.checked .custom-checkbox { background-color: var(--success); border-color: var(--success); }
+    .check-mark { width: 12px; height: 12px; fill: #ffffff; display: none; }
+    .task-checkbox-container.checked .check-mark { display: block; }
+    .task-content { display: flex; flex-direction: column; }
+    .task-label { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); }
+    .task-desc { font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px; }
+
+    /* Bottom Nav Bar */
+    .nav-bar {
+      position: fixed; bottom: 0; left: var(--sidebar-width); right: 0;
+      height: 64px; background-color: rgba(11, 15, 25, 0.9); backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-color); display: flex; justify-content: space-between;
+      align-items: center; padding: 0 32px; z-index: 90;
+    }
+    .btn-nav {
+      padding: 8px 20px; border-radius: 6px; font-weight: 600; font-size: 0.88rem;
+      cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .btn-prev { background-color: var(--bg-tertiary); color: var(--text-primary); border-color: var(--border-color); }
+    .btn-prev:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-next { background-color: var(--accent); color: #ffffff; }
+    .btn-next:hover { background-color: var(--accent-hover); transform: translateY(-1px); }
+
+    /* Quiz & Certificate */
+    .quiz-card { background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; padding: 20px; margin-bottom: 18px; }
+    .quiz-question { font-weight: 700; font-size: 1rem; margin-bottom: 14px; color: var(--text-primary); }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-option {
+      padding: 10px 14px; border-radius: 6px; border: 1px solid var(--border-color);
+      background-color: var(--bg-tertiary); color: var(--text-secondary); font-size: 0.88rem;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .quiz-option:hover { border-color: var(--accent); color: var(--text-primary); }
+    .quiz-option.selected.correct { background-color: rgba(var(--success-rgb), 0.2); border-color: var(--success); color: var(--success); font-weight: 700; }
+    .quiz-option.selected.incorrect { background-color: rgba(var(--danger-rgb), 0.2); border-color: var(--danger); color: var(--danger); }
+    .quiz-explanation { margin-top: 12px; font-size: 0.85rem; padding: 10px; border-radius: 6px; display: none; }
+
+    .cert-canvas-container { display: flex; flex-direction: column; align-items: center; gap: 18px; margin: 24px 0; }
+    #certCanvas { max-width: 100%; border-radius: 10px; box-shadow: var(--shadow-lg); border: 2px solid var(--border-color); }
+    .cert-input { padding: 10px 16px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-primary); font-size: 0.95rem; width: 280px; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="brand-badge">Google Cloud Spanner</span>
+      <h1 class="sidebar-title">Lab 15: Advanced Enterprise Recommendations</h1>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-label">
+        <span>Lab Progress</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressBar"></div>
+      </div>
+    </div>
+
+    <nav class="steps-list" id="stepsList">
+      <div class="step-item active" onclick="goToStep(0)"><div class="step-number">1</div><span>Architectural Overview</span></div>
+      <div class="step-item" onclick="goToStep(1)"><div class="step-number">2</div><span>Rec 1: Aborted Txn Retry</span></div>
+      <div class="step-item" onclick="goToStep(2)"><div class="step-number">3</div><span>Rec 2: SELECT FOR UPDATE</span></div>
+      <div class="step-item" onclick="goToStep(3)"><div class="step-number">4</div><span>Rec 3: Table Interleaving</span></div>
+      <div class="step-item" onclick="goToStep(4)"><div class="step-number">5</div><span>Rec 4: Secondary Covering Indexes</span></div>
+      <div class="step-item" onclick="goToStep(5)"><div class="step-number">6</div><span>Rec 5: TrueTime Commit Timestamps</span></div>
+      <div class="step-item" onclick="goToStep(6)"><div class="step-number">7</div><span>Rec 6: Extended Protocol &amp; Optimizer</span></div>
+      <div class="step-item" onclick="goToStep(7)"><div class="step-number">8</div><span>Rec 7: Connection Pool (100 PUs)</span></div>
+      <div class="step-item" onclick="goToStep(8)"><div class="step-number">9</div><span>Rec 8: Partitioned DML</span></div>
+      <div class="step-item" onclick="goToStep(9)"><div class="step-number">10</div><span>Rec 9: Mutations vs DML</span></div>
+      <div class="step-item" onclick="goToStep(10)"><div class="step-number">11</div><span>Multi-Table JDBC Batching</span></div>
+      <div class="step-item" onclick="goToStep(11)"><div class="step-number">12</div><span>Snapshot Reads</span></div>
+      <div class="step-item" onclick="goToStep(12)"><div class="step-number">13</div><span>Complete DDL Schema</span></div>
+      <div class="step-item" onclick="goToStep(13)"><div class="step-number">14</div><span>Environment &amp; PGAdapter</span></div>
+      <div class="step-item" onclick="goToStep(14)"><div class="step-number">15</div><span>REST Verification Testing</span></div>
+      <div class="step-item" onclick="goToStep(15)"><div class="step-number">16</div><span>Audit Verification Matrix</span></div>
+      <div class="step-item" onclick="goToStep(16)"><div class="step-number">17</div><span>Knowledge Assessment</span></div>
+      <div class="step-item" onclick="goToStep(17)"><div class="step-number">18</div><span>Completion Certificate</span></div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="theme-toggle-btn" onclick="toggleTheme()">🌓 Toggle Mode</button>
+      <span style="font-size: 0.72rem; color: var(--text-muted);">Lab 15 v3.0</span>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <header class="top-header">
+      <div class="lab-time-tag">⏱️ 30 Min Engineering Lab</div>
+      <div style="font-size: 0.82rem; color: var(--text-muted);">Spring Boot 3 + Spring Data JPA + PGAdapter</div>
+    </header>
+
+    <main class="content-container">
+
+      <!-- STEP 1: Overview -->
+      <section class="content-panel active" id="panel-0">
+        <h1>Step 1: Architectural Overview &amp; Official Verification</h1>
+        <p class="subtitle">Welcome to Lab 15! This lab implements 9 official Google Cloud Spanner &amp; PGAdapter architectural recommendations for enterprise Java Spring Boot applications.</p>
+
+        <div class="callout callout-info">
+          <div class="callout-title">Official Google Cloud Documentation Verified</div>
+          <div class="callout-content">
+            Every implementation pattern in Lab 15 has been cross-checked and verified against official Google Cloud Spanner engineering documentation.
+          </div>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t0_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Review Lab 15 Scope</span>
+              <span class="task-desc">Understand the 9 Cloud Spanner recommendations to be implemented and tested.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 2: Rec 1 - Aborted Txn Retry -->
+      <section class="content-panel" id="panel-1">
+        <h1>Step 2: Recommendation 1 – Aborted Transaction Retry (`@Retryable`)</h1>
+        <p class="subtitle">Automatically retry read-write transactions that are aborted by Spanner's lock manager under lock contention.</p>
+
+        <div class="doc-quote-card">
+          <div class="doc-quote-header">📖 Official Google Spanner Documentation:</div>
+          <div class="doc-quote-text">"Read-write transactions in Cloud Spanner use pessimistic locks... Cloud Spanner may abort a read-write transaction at any time due to lock contention. When a transaction is aborted, the application MUST retry the transaction from the beginning."</div>
+        </div>
+
+        <h2>Code Implementation (SpannerBankApplication.java &amp; BankingService.java)</h2>
+        <div class="code-block-container sql">
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Java Code Implementation</span></div>
+          <pre class="code-content"><code><span class="c-comment">// 1. SpannerBankApplication.java:</span>
+<span class="c-kw">@SpringBootApplication</span>
+<span class="c-kw">@EnableRetry</span> <span class="c-comment">// Enables Spring Retry framework</span>
+<span class="c-kw">public class</span> SpannerBankApplication { ... }
+
+<span class="c-comment">// 2. BankingService.java:</span>
+<span class="c-kw">@Retryable</span>(
+    retryFor = { Exception.class },
+    maxAttempts = 5,
+    backoff = <span class="c-kw">@Backoff</span>(delay = 100, multiplier = 2.0)
+)
+<span class="c-kw">@Transactional</span>
+<span class="c-kw">public</span> PaymentTransaction transferMoney(String sourceAccountId, String targetAccountId, BigDecimal amount) { ... }</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t1_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Inspect Aborted Transaction Retry</span>
+              <span class="task-desc">Verify spring-retry dependency and @Retryable annotation on transferMoney method.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 3: Rec 2 - SELECT FOR UPDATE -->
+      <section class="content-panel" id="panel-2">
+        <h1>Step 3: Recommendation 2 – `SELECT FOR UPDATE` Lock Escalation Prevention</h1>
+        <p class="subtitle">Acquire exclusive write locks during initial read phase to prevent lock escalation conflicts.</p>
+
+        <div class="doc-quote-card">
+          <div class="doc-quote-header">📖 Official Google Spanner Documentation:</div>
+          <div class="doc-quote-text">"Reading a row in a read-write transaction acquires a shared read lock. Updating the row later requires escalating to an exclusive write lock. Using SELECT FOR UPDATE acquires an exclusive lock immediately on read, avoiding lock escalation aborts."</div>
+        </div>
+
+        <h2>Code Implementation (AccountRepository.java &amp; BankingService.java)</h2>
+        <div class="code-block-container sql">
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Java Code Implementation</span></div>
+          <pre class="code-content"><code><span class="c-comment">// 1. AccountRepository.java:</span>
+<span class="c-kw">@Lock</span>(LockModeType.PESSIMISTIC_WRITE)
+<span class="c-kw">@Query</span>(<span class="c-str">"SELECT a FROM Account a WHERE a.accountId = :accountId"</span>)
+Optional&lt;Account&gt; findByAccountIdForUpdate(<span class="c-kw">@Param</span>(<span class="c-str">"accountId"</span>) String accountId);
+
+<span class="c-comment">// 2. BankingService.java:</span>
+Account sourceAccount = accountRepository.findByAccountIdForUpdate(sourceAccountId).orElseThrow();
+Account targetAccount = accountRepository.findByAccountIdForUpdate(targetAccountId).orElseThrow();</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t2_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Inspect SELECT FOR UPDATE</span>
+              <span class="task-desc">Verify LockModeType.PESSIMISTIC_WRITE on repository findByAccountIdForUpdate method.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 4: Rec 3 - Table Interleaving -->
+      <section class="content-panel" id="panel-3">
+        <h1>Step 4: Recommendation 3 – Physical Table Interleaving (`INTERLEAVE IN PARENT`)</h1>
+        <p class="subtitle">Co-locate child account rows physically inside the parent customer split node.</p>
+
+        <div class="doc-quote-card">
+          <div class="doc-quote-header">📖 Official Google Spanner Documentation:</div>
+          <div class="doc-quote-text">"Interleaving is a powerful feature in Cloud Spanner for parent-child relationships... Interleaving physically stores child table rows with the parent row in the same split node. This eliminates network RPC latency when joining parent and child tables."</div>
+        </div>
+
+        <h2>DDL &amp; JPA Entity Implementation (ddl/schema.sql &amp; Account.java)</h2>
+        <div class="code-block-container sql">
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> DDL &amp; JPA Implementation</span></div>
+          <pre class="code-content"><code><span class="c-comment">-- 1. ddl/schema.sql:</span>
+<span class="c-kw">CREATE TABLE IF NOT EXISTS</span> accounts (
+    customer_id <span class="c-type">VARCHAR(36)</span> <span class="c-kw">NOT NULL</span>,
+    account_id <span class="c-type">VARCHAR(36)</span> <span class="c-kw">NOT NULL</span>,
+    account_type <span class="c-type">VARCHAR(50)</span> <span class="c-kw">NOT NULL</span>,
+    currency <span class="c-type">VARCHAR(10)</span> <span class="c-kw">NOT NULL</span>,
+    balance <span class="c-type">NUMERIC</span> <span class="c-kw">NOT NULL</span>,
+    updated_at <span class="c-type">TIMESTAMPTZ</span> <span class="c-kw">NOT NULL DEFAULT</span> spanner.commit_timestamp() <span class="c-kw">OPTIONS</span> (allow_commit_timestamp = <span class="c-kw">true</span>),
+    <span class="c-kw">PRIMARY KEY</span> (customer_id, account_id)
+) <span class="c-kw">INTERLEAVE IN PARENT</span> customers <span class="c-kw">ON DELETE CASCADE</span>;
+
+<span class="c-comment">// 2. Account.java:</span>
+<span class="c-kw">@Entity</span>
+<span class="c-kw">@Table</span>(name = <span class="c-str">"accounts"</span>)
+<span class="c-kw">@IdClass</span>(AccountId.<span class="c-kw">class</span>) <span class="c-comment">// Composite key (customer_id, account_id)</span>
+<span class="c-kw">public class</span> <span class="c-type">Account</span> { ... }</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t3_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Inspect Table Interleaving</span>
+              <span class="task-desc">Verify INTERLEAVE IN PARENT customers syntax in DDL and composite @IdClass in Java.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 5: Rec 4 - Covering Indexes -->
+      <section class="content-panel" id="panel-4">
+        <h1>Step 5: Recommendation 4 – Secondary Covering Indexes (`STORING`)</h1>
+        <p class="subtitle">Include non-key payload columns in secondary indexes to eliminate 2-step table backjoins.</p>
+
+        <div class="doc-quote-card">
+          <div class="doc-quote-header">📖 Official Google Spanner Documentation:</div>
+          <div class="doc-quote-text">"Using the STORING clause includes additional payload columns in the index. This turns the index into a covering index, allowing Spanner to satisfy queries directly from the index split without an expensive backjoin to the base table split."</div>
+        </div>
+
+        <h2>DDL Implementation (ddl/schema.sql)</h2>
+        <div class="code-block-container sql">
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> PostgreSQL Dialect DDL</span></div>
+          <pre class="code-content"><code><span class="c-comment">-- Covering Index for Accounts by Account Type:</span>
+<span class="c-kw">CREATE INDEX IF NOT EXISTS</span> idx_accounts_type 
+<span class="c-kw">ON</span> accounts(account_type) 
+<span class="c-kw">STORING</span> (currency, balance, updated_at);
+
+<span class="c-comment">-- Covering Index for Transactions by Source Account:</span>
+<span class="c-kw">CREATE INDEX IF NOT EXISTS</span> idx_payments_source 
+<span class="c-kw">ON</span> payment_transactions(source_account_id) 
+<span class="c-kw">STORING</span> (target_account_id, amount, status, created_at);</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t4_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Inspect STORING Clause</span>
+              <span class="task-desc">Confirm covering index DDL statements in ddl/schema.sql.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 6: Rec 5 - TrueTime Commit Timestamps -->
+      <section class="content-panel" id="panel-5">
+        <h1>Step 6: Recommendation 5 – Server-Side TrueTime Commit Timestamps</h1>
+        <p class="subtitle">Eliminate client clock drift by populating timestamps via Spanner TrueTime <code>spanner.commit_timestamp()</code>.</p>
+
+        <div class="doc-quote-card">
+          <div class="doc-quote-header">📖 Official Google Spanner Documentation:</div>
+          <div class="doc-quote-text">"Applications should use spanner.commit_timestamp() instead of client-side timestamps to eliminate clock skew issues across application servers."</div>
+        </div>
+
+        <h2>DDL &amp; Java Implementation</h2>
+        <div class="code-block-container sql">
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> DDL &amp; Java Implementation</span></div>
+          <pre class="code-content"><code><span class="c-comment">-- 1. ddl/schema.sql:</span>
+updated_at <span class="c-type">TIMESTAMPTZ</span> <span class="c-kw">NOT NULL DEFAULT</span> spanner.commit_timestamp() <span class="c-kw">OPTIONS</span> (allow_commit_timestamp = <span class="c-kw">true</span>),
+
+<span class="c-comment">// 2. Account.java:</span>
+<span class="c-kw">@Column</span>(name = <span class="c-str">"updated_at"</span>, columnDefinition = <span class="c-str">"TIMESTAMPTZ DEFAULT spanner.commit_timestamp()"</span>, insertable = <span class="c-kw">false</span>, updatable = <span class="c-kw">false</span>)
+<span class="c-kw">private</span> OffsetDateTime updatedAt;</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t5_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Inspect TrueTime Commit Timestamps</span>
+              <span class="task-desc">Confirm allow_commit_timestamp option in DDL and insertable=false in Java entities.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 7: Rec 6 - Extended Query Protocol & Optimizer -->
+      <section class="content-panel" id="panel-6">
+        <h1>Step 7: Recommendation 6 – Extended Protocol &amp; Optimizer Flags</h1>
+        <p class="subtitle">Enable prepared statement binary caching and the latest cost-based query optimizer.</p>
+
+        <div class="doc-quote-card">
+          <div class="doc-quote-header">📖 Official Google Spanner PGAdapter Documentation:</div>
+          <div class="doc-quote-text">"Extended query mode (preferQueryMode=extended) compiles and caches prepared statements on Spanner, significantly reducing SQL parsing overhead... Setting spanner.optimizer_version=LATEST ensures Spanner uses the newest query optimizer statistics."</div>
+        </div>
+
+        <h2>application.yml Configuration</h2>
+        <div class="code-block-container sql">
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> application.yml</span></div>
+          <pre class="code-content"><code>spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/spanner-bank-db?preferQueryMode=extended&amp;options=-c%20spanner.optimizer_version=LATEST</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t6_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Inspect Extended Protocol Settings</span>
+              <span class="task-desc">Verify preferQueryMode=extended and optimizer_version=LATEST in application.yml.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 8: Rec 7 - Connection Pool Sizing for 100 PUs -->
+      <section class="content-panel" id="panel-7">
+        <h1>Step 8: Recommendation 7 – Connection Pool &amp; Sizing Rules for 100 PUs</h1>
+        <p class="subtitle">Understand the 6 official Cloud Spanner connection management rules and why specific HikariCP pool values were chosen for a 100 Processing Units (0.1 Node) instance.</p>
+
+        <div class="doc-quote-card">
+          <div class="doc-quote-header">📖 Official Google Spanner Documentation:</div>
+          <div class="doc-quote-text">"Creating a new Spanner session involves TLS handshakes, gRPC channel initialization, and server-side session allocation. Applications should maintain a long-lived connection pool and size maximum pool limits according to Spanner node/PU compute capacity."</div>
+        </div>
+
+        <h2>Google Cloud Spanner 6 Connection Pooling Rules</h2>
+
+        <div class="doc-quote-card" style="border-left-color: var(--accent);">
+          <div class="doc-quote-header" style="color: var(--accent);">1. Reuse a Single Long-Lived Connection Pool per JVM</div>
+          <div style="font-size: 0.9rem; color: var(--text-primary); margin-top: 4px;"><strong>Recommendation:</strong> Initialize one single DataSource / HikariCP connection pool per application process and reuse it for the entire application lifecycle. Never open/close connections or create new pools per HTTP request.</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;"><strong>Why:</strong> Creating a new connection requires TLS handshakes, gRPC channel setup, and Spanner session creation (<code>spanner.sessions.create</code>), adding 100ms&ndash;300ms of latency per request.</div>
+        </div>
+
+        <div class="doc-quote-card" style="border-left-color: var(--accent);">
+          <div class="doc-quote-header" style="color: var(--accent);">2. Match Pool Sizing to Spanner Capacity (100 PUs = 20-30 Connections)</div>
+          <div style="font-size: 0.9rem; color: var(--text-primary); margin-top: 4px;"><strong>Recommendation:</strong> Set maximum-pool-size based on compute capacity. For 100 PUs (0.1 Node), set <code>maximum-pool-size: 25</code>. For 1 Full Node (1,000 PUs), set <code>maximum-pool-size: 50-100</code>.</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;"><strong>Why:</strong> Oversizing connection pools (e.g. setting pool size to 500 on a small 100 PU instance) causes session lock contention inside Spanner's internal session pool manager.</div>
+        </div>
+
+        <div class="doc-quote-card" style="border-left-color: var(--accent);">
+          <div class="doc-quote-header" style="color: var(--accent);">3. Session Pre-Warming (minimum-idle: 10)</div>
+          <div style="font-size: 0.9rem; color: var(--text-primary); margin-top: 4px;"><strong>Recommendation:</strong> Configure <code>minimum-idle: 10</code> in HikariCP.</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;"><strong>Why:</strong> Pre-warms gRPC network channels and Spanner sessions on application startup, eliminating cold-start latency spikes when initial user traffic hits the microservice.</div>
+        </div>
+
+        <div class="doc-quote-card" style="border-left-color: var(--accent);">
+          <div class="doc-quote-header" style="color: var(--accent);">4. Max Lifetime Below Spanner Session Expiry (max-lifetime: 30 Mins)</div>
+          <div style="font-size: 0.9rem; color: var(--text-primary); margin-top: 4px;"><strong>Recommendation:</strong> Set HikariCP <code>max-lifetime: 1800000</code> (30 minutes) and <code>idle-timeout: 600000</code> (10 minutes).</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;"><strong>Why:</strong> Cloud Spanner sessions automatically expire server-side after 60 minutes of inactivity. Setting max-lifetime to 30 minutes ensures idle connections are refreshed by HikariCP before Spanner forcibly terminates them.</div>
+        </div>
+
+        <div class="doc-quote-card" style="border-left-color: var(--accent);">
+          <div class="doc-quote-header" style="color: var(--accent);">5. Connection Keep-Alive &amp; Health Check (connection-test-query: SELECT 1)</div>
+          <div style="font-size: 0.9rem; color: var(--text-primary); margin-top: 4px;"><strong>Recommendation:</strong> Configure <code>connection-test-query: SELECT 1</code>.</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;"><strong>Why:</strong> Detects and evicts dead TCP connections caused by cloud network firewalls or load balancer idle timeouts before handing connections to application worker threads.</div>
+        </div>
+
+        <div class="doc-quote-card" style="border-left-color: var(--accent);">
+          <div class="doc-quote-header" style="color: var(--accent);">6. gRPC HTTP/2 Channel Multiplexing</div>
+          <div style="font-size: 0.9rem; color: var(--text-primary); margin-top: 4px;"><strong>Recommendation:</strong> PGAdapter and Spanner Client libraries automatically multiplex up to 100 concurrent database sessions over a small number of underlying HTTP/2 gRPC channels (default: 4 channels).</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;"><strong>Why:</strong> Prevents TCP socket exhaustion and maximizes network throughput over high-latency WAN links.</div>
+        </div>
+
+        <h2>application.yml HikariCP Implementation</h2>
+        <div class="code-block-container sql">
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> application.yml (HikariCP Settings for 100 PUs)</span></div>
+          <pre class="code-content"><code>spring:
+  datasource:
+    hikari:
+      maximum-pool-size: <span class="c-kw">25</span>   <span class="c-comment"># Rule 2: Size tuned for 100 PUs (20-30 max) to prevent session lock contention</span>
+      minimum-idle: <span class="c-kw">10</span>        <span class="c-comment"># Rule 3: Pre-warms 10 Spanner sessions and gRPC channels on startup</span>
+      idle-timeout: <span class="c-kw">600000</span>    <span class="c-comment"># Rule 4: 10 mins idle eviction limit</span>
+      max-lifetime: <span class="c-kw">1800000</span>   <span class="c-comment"># Rule 4: 30 mins max lifetime (below Spanner's 60-min session expiry)</span>
+      connection-timeout: <span class="c-kw">30000</span> <span class="c-comment"># Fail-fast 30s wait limit</span>
+      connection-test-query: <span class="c-kw">SELECT 1</span> <span class="c-comment"># Rule 5: Health-check query for stale TCP eviction</span></code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t7_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Review All 6 Connection Pooling Rules</span>
+              <span class="task-desc">Understand why maximum-pool-size: 25, minimum-idle: 10, and max-lifetime: 1800000 were selected for application.yml.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 9: Rec 8 - Partitioned DML -->
+      <section class="content-panel" id="panel-8">
+        <h1>Step 9: Recommendation 8 – Partitioned DML for High-Scale Maintenance</h1>
+        <p class="subtitle">Execute large-scale bulk updates across millions of rows without hitting Spanner's 80,000 mutation limit.</p>
+
+        <div class="doc-quote-card">
+          <div class="doc-quote-header">📖 Official Google Spanner Documentation:</div>
+          <div class="doc-quote-text">"Partitioned DML is designed for large-scale data updates or deletions. Spanner automatically partitions the data and executes the statement across multiple transactions in parallel."</div>
+        </div>
+
+        <h2>AccountRepository.java &amp; BankingService.java Implementation</h2>
+        <div class="code-block-container sql">
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Java Code Implementation</span></div>
+          <pre class="code-content"><code><span class="c-comment">// AccountRepository.java:</span>
+<span class="c-kw">@Modifying</span>
+<span class="c-kw">@Query</span>(<span class="c-str">"UPDATE Account a SET a.accountType = :newType WHERE a.accountType = :oldType"</span>)
+<span class="c-kw">int</span> bulkUpdateAccountTypePartitioned(<span class="c-kw">@Param</span>(<span class="c-str">"oldType"</span>) String oldType, <span class="c-kw">@Param</span>(<span class="c-str">"newType"</span>) String newType);</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t8_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Inspect Partitioned DML</span>
+              <span class="task-desc">Verify bulk update method in AccountRepository and BankingService.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 10: Rec 9 - Mutations vs DML -->
+      <section class="content-panel" id="panel-9">
+        <h1>Step 10: Recommendation 9 – Spanner Mutations vs SQL DML Batching</h1>
+        <p class="subtitle">Bypass SQL query planning for high-throughput write ingestion pipelines using PGAdapter binary Mutation batching without sacrificing SQL query optimization.</p>
+
+        <div class="doc-quote-card">
+          <div class="doc-quote-header">📖 Official Google Spanner Documentation:</div>
+          <div class="doc-quote-text">"Mutations write raw column tuples directly to storage, bypassing SQL parsing and plan compilation. For high-throughput bulk write operations, Mutations offer 2x to 3x higher throughput and lower CPU consumption compared to SQL DML."</div>
+        </div>
+
+        <div class="callout callout-success">
+          <div class="callout-title">Architectural Deep Dive: Do We Lose SQL Engine Optimization?</div>
+          <div class="callout-content">
+            <strong>NO! You get the best of both worlds.</strong> Setting <code>preferQueryMode=extended</code> tells PGAdapter to use PostgreSQL Extended Query Protocol (<code>Parse</code> &rarr; <code>Bind</code> &rarr; <code>Execute</code>):
+            <ul style="margin-top: 8px; margin-left: 18px; line-height: 1.6;">
+              <li><strong>Complex SELECT, UPDATE &amp; DELETE Queries:</strong> Execute 100% via Spanner's SQL Query Engine &amp; Cost-Based Optimizer (<code>spanner.optimizer_version=LATEST</code>) with cached query plans for maximum query performance.</li>
+              <li><strong>Simple JDBC Batch Inserts (<code>saveAll()</code>):</strong> Simple record writes without WHERE clauses or joins are converted into <strong>Spanner Mutations</strong>, writing raw key-value tuples directly to storage for 2x&ndash;3x higher ingestion throughput.</li>
+            </ul>
+          </div>
+        </div>
+
+        <h2>Execution Engine &amp; Optimizer Comparison Matrix</h2>
+        <div class="code-block-container sql">
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Spanner Execution Matrix</span></div>
+          <pre class="code-content"><code>+------------------------------------+------------------------------------+----------------------------+-------------------------+
+| Statement Type                     | Execution Engine in Spanner        | Cost-Based Optimizer Used? | Cached Query Plans?     |
++------------------------------------+------------------------------------+----------------------------+-------------------------+
+| SELECT Queries                     | Spanner SQL Query Engine           | YES (optimizer_version)    | YES (Extended Protocol) |
+| Complex UPDATE / DELETE            | Spanner SQL Query Engine           | YES (optimizer_version)    | YES (Extended Protocol) |
+| Partitioned DML                    | Distributed Spanner Query Engine   | YES                        | YES                     |
+| Simple saveAll() Batch Inserts     | Spanner Storage Mutation API       | Direct Key-Value Storage   | Direct Key-Value Storage|
++------------------------------------+------------------------------------+----------------------------+-------------------------+</code></pre>
+        </div>
+
+        <h2>Configuration &amp; Code Changes Implemented</h2>
+        <div class="code-block-container sql">
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> application.yml &amp; BankingService.java</span></div>
+          <pre class="code-content"><code><span class="c-comment"># 1. application.yml Connection String (Enables PGAdapter Binary Mutation Protocol):</span>
+url: jdbc:postgresql://localhost:5432/spanner-bank-db?<span class="c-kw">preferQueryMode=extended</span>&amp;options=-c%20spanner.optimizer_version=LATEST
+
+<span class="c-comment"># 2. Hibernate Batching Configuration (Bundles multiple saveAll inserts into single gRPC Mutation RPCs):</span>
+spring.jpa.properties.hibernate.jdbc.batch_size: <span class="c-kw">50</span>
+spring.jpa.properties.hibernate.order_inserts: <span class="c-kw">true</span>
+spring.jpa.properties.hibernate.order_updates: <span class="c-kw">true</span>
+spring.jpa.properties.hibernate.batch_versioned_data: <span class="c-kw">true</span>
+
+<span class="c-comment">// 3. Java Code (BankingService.java - Triggers Spanner Mutation Batching):</span>
+<span class="c-kw">@Transactional</span>
+<span class="c-kw">public</span> List&lt;Customer&gt; seedBulkCustomers(int count) {
+    <span class="c-comment">// saveAll triggers JDBC batching which PGAdapter converts directly to Spanner Mutation RPC calls</span>
+    List&lt;Customer&gt; saved = customerRepository.saveAll(customerList);
+    accountRepository.saveAll(accountList);
+    <span class="c-kw">return</span> saved;
+}</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t9_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Review Mutations Architecture &amp; Matrix</span>
+              <span class="task-desc">Verify how preferQueryMode=extended preserves SQL query optimizer power while enabling Spanner Mutation write performance.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 11: Multi-Table JDBC Batching -->
+      <section class="content-panel" id="panel-10">
+        <h1>Step 11: Multi-Table High-Performance JDBC Batching</h1>
+        <p class="subtitle">Batch insert Customers AND Interleaved Accounts in single multi-table network RPC calls.</p>
+
+        <div class="code-block-container sql">
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> BankingService.java</span></div>
+          <pre class="code-content"><code><span class="c-kw">@Transactional</span>
+<span class="c-kw">public</span> List&lt;Customer&gt; seedBulkCustomers(int count) {
+    List&lt;Customer&gt; customerList = new ArrayList&lt;&gt;();
+    List&lt;Account&gt; accountList = new ArrayList&lt;&gt;();
+
+    for (int i = 1; i &lt;= count; i++) {
+        String customerId = UUID.randomUUID().toString();
+        Customer c = Customer.builder().customerId(customerId).fullName(<span class="c-str">"User "</span> + i).email(<span class="c-str">"u"</span> + i + <span class="c-str">"@bank.com"</span>).status(<span class="c-str">"ACTIVE"</span>).build();
+        customerList.add(c);
+
+        Account a = Account.builder().customerId(customerId).accountId(UUID.randomUUID().toString()).accountType(<span class="c-str">"CHECKING"</span>).currency(<span class="c-str">"USD"</span>).balance(BigDecimal.valueOf(1000.00)).build();
+        accountList.add(a);
+    }
+
+    List&lt;Customer&gt; saved = customerRepository.saveAll(customerList);
+    accountRepository.saveAll(accountList);
+    <span class="c-kw">return</span> saved;
+}</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t10_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Inspect Multi-Table Batch Seeding</span>
+              <span class="task-desc">Verify customer and account batch list building in seedBulkCustomers.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 12: Snapshot Reads -->
+      <section class="content-panel" id="panel-11">
+        <h1>Step 12: Non-Locking Snapshot Reads</h1>
+        <p class="subtitle">Serve read queries from local read-replicas without acquiring locks using <code>@Transactional(readOnly = true)</code>.</p>
+
+        <div class="doc-quote-card">
+          <div class="doc-quote-header">📖 Official Google Spanner Documentation:</div>
+          <div class="doc-quote-text">"Read-only transactions (Snapshot Reads) do not acquire locks and do not block read-write transactions... Because read-only transactions execute without lock overhead, they offer higher read throughput and eliminate lock contention between concurrent readers and writers."</div>
+        </div>
+
+        <h2>BankingService.java Code Implementation</h2>
+        <div class="code-block-container sql">
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> BankingService.java</span></div>
+          <pre class="code-content"><code><span class="c-comment">// Non-Locking Snapshot Read: Eliminates read/write lock contention</span>
+<span class="c-kw">@Transactional</span>(readOnly = <span class="c-kw">true</span>)
+<span class="c-kw">public</span> List&lt;Customer&gt; getAllCustomers() {
+    <span class="c-kw">return</span> customerRepository.findAll();
+}
+
+<span class="c-kw">@Transactional</span>(readOnly = <span class="c-kw">true</span>)
+<span class="c-kw">public</span> List&lt;Account&gt; getAccountsByCustomer(String customerId) {
+    <span class="c-kw">return</span> accountRepository.findByCustomerId(customerId);
+}</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t11_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Verify Snapshot Reads Annotation</span>
+              <span class="task-desc">Confirm readOnly = true is specified on all read-only service methods to execute non-locking Snapshot Reads.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 13: Complete DDL Schema -->
+      <section class="content-panel" id="panel-12">
+        <h1>Step 13: Complete PostgreSQL Dialect DDL Schema</h1>
+        <p class="subtitle">Review the entire <code>ddl/schema.sql</code> file featuring all production recommendations.</p>
+
+        <div class="code-block-container sql">
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> ddl/schema.sql</span></div>
+          <pre class="code-content"><code><span class="c-comment">-- 1. Customers Table</span>
+<span class="c-kw">CREATE TABLE IF NOT EXISTS</span> customers (
+    customer_id <span class="c-type">VARCHAR(36)</span> <span class="c-kw">NOT NULL</span>,
+    full_name <span class="c-type">VARCHAR(255)</span> <span class="c-kw">NOT NULL</span>,
+    email <span class="c-type">VARCHAR(255)</span> <span class="c-kw">NOT NULL</span>,
+    status <span class="c-type">VARCHAR(50)</span> <span class="c-kw">NOT NULL</span>,
+    created_at <span class="c-type">TIMESTAMPTZ</span> <span class="c-kw">NOT NULL DEFAULT</span> spanner.commit_timestamp() <span class="c-kw">OPTIONS</span> (allow_commit_timestamp = <span class="c-kw">true</span>),
+    <span class="c-kw">PRIMARY KEY</span> (customer_id)
+);
+
+<span class="c-comment">-- 2. Interleaved Accounts Table</span>
+<span class="c-kw">CREATE TABLE IF NOT EXISTS</span> accounts (
+    customer_id <span class="c-type">VARCHAR(36)</span> <span class="c-kw">NOT NULL</span>,
+    account_id <span class="c-type">VARCHAR(36)</span> <span class="c-kw">NOT NULL</span>,
+    account_type <span class="c-type">VARCHAR(50)</span> <span class="c-kw">NOT NULL</span>,
+    currency <span class="c-type">VARCHAR(10)</span> <span class="c-kw">NOT NULL</span>,
+    balance <span class="c-type">NUMERIC</span> <span class="c-kw">NOT NULL</span>,
+    updated_at <span class="c-type">TIMESTAMPTZ</span> <span class="c-kw">NOT NULL DEFAULT</span> spanner.commit_timestamp() <span class="c-kw">OPTIONS</span> (allow_commit_timestamp = <span class="c-kw">true</span>),
+    <span class="c-kw">PRIMARY KEY</span> (customer_id, account_id)
+) <span class="c-kw">INTERLEAVE IN PARENT</span> customers <span class="c-kw">ON DELETE CASCADE</span>;
+
+<span class="c-comment">-- 3. Secondary Covering Indexes</span>
+<span class="c-kw">CREATE INDEX IF NOT EXISTS</span> idx_accounts_type <span class="c-kw">ON</span> accounts(account_type) <span class="c-kw">STORING</span> (currency, balance, updated_at);
+
+<span class="c-comment">-- 4. Payment Transactions Table</span>
+<span class="c-kw">CREATE TABLE IF NOT EXISTS</span> payment_transactions (
+    transaction_id <span class="c-type">VARCHAR(36)</span> <span class="c-kw">NOT NULL</span>,
+    source_account_id <span class="c-type">VARCHAR(36)</span> <span class="c-kw">NOT NULL</span>,
+    target_account_id <span class="c-type">VARCHAR(36)</span> <span class="c-kw">NOT NULL</span>,
+    amount <span class="c-type">NUMERIC</span> <span class="c-kw">NOT NULL</span>,
+    status <span class="c-type">VARCHAR(50)</span> <span class="c-kw">NOT NULL</span>,
+    created_at <span class="c-type">TIMESTAMPTZ</span> <span class="c-kw">NOT NULL DEFAULT</span> spanner.commit_timestamp() <span class="c-kw">OPTIONS</span> (allow_commit_timestamp = <span class="c-kw">true</span>),
+    <span class="c-kw">PRIMARY KEY</span> (transaction_id)
+);
+
+<span class="c-kw">CREATE INDEX IF NOT EXISTS</span> idx_payments_source <span class="c-kw">ON</span> payment_transactions(source_account_id) <span class="c-kw">STORING</span> (target_account_id, amount, status, created_at);</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t12_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Review Complete DDL</span>
+              <span class="task-desc">Verify that all table definitions and indexes match production requirements.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 14: Environment Setup -->
+      <section class="content-panel" id="panel-13">
+        <h1>Step 14: Environment Setup &amp; PGAdapter Launcher</h1>
+        <p class="subtitle">Deploy DDL schema and launch PGAdapter sidecar container for Lab 15.</p>
+
+        <div class="os-tab-bar">
+          <button class="os-tab-btn active" data-os="linux" onclick="switchOsTab('linux')">🐧 Linux</button>
+          <button class="os-tab-btn" data-os="macos" onclick="switchOsTab('macos')">🍎 macOS</button>
+          <button class="os-tab-btn" data-os="powershell" onclick="switchOsTab('powershell')">⚡ Windows (PowerShell)</button>
+        </div>
+
+        <div class="os-content active" data-os="linux">
+          <div class="code-block-container sql">
+            <pre class="code-content"><code>chmod +x Lab15/start-pgadapter.sh
+./Lab15/start-pgadapter.sh instructor-04 test-instance1 spanner-bank-db 5432
+gcloud spanner databases ddl update spanner-bank-db --instance=test-instance1 --ddl-file=Lab15/ddl/schema.sql</code></pre>
+          </div>
+        </div>
+
+        <div class="os-content" data-os="macos">
+          <div class="code-block-container sql">
+            <pre class="code-content"><code>chmod +x Lab15/start-pgadapter.sh
+./Lab15/start-pgadapter.sh instructor-04 test-instance1 spanner-bank-db 5432
+gcloud spanner databases ddl update spanner-bank-db --instance=test-instance1 --ddl-file=Lab15/ddl/schema.sql</code></pre>
+          </div>
+        </div>
+
+        <div class="os-content" data-os="powershell">
+          <div class="code-block-container sql">
+            <pre class="code-content"><code>.\Lab15\start-pgadapter.ps1 -ProjectId instructor-04 -InstanceId test-instance1 -DatabaseId spanner-bank-db -Port 5432
+gcloud spanner databases ddl update spanner-bank-db --instance=test-instance1 --ddl-file=Lab15/ddl/schema.sql</code></pre>
+          </div>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t13_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Verify PGAdapter &amp; DDL</span>
+              <span class="task-desc">Confirm schema update completed on Spanner database.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 15: REST Verification Testing -->
+      <section class="content-panel" id="panel-14">
+        <h1>Step 15: REST API Execution &amp; Verification Testing</h1>
+        <p class="subtitle">Run Spring Boot application and execute curl/PowerShell requests to verify all endpoints.</p>
+
+        <div class="os-tab-bar">
+          <button class="os-tab-btn active" data-os="linux" onclick="switchOsTab('linux')">🐧 Linux</button>
+          <button class="os-tab-btn" data-os="macos" onclick="switchOsTab('macos')">🍎 macOS</button>
+          <button class="os-tab-btn" data-os="powershell" onclick="switchOsTab('powershell')">⚡ Windows (PowerShell)</button>
+        </div>
+
+        <div class="os-content active" data-os="linux">
+          <div class="code-block-container sql">
+            <pre class="code-content"><code>export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+cd Lab15
+mvn spring-boot:run
+
+<span class="c-comment"># Seed Customers &amp; Accounts</span>
+curl -X POST "http://localhost:8080/api/v1/banking/seed?count=50"
+
+<span class="c-comment"># Execute Money Transfer (SELECT FOR UPDATE + @Retryable)</span>
+curl -X POST "http://localhost:8080/api/v1/banking/transfer" \
+  -H "Content-Type: application/json" \
+  -d '{"sourceAccountId": "<SOURCE_ID>", "targetAccountId": "<TARGET_ID>", "amount": 250.00}'
+
+<span class="c-comment"># Partitioned DML Bulk Update</span>
+curl -X POST "http://localhost:8080/api/v1/banking/accounts/bulk-update?oldType=CHECKING&amp;newType=PREMIUM_CHECKING"</code></pre>
+          </div>
+        </div>
+
+        <div class="os-content" data-os="macos">
+          <div class="code-block-container sql">
+            <pre class="code-content"><code>export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+cd Lab15
+mvn spring-boot:run
+
+<span class="c-comment"># Seed Customers &amp; Accounts</span>
+curl -X POST "http://localhost:8080/api/v1/banking/seed?count=50"
+
+<span class="c-comment"># Execute Money Transfer (SELECT FOR UPDATE + @Retryable)</span>
+curl -X POST "http://localhost:8080/api/v1/banking/transfer" \
+  -H "Content-Type: application/json" \
+  -d '{"sourceAccountId": "<SOURCE_ID>", "targetAccountId": "<TARGET_ID>", "amount": 250.00}'
+
+<span class="c-comment"># Partitioned DML Bulk Update</span>
+curl -X POST "http://localhost:8080/api/v1/banking/accounts/bulk-update?oldType=CHECKING&amp;newType=PREMIUM_CHECKING"</code></pre>
+          </div>
+        </div>
+
+        <div class="os-content" data-os="powershell">
+          <div class="code-block-container sql">
+            <pre class="code-content"><code>cd Lab15
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.11.9-hotspot"
+mvn spring-boot:run
+
+<span class="c-comment"># Seed Customers &amp; Accounts</span>
+Invoke-RestMethod -Uri "http://localhost:8080/api/v1/banking/seed?count=50" -Method POST
+
+<span class="c-comment"># Execute Money Transfer (SELECT FOR UPDATE + @Retryable)</span>
+$transfer = @{ sourceAccountId = "<SOURCE_ID>"; targetAccountId = "<TARGET_ID>"; amount = 250.00 } | ConvertTo-Json
+Invoke-RestMethod -Uri "http://localhost:8080/api/v1/banking/transfer" -Method POST -Body $transfer -ContentType "application/json"
+
+<span class="c-comment"># Partitioned DML Bulk Update</span>
+Invoke-RestMethod -Uri "http://localhost:8080/api/v1/banking/accounts/bulk-update?oldType=CHECKING&amp;newType=PREMIUM_CHECKING" -Method POST</code></pre>
+          </div>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t14_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Execute Verification Requests</span>
+              <span class="task-desc">Verify successful REST response codes for all endpoints.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 16: Audit Verification Matrix -->
+      <section class="content-panel" id="panel-15">
+        <h1>Step 16: Production Best Practices Audit Matrix</h1>
+        <p class="subtitle">Complete Summary of All 9 Recommendations Implemented in Lab 15.</p>
+
+        <div class="code-block-container sql">
+          <pre class="code-content"><code>+----+------------------------------------+---------------------------------------------+----------------------------------------------+
+| #  | Recommendation                     | Google Cloud Spanner Doc Reference          | Implemented Solution in Lab 15               |
++----+------------------------------------+---------------------------------------------+----------------------------------------------+
+| 1  | Aborted Transaction Retry          | transactions#aborted-transactions           | @Retryable(retryFor = {Exception.class})     |
+| 2  | SELECT FOR UPDATE                  | transactions#read-write_transactions        | @Lock(LockModeType.PESSIMISTIC_WRITE)        |
+| 3  | Physical Table Interleaving        | schema-and-data-model#interleaved_tables    | INTERLEAVE IN PARENT customers               |
+| 4  | Secondary Covering Indexes         | secondary-indexes#storing_clause            | STORING (currency, balance, updated_at)      |
+| 5  | TrueTime Commit Timestamps         | commit-timestamp                            | DEFAULT spanner.commit_timestamp()           |
+| 6  | Extended Protocol &amp; Optimizer      | pgadapter-connection-options                | preferQueryMode=extended &amp; LATEST opt        |
+| 7  | Connection Pool (100 PUs)          | connection-pooling                          | maximum-pool-size: 25, minimum-idle: 10      |
+| 8  | Partitioned DML                    | dml-tasks#partitioned_dml                   | Bulk update via Partitioned DML              |
+| 9  | Spanner Mutations vs DML           | dml-vs-mutations                            | Binary batch Mutation protocol               |
++----+------------------------------------+---------------------------------------------+----------------------------------------------+</code></pre>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t15_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Complete Audit Review</span>
+              <span class="task-desc">Verify that all 9 recommendations match official Google Cloud documentation requirements.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 17: Knowledge Assessment -->
+      <section class="content-panel" id="panel-16">
+        <h1>Step 17: Knowledge Assessment</h1>
+        <p class="subtitle">Test your understanding of Cloud Spanner advanced JPA recommendations.</p>
+
+        <div class="quiz-card">
+          <div class="quiz-question">1. Why is maximum-pool-size tuned to 25 for a 100 Processing Units (0.1 Node) Spanner instance?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="false">Because HikariCP only supports multiples of 25.</div>
+            <div class="quiz-option" data-correct="true">Because oversizing connection pools on a 100 PUs instance causes session pool lock contention inside Spanner's session pool manager.</div>
+            <div class="quiz-option" data-correct="false">Because 25 is the max number of rows Spanner can store in memory.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <div class="quiz-card">
+          <div class="quiz-question">2. Does preferQueryMode=extended disable Spanner's SQL Query Engine or Cost-Based Optimizer?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="false">Yes, it converts all SQL queries into plain text files.</div>
+            <div class="quiz-option" data-correct="true">No! Complex SELECT, UPDATE, and DELETE statements continue using Spanner's SQL Engine &amp; Optimizer with cached query plans, while simple batch inserts use Spanner Mutations.</div>
+            <div class="quiz-option" data-correct="false">Yes, it forces all queries to run in single-threaded mode.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <div class="quiz-card">
+          <div class="quiz-question">3. What is the purpose of minimum-idle: 10 in HikariCP?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" data-correct="false">It limits the maximum CPU usage of Spanner nodes.</div>
+            <div class="quiz-option" data-correct="true">It pre-warms 10 Spanner sessions and gRPC channels on startup to eliminate cold-start request latency.</div>
+            <div class="quiz-option" data-correct="false">It deletes idle databases after 10 minutes.</div>
+          </div>
+          <div class="quiz-explanation"></div>
+        </div>
+
+        <ul class="task-checklist">
+          <li class="task-checkbox-container" data-task-id="t16_1">
+            <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+            <div class="task-content">
+              <span class="task-label">Complete Quiz</span>
+              <span class="task-desc">Answer all 3 assessment questions correctly to unlock your completion certificate.</span>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- STEP 18: Completion Certificate -->
+      <section class="content-panel" id="panel-17">
+        <h1>Step 18: Completion Certificate</h1>
+        <p class="subtitle">Congratulations! You have successfully mastered Cloud Spanner Spring Boot &amp; JPA Advanced Recommendations.</p>
+
+        <div class="cert-canvas-container">
+          <input type="text" id="studentNameInput" class="cert-input" placeholder="Enter Your Name" value="Cloud Spanner Engineer" oninput="generateCertificate()">
+          <canvas id="certCanvas" width="800" height="500"></canvas>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <footer class="nav-bar">
+      <button class="btn-nav btn-prev" id="btnPrev" onclick="changeStep(-1)" style="visibility: hidden;">← Previous</button>
+      <button class="btn-nav btn-next" id="btnNext" onclick="changeStep(1)">Next Step →</button>
+    </footer>
+  </div>
+
+  <script>
+    let currentStep = 0;
+    const totalSteps = 18;
+    const taskStatus = {};
+
+    document.addEventListener("DOMContentLoaded", () => {
+      setupChecklists();
+      setupQuizListeners();
+      switchOsTab('linux');
+      updateProgress();
+      generateCertificate();
+    });
+
+    function goToStep(stepIndex) {
+      if (stepIndex < 0 || stepIndex >= totalSteps) return;
+      
+      document.querySelectorAll(".content-panel").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll("#stepsList .step-item").forEach(s => s.classList.remove("active"));
+
+      document.getElementById(`panel-${stepIndex}`).classList.add("active");
+      document.querySelectorAll("#stepsList .step-item")[stepIndex].classList.add("active");
+
+      currentStep = stepIndex;
+
+      document.getElementById("btnPrev").style.visibility = currentStep === 0 ? "hidden" : "visible";
+      document.getElementById("btnNext").textContent = currentStep === totalSteps - 1 ? "Finish Lab 🎉" : "Next Step →";
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function changeStep(delta) {
+      goToStep(currentStep + delta);
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme");
+      html.setAttribute("data-theme", current === "dark" ? "light" : "dark");
+      generateCertificate();
+    }
+
+    function switchOsTab(os) {
+      document.querySelectorAll(".os-tab-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".os-content").forEach(content => content.classList.remove("active"));
+
+      document.querySelectorAll(`.os-tab-btn[data-os="${os}"]`).forEach(btn => btn.classList.add("active"));
+      document.querySelectorAll(`.os-content[data-os="${os}"]`).forEach(content => content.classList.add("active"));
+    }
+
+    function setupChecklists() {
+      document.querySelectorAll(".task-checkbox-container").forEach(container => {
+        container.addEventListener("click", () => {
+          const taskId = container.getAttribute("data-task-id");
+          container.classList.toggle("checked");
+          taskStatus[taskId] = container.classList.contains("checked");
+          updateProgress();
+        });
+      });
+    }
+
+    function updateProgress() {
+      const completedTasks = Object.values(taskStatus).filter(Boolean).length;
+      const totalTasks = Object.keys(taskStatus).length || 1;
+      const percentage = Math.round((completedTasks / totalTasks) * 100);
+
+      document.getElementById("progressBar").style.width = `${percentage}%`;
+      document.getElementById("progressPercent").textContent = `${percentage}%`;
+
+      document.querySelectorAll("#stepsList .step-item").forEach((item, idx) => {
+        if (idx < currentStep || (idx === currentStep && percentage === 100)) {
+          item.classList.add("completed");
+        }
+      });
+    }
+
+    function setupQuizListeners() {
+      document.querySelectorAll(".quiz-card").forEach(card => {
+        const options = card.querySelectorAll(".quiz-option");
+        const explanation = card.querySelector(".quiz-explanation");
+
+        options.forEach(opt => {
+          opt.addEventListener("click", () => {
+            options.forEach(o => o.classList.remove("selected", "correct", "incorrect"));
+            opt.classList.add("selected");
+
+            const isCorrect = opt.getAttribute("data-correct") === "true";
+            if (isCorrect) {
+              opt.classList.add("correct");
+              explanation.style.display = "block";
+              explanation.style.background = "rgba(16, 185, 129, 0.1)";
+              explanation.style.color = "var(--success)";
+              explanation.innerHTML = "<strong>Correct!</strong> Outstanding understanding of Cloud Spanner connection pool tuning &amp; architecture.";
+            } else {
+              opt.classList.add("incorrect");
+              explanation.style.display = "block";
+              explanation.style.background = "rgba(239, 68, 68, 0.1)";
+              explanation.style.color = "var(--danger)";
+              explanation.innerHTML = "<strong>Incorrect.</strong> Review the recommendation steps in this lab.";
+            }
+          });
+        });
+      });
+    }
+
+    function copyCode(button) {
+      const container = button.closest(".code-block-container");
+      const codeText = container.querySelector("pre.code-content").innerText;
+      
+      navigator.clipboard.writeText(codeText).then(() => {
+        let tooltip = container.querySelector(".tooltip");
+        if (!tooltip) {
+          tooltip = document.createElement("div");
+          tooltip.className = "tooltip";
+          tooltip.innerText = "Copied!";
+          container.querySelector(".copy-btn-wrapper").appendChild(tooltip);
+        }
+        tooltip.classList.add("visible");
+        setTimeout(() => tooltip.classList.remove("visible"), 2000);
+      });
+    }
+
+    function generateCertificate() {
+      const canvas = document.getElementById("certCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const name = document.getElementById("studentNameInput").value || "Cloud Spanner Engineer";
+
+      ctx.fillStyle = "#0f172a";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 6;
+      ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "bold 34px Outfit, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("CERTIFICATE OF COMPLETION", canvas.width / 2, 110);
+
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "20px Inter, sans-serif";
+      ctx.fillText("This is to certify that", canvas.width / 2, 170);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 36px Outfit, sans-serif";
+      ctx.fillText(name, canvas.width / 2, 230);
+
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "18px Inter, sans-serif";
+      ctx.fillText("has successfully completed all 9 Official Spanner Engineering Recommendations in", canvas.width / 2, 290);
+
+      ctx.fillStyle = "#34d399";
+      ctx.font = "bold 22px Outfit, sans-serif";
+      ctx.fillText("Cloud Spanner Lab 15: Advanced Enterprise Best Practices", canvas.width / 2, 340);
+
+      ctx.fillStyle = "#64748b";
+      ctx.font = "14px Inter, sans-serif";
+      ctx.fillText(`Issued on: ${new Date().toLocaleDateString()} | Verification ID: SPN-LAB15-100PU-TUNED-SUCCESS`, canvas.width / 2, 420);
+    }
+  </script>
+</body>
+</html>

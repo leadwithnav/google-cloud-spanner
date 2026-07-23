@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: spanner-advanced-jpa-lab
+
+  datasource:
+    # BEST PRACTICE: Extended Query Mode & Optimizer Version Flag in Connection String
+    url: jdbc:postgresql://localhost:5432/spanner-bank-db?preferQueryMode=extended&options=-c%20spanner.optimizer_version=LATEST
+    username: postgres
+    password: ""
+    driver-class-name: org.postgresql.Driver
+
+    # BEST PRACTICE: HikariCP Connection Pool Sizing for 100 Processing Units (PUs) Instance
+    hikari:
+      maximum-pool-size: 25   # Tuned for 100 PUs instance to prevent session pool lock contention
+      minimum-idle: 10        # Pre-warms 10 Spanner sessions and gRPC channels on startup
+      idle-timeout: 600000    # 10 mins: evicts idle connections gracefully
+      max-lifetime: 1800000   # 30 mins: refreshes connections before Spanner's 60-min session expiry
+      connection-timeout: 30000 # 30s: fail-fast connection wait limit
+      connection-test-query: SELECT 1 # Fast health-check query for stale TCP eviction
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        # BEST PRACTICE: High-Performance DML Batching over gRPC
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
+        show_sql: false
+        format_sql: false
+
+logging:
+  level:
+    root: INFO
+    com.example.spannerbank: DEBUG
+    org.springframework.retry: DEBUG

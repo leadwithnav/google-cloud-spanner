@@ -1,0 +1,47 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: spanner-spring-boot-jpa-lab
+
+  datasource:
+    # Connect to PGAdapter sidecar/proxy running on localhost:5432
+    url: jdbc:postgresql://localhost:5432/spanner-bank-db?ssl=false
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+
+    # HikariCP Production Best Practices for Cloud Spanner PGAdapter
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+      pool-name: SpannerHikariPool
+
+  jpa:
+    # Use Standard PostgreSQL Dialect supported by PGAdapter
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate # NEVER use create-drop/update in production Spanner!
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        # Batching Configuration — Critical for Spanner High Performance
+        jdbc:
+          batch_size: 50
+          fetch_size: 100
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
+
+logging:
+  level:
+    root: INFO
+    com.example.spannerbank: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
