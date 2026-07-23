@@ -1,633 +1,684 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 10: Cloud Spanner Geo-Partitioning &amp; Database Placements (gcloud &amp; SQL Edition)</title>
+  <title>Lab 10: Cloud Spanner Geo-Partitioning & Database Placements</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-purple: #8b5cf6;
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-indigo: #6366f1;
+      --border-color: #334155;
+      --code-bg: #090d16;
+      --sidebar-width: 320px;
+      --header-height: 70px;
+    }
+
+    [data-theme="light"] {
       --bg-primary: #f8fafc;
       --bg-secondary: #ffffff;
-      --bg-tertiary: #f1f5f9;
-      --bg-code: #0f172a;
-      --border-color: #e2e8f0;
-      --border-hover: #cbd5e1;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
       --text-primary: #0f172a;
       --text-secondary: #475569;
-      --text-muted: #64748b;
-      --accent-blue: #2563eb;
-      --accent-blue-hover: #1d4ed8;
-      --accent-blue-light: #eff6ff;
-      --accent-green: #059669;
-      --accent-green-light: #ecfdf5;
-      --accent-amber: #d97706;
-      --accent-amber-light: #fffbeb;
+      --text-muted: #94a3b8;
       --accent-purple: #7c3aed;
-      --accent-purple-light: #f5f3ff;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 16px;
+      --accent-blue: #2563eb;
+      --accent-green: #059669;
+      --accent-amber: #d97706;
+      --accent-red: #dc2626;
+      --accent-indigo: #4f46e5;
+      --border-color: #e2e8f0;
+      --code-bg: #1e293b;
     }
 
-    [data-theme="dark"] {
-      --bg-primary: #0b0f19;
-      --bg-secondary: #111827;
-      --bg-tertiary: #1f2937;
-      --bg-code: #030712;
-      --border-color: #374151;
-      --border-hover: #4b5563;
-      --text-primary: #f9fafb;
-      --text-secondary: #9ca3af;
-      --text-muted: #6b7280;
-      --accent-blue: #3b82f6;
-      --accent-blue-hover: #60a5fa;
-      --accent-blue-light: rgba(59, 130, 246, 0.15);
-      --accent-green: #10b981;
-      --accent-green-light: rgba(16, 185, 129, 0.15);
-      --accent-amber: #f59e0b;
-      --accent-amber-light: rgba(245, 158, 11, 0.15);
-      --accent-purple: #8b5cf6;
-      --accent-purple-light: rgba(139, 92, 246, 0.15);
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4);
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background-color: var(--bg-primary);
       color: var(--text-primary);
-      line-height: 1.6;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
     }
 
-    /* Layout Header */
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background-color: var(--bg-secondary);
+    /* Top Navbar */
+    .navbar {
+      height: var(--header-height);
+      background: var(--bg-secondary);
       border-bottom: 1px solid var(--border-color);
-      box-shadow: var(--shadow-sm);
-    }
-    .header-container {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 12px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 0 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
     }
-    .header-title-wrapper {
+
+    .brand {
       display: flex;
       align-items: center;
       gap: 12px;
     }
-    .header-badge {
-      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
-      color: #ffffff;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 9999px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .header-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text-primary);
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-indigo));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 18px;
     }
 
-    .header-controls {
+    .brand-title {
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #f8fafc, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-actions {
       display: flex;
       align-items: center;
       gap: 16px;
     }
-    .progress-bar-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .progress-track {
-      width: 140px;
-      height: 8px;
-      background-color: var(--bg-tertiary);
-      border-radius: 9999px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
-      transition: width 0.4s ease;
-    }
-    .progress-text {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      min-width: 38px;
-    }
 
-    .theme-toggle-btn {
-      background: var(--bg-tertiary);
+    .theme-toggle {
+      background: var(--bg-primary);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
       padding: 8px 14px;
-      border-radius: var(--radius-sm);
-      font-size: 0.85rem;
-      font-weight: 600;
+      border-radius: 8px;
       cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       transition: all 0.2s ease;
     }
-    .theme-toggle-btn:hover {
-      background: var(--border-color);
+
+    .theme-toggle:hover {
+      border-color: var(--accent-purple);
     }
 
-    /* Main Container & Layout */
+    .progress-bar-container {
+      width: 200px;
+      height: 8px;
+      background: var(--bg-primary);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-indigo));
+      transition: width 0.3s ease;
+    }
+
+    /* Layout */
     .main-wrapper {
-      margin-left: 320px;
-      min-height: calc(100vh - 61px);
       display: flex;
-      flex-direction: column;
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height));
     }
 
     /* Sidebar Navigation */
     .sidebar {
-      position: fixed;
-      top: 61px;
-      bottom: 0;
-      left: 0;
-      width: 320px;
-      background-color: var(--bg-secondary);
+      width: var(--sidebar-width);
+      background: var(--bg-secondary);
       border-right: 1px solid var(--border-color);
-      padding: 20px 0 80px;
+      padding: 24px 16px;
+      position: fixed;
+      top: var(--header-height);
+      bottom: 0;
       overflow-y: auto;
-      z-index: 80;
     }
+
     .sidebar-heading {
-      padding: 0 20px 12px;
-      font-size: 0.75rem;
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
+      letter-spacing: 1.2px;
       color: var(--text-muted);
+      margin-bottom: 16px;
+      padding-left: 8px;
     }
+
     .step-list {
       list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
+
     .step-item {
+      padding: 12px 14px;
+      border-radius: 8px;
+      cursor: pointer;
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 20px;
-      cursor: pointer;
-      border-left: 3px solid transparent;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
       transition: all 0.2s ease;
+      border: 1px solid transparent;
     }
+
     .step-item:hover {
-      background-color: var(--bg-tertiary);
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
     }
+
     .step-item.active {
-      background-color: var(--accent-blue-light);
-      border-left-color: var(--accent-blue);
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.15));
+      border-color: rgba(139, 92, 246, 0.4);
+      color: var(--accent-purple);
+      font-weight: 600;
     }
-    .step-item.completed .step-number {
-      background-color: var(--accent-green);
-      color: #ffffff;
-      border-color: var(--accent-green);
+
+    .step-item.completed {
+      color: var(--accent-green);
     }
+
     .step-number {
-      width: 26px;
-      height: 26px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
-      border: 2px solid var(--border-color);
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
+      font-size: 11px;
       font-weight: 700;
-      color: var(--text-secondary);
       flex-shrink: 0;
-      transition: all 0.2s ease;
-    }
-    .step-item.active .step-number {
-      border-color: var(--accent-blue);
-      color: var(--accent-blue);
-    }
-    .step-title {
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--text-primary);
-      line-height: 1.3;
-    }
-    .step-item.active .step-title {
-      font-weight: 700;
-      color: var(--accent-blue);
     }
 
-    /* Content Area */
-    .content-area {
-      flex: 1;
-      padding: 40px 48px 100px;
-      max-width: 1060px;
-      width: 100%;
-      margin: 0 auto;
+    .step-item.active .step-number {
+      background: var(--accent-purple);
+      color: white;
+      border-color: var(--accent-purple);
     }
+
+    .step-item.completed .step-number {
+      background: var(--accent-green);
+      color: white;
+      border-color: var(--accent-green);
+    }
+
+    /* Main Content Area */
+    .content-area {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 40px 48px 120px 48px;
+      max-width: 1100px;
+    }
+
     .content-panel {
       display: none;
-    }
-    .content-panel.active {
-      display: block;
       animation: fadeIn 0.3s ease;
     }
+
+    .content-panel.active {
+      display: block;
+    }
+
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     h1 {
-      font-size: 2rem;
+      font-size: 28px;
       font-weight: 800;
-      color: var(--text-primary);
+      letter-spacing: -0.8px;
       margin-bottom: 8px;
-      letter-spacing: -0.5px;
+      color: var(--text-primary);
     }
-    .subtitle {
-      font-size: 1.05rem;
+
+    p.subtitle {
+      font-size: 15px;
       color: var(--text-secondary);
       margin-bottom: 28px;
-    }
-    h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin: 32px 0 16px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border-color);
-    }
-    p {
-      margin-bottom: 16px;
-      color: var(--text-secondary);
-      font-size: 0.98rem;
+      line-height: 1.6;
     }
 
-    /* Callout Boxes */
+    /* Callouts */
     .callout {
-      padding: 18px 22px;
-      border-radius: var(--radius-md);
-      margin: 20px 0;
+      padding: 20px 24px;
+      border-radius: 12px;
+      margin-bottom: 28px;
       border-left: 4px solid;
-      background-color: var(--bg-secondary);
-      box-shadow: var(--shadow-sm);
     }
+
     .callout-info {
-      border-left-color: var(--accent-blue);
-      background-color: var(--accent-blue-light);
+      background: rgba(59, 130, 246, 0.08);
+      border-color: var(--accent-blue);
+      color: var(--text-primary);
     }
-    .callout-warning {
-      border-left-color: var(--accent-amber);
-      background-color: var(--accent-amber-light);
-    }
+
     .callout-purple {
-      border-left-color: var(--accent-purple);
-      background-color: var(--accent-purple-light);
+      background: rgba(139, 92, 246, 0.08);
+      border-color: var(--accent-purple);
+      color: var(--text-primary);
     }
+
+    .callout-warning {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: var(--accent-amber);
+      color: var(--text-primary);
+    }
+
     .callout-title {
       font-weight: 700;
-      margin-bottom: 6px;
-      font-size: 0.95rem;
-    }
-    .callout-info .callout-title { color: var(--accent-blue); }
-    .callout-warning .callout-title { color: var(--accent-amber); }
-    .callout-purple .callout-title { color: var(--accent-purple); }
-    .callout-content {
-      font-size: 0.92rem;
-      color: var(--text-primary);
+      font-size: 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    /* Architecture Card */
+    .callout-content {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    /* Architecture Box */
     .arch-card {
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
+      border-radius: 12px;
       padding: 24px;
-      margin: 24px 0;
-      box-shadow: var(--shadow-md);
+      margin-bottom: 28px;
     }
+
     .arch-title {
-      font-size: 1.1rem;
+      font-size: 15px;
       font-weight: 700;
+      color: var(--text-primary);
       margin-bottom: 16px;
-      color: var(--accent-purple);
     }
+
     .placement-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 16px;
     }
+
     .placement-box {
-      background: var(--bg-tertiary);
+      background: var(--bg-primary);
       border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
+      border-radius: 8px;
       padding: 16px;
     }
+
     .placement-header {
       font-weight: 700;
-      font-size: 0.92rem;
-      color: var(--accent-blue);
-      margin-bottom: 6px;
+      font-size: 14px;
+      color: var(--accent-purple);
+      margin-bottom: 8px;
     }
+
     .placement-detail {
-      font-size: 0.85rem;
+      font-size: 13px;
       color: var(--text-secondary);
-      line-height: 1.4;
+      line-height: 1.5;
     }
 
     /* Code Blocks */
     .code-block-container {
-      background-color: var(--bg-code);
-      border-radius: var(--radius-md);
-      margin: 20px 0;
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: var(--shadow-md);
+      margin-bottom: 28px;
+      position: relative;
     }
+
     .code-header {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 18px;
-      background-color: rgba(255, 255, 255, 0.05);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
     }
+
     .code-lang-badge {
-      font-family: 'Fira Code', monospace;
-      font-size: 0.78rem;
-      color: #94a3b8;
       display: flex;
       align-items: center;
       gap: 6px;
+      color: var(--accent-purple);
     }
+
     .code-lang-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background-color: #38bdf8;
+      background: var(--accent-purple);
     }
-    .copy-btn-wrapper {
-      position: relative;
-    }
+
     .copy-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      color: #f8fafc;
-      font-size: 0.78rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
       padding: 4px 10px;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      transition: background 0.2s ease;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s ease;
     }
+
     .copy-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-    .tooltip {
-      position: absolute;
-      top: -30px;
-      right: 0;
-      background: #10b981;
-      color: #ffffff;
-      font-size: 0.72rem;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 4px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
-    .tooltip.show {
-      opacity: 1;
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+      border-color: var(--accent-purple);
     }
 
     pre.code-content {
-      padding: 18px;
-      overflow-x: auto;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.88rem;
-      line-height: 1.65;
+      padding: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      line-height: 1.6;
       color: #e2e8f0;
+      overflow-x: auto;
+      white-space: pre;
     }
-    code { font-family: 'Fira Code', monospace; }
-    .c-kw { color: #f472b6; font-weight: 600; }
-    .c-type { color: #38bdf8; }
-    .c-str { color: #4ade80; }
-    .c-comment { color: #64748b; font-style: italic; }
 
-    /* OS Tabs */
+    .c-kw { color: #c084fc; font-weight: 600; }
+    .c-str { color: #34d399; }
+    .c-comment { color: #64748b; font-style: italic; }
+    .c-cmd { color: #38bdf8; font-weight: 600; }
+    .c-type { color: #fbbf24; }
+
+    /* OS Switcher Tabs */
     .os-tab-bar {
       display: flex;
       gap: 8px;
-      margin-bottom: -1px;
+      margin-bottom: 12px;
     }
+
     .os-tab-btn {
-      padding: 8px 16px;
-      background-color: var(--bg-tertiary);
+      background: var(--bg-secondary);
       border: 1px solid var(--border-color);
-      border-bottom: none;
-      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-      font-size: 0.85rem;
-      font-weight: 600;
       color: var(--text-secondary);
+      padding: 8px 16px;
+      border-radius: 8px;
       cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
       transition: all 0.2s ease;
     }
-    .os-tab-btn.active {
-      background-color: var(--bg-code);
-      color: #ffffff;
-      border-color: var(--bg-code);
-    }
-    .os-content { display: none; }
-    .os-content.active { display: block; }
 
-    /* Checklists */
-    .task-checklist {
-      margin: 24px 0;
-      list-style: none;
+    .os-tab-btn.active {
+      background: var(--accent-purple);
+      color: white;
+      border-color: var(--accent-purple);
     }
+
+    .os-content {
+      display: none;
+    }
+
+    .os-content.active {
+      display: block;
+    }
+
+    /* Checklist Tasks */
+    .task-checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
     .task-checkbox-container {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 16px;
+      border-radius: 10px;
       display: flex;
       align-items: flex-start;
-      gap: 12px;
-      padding: 14px 18px;
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      margin-bottom: 10px;
+      gap: 14px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
-    .task-checkbox-container:hover { border-color: var(--border-hover); }
-    .task-checkbox-container.checked {
-      background-color: var(--accent-green-light);
-      border-color: var(--accent-green);
+
+    .task-checkbox-container:hover {
+      border-color: var(--accent-purple);
     }
+
     .custom-checkbox {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
       border: 2px solid var(--border-color);
-      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      margin-top: 2px;
+      margin-top: 1px;
       transition: all 0.2s ease;
     }
+
     .task-checkbox-container.checked .custom-checkbox {
-      background-color: var(--accent-green);
+      background: var(--accent-green);
       border-color: var(--accent-green);
     }
+
     .check-mark {
       width: 14px;
       height: 14px;
       fill: none;
-      stroke: #ffffff;
+      stroke: white;
       stroke-width: 3;
-      display: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0;
     }
-    .task-checkbox-container.checked .check-mark { display: block; }
-    .task-content { display: flex; flex-direction: column; }
-    .task-label { font-weight: 600; font-size: 0.95rem; color: var(--text-primary); }
-    .task-desc { font-size: 0.85rem; color: var(--text-secondary); }
 
-    /* Quiz */
-    .quiz-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow-sm);
+    .task-checkbox-container.checked .check-mark {
+      opacity: 1;
     }
-    .quiz-question { font-weight: 700; font-size: 0.98rem; color: var(--text-primary); margin-bottom: 14px; }
-    .quiz-options { display: flex; flex-direction: column; gap: 10px; }
-    .quiz-option {
-      padding: 12px 16px;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      background: var(--bg-primary);
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
+
+    .task-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
-    .quiz-option:hover { border-color: var(--accent-blue); background: var(--accent-blue-light); }
-    .quiz-option.correct {
-      background: var(--accent-green-light) !important;
-      border-color: var(--accent-green) !important;
-      color: var(--accent-green) !important;
+
+    .task-label {
+      font-size: 14px;
       font-weight: 600;
-    }
-    .quiz-option.incorrect {
-      background: var(--accent-amber-light) !important;
-      border-color: var(--accent-amber) !important;
-      color: var(--accent-amber) !important;
-    }
-
-    /* Certificate Generator */
-    .cert-canvas-container {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: 32px;
-      text-align: center;
-      box-shadow: var(--shadow-md);
-    }
-    .cert-input {
-      padding: 10px 16px;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      font-size: 1rem;
-      width: 100%;
-      max-width: 360px;
-      margin-bottom: 20px;
-      background: var(--bg-primary);
       color: var(--text-primary);
     }
-    #certCanvas {
-      max-width: 100%;
-      height: auto;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
+
+    .task-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
     }
 
-    /* Nav Footer */
+    /* Bottom Navigation Bar */
     .nav-bar {
       position: fixed;
       bottom: 0;
-      left: 320px;
+      left: var(--sidebar-width);
       right: 0;
-      height: 64px;
-      background-color: var(--bg-secondary);
+      height: 72px;
+      background: var(--bg-secondary);
       border-top: 1px solid var(--border-color);
-      padding: 0 48px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+      padding: 0 48px;
+      backdrop-filter: blur(10px);
       z-index: 90;
     }
+
     .btn-nav {
-      padding: 10px 24px;
-      border-radius: var(--radius-sm);
-      font-size: 0.9rem;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
+      transition: all 0.2s ease;
       border: none;
+    }
+
+    .btn-prev {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .btn-prev:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-indigo));
+      color: white;
+    }
+
+    .btn-next:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    /* Quiz Cards */
+    .quiz-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .quiz-question {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .quiz-option {
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      font-size: 13.5px;
+      color: var(--text-secondary);
       transition: all 0.2s ease;
     }
-    .btn-prev { background-color: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
-    .btn-prev:hover { background-color: var(--border-color); }
-    .btn-next { background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); color: #ffffff; }
-    .btn-next:hover { opacity: 0.9; }
 
-    @media (max-width: 1024px) {
-      .sidebar { display: none; }
-      .main-wrapper { margin-left: 0; }
-      .nav-bar { left: 0; padding: 0 24px; }
-      .content-area { padding: 24px 24px 100px; }
+    .quiz-option:hover {
+      border-color: var(--accent-purple);
+      color: var(--text-primary);
+    }
+
+    .quiz-option.correct {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+      font-weight: 600;
+    }
+
+    .quiz-option.incorrect {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+      font-weight: 600;
+    }
+
+    /* Certificate Canvas */
+    .cert-canvas-container {
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    canvas#certCanvas {
+      max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-color);
+    }
+
+    .cert-input {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 15px;
+      width: 320px;
+      margin-bottom: 20px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <header class="header">
-    <div class="header-container">
-      <div class="header-title-wrapper">
-        <span class="header-badge">Lab 10</span>
-        <span class="header-title">Cloud Spanner Geo-Partitioning &amp; Database Placements (SQL Edition)</span>
+  <!-- Top Navbar -->
+  <header class="navbar">
+    <div class="brand">
+      <div class="brand-logo">10</div>
+      <div class="brand-title">Lab 10: Cloud Spanner Geo-Partitioning & Placements</div>
+    </div>
+    <div class="nav-actions">
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progressBar"></div>
       </div>
-      <div class="header-controls">
-        <div class="progress-bar-wrapper">
-          <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
-          <span class="progress-text" id="progressPercent">0%</span>
-        </div>
-        <button class="theme-toggle-btn" onclick="toggleTheme()">
-          <span id="themeIcon">☀️</span> Light Mode
-        </button>
-      </div>
+      <span id="progressPercent" style="font-size: 12px; font-weight: 700; color: var(--text-muted);">0%</span>
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <span id="themeIcon">🌙</span> Theme
+      </button>
     </div>
   </header>
 
@@ -663,7 +714,7 @@
       <!-- STEP 1: Overview -->
       <section class="content-panel active" id="panel-0">
         <h1>Step 1: Cloud Spanner Geo-Partitioning Concepts</h1>
-        <p class="subtitle">Understand row-level data partitioning, placement keys, and multi-region storage routing in Cloud Spanner using gcloud &amp; SQL.</p>
+        <p class="subtitle">Understand row-level data partitioning, placement keys, and multi-region storage routing in Cloud Spanner using GoogleSQL &amp; gcloud.</p>
 
         <div class="callout callout-purple">
           <div class="callout-title">🌐 What is Row-Level Geo-Partitioning?</div>
@@ -678,6 +729,10 @@
             <div class="placement-box">
               <div class="placement-header">placement_us_east</div>
               <div class="placement-detail">Instance Partition: <code>us-east1-partition</code><br>Stores US-East customer rows with local single-digit millisecond latency.</div>
+            </div>
+            <div class="placement-box">
+              <div class="placement-header">DEFAULT Placement</div>
+              <div class="placement-detail">Base Multi-Region Split<br>Stores rows without custom placement boundaries.</div>
             </div>
           </div>
         </div>
@@ -701,7 +756,7 @@
         <div class="callout callout-info">
           <div class="callout-title">💡 What is an Instance Partition?</div>
           <div class="callout-content">
-            An <strong>Instance Partition</strong> is a dedicated pool of compute and storage resources (processing units or nodes) residing in a specific region inside your Spanner instance. For this lightweight lab setup, we allocate <strong>1 instance partition (us-east1-partition)</strong> to test placements while minimizing compute node quota usage.
+            An <strong>Instance Partition</strong> is a dedicated pool of compute and storage resources (processing units or nodes) residing in a specific region inside your Spanner instance.
           </div>
         </div>
 
@@ -712,7 +767,7 @@
 
         <div class="os-content active" data-os="linux">
           <div class="code-block-container sql">
-            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Linux / macOS Commands</span></div>
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Linux / macOS Commands</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
             <pre class="code-content"><code><span class="c-comment"># 1. Create Multi-Region Spanner Instance (nam6 configuration)</span>
 gcloud spanner instances create geo-spanner-instance \
     --config=nam6 \
@@ -731,7 +786,7 @@ gcloud spanner instance-partitions create us-east1-partition \
 
         <div class="os-content" data-os="powershell">
           <div class="code-block-container sql">
-            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Windows PowerShell Commands</span></div>
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Windows PowerShell Commands</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
             <pre class="code-content"><code><span class="c-comment"># 1. Create Multi-Region Spanner Instance (nam6 configuration)</span>
 gcloud spanner instances create geo-spanner-instance `
     --config=nam6 `
@@ -761,8 +816,8 @@ gcloud spanner instance-partitions create us-east1-partition `
 
       <!-- STEP 3: Creating Spanner Database -->
       <section class="content-panel" id="panel-2">
-        <h1>Step 3: Creating Spanner Database (PostgreSQL Dialect)</h1>
-        <p class="subtitle">Create a Cloud Spanner database using the PostgreSQL dialect syntax.</p>
+        <h1>Step 3: Creating Spanner Database (GoogleSQL Dialect)</h1>
+        <p class="subtitle">Create a Cloud Spanner database using the default GoogleSQL dialect syntax.</p>
 
         <div class="os-tab-bar">
           <button class="os-tab-btn active" data-os="linux" onclick="switchOsTab('linux')">🐧 Linux / macOS</button>
@@ -771,21 +826,19 @@ gcloud spanner instance-partitions create us-east1-partition `
 
         <div class="os-content active" data-os="linux">
           <div class="code-block-container sql">
-            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Linux / macOS Command</span></div>
-            <pre class="code-content"><code><span class="c-comment"># Create Database with PostgreSQL Dialect</span>
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Linux / macOS Command</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code><span class="c-comment"># Create Database with GoogleSQL Dialect (Default)</span>
 gcloud spanner databases create geo-bank-db \
-    --instance=geo-spanner-instance \
-    --database-dialect=POSTGRESQL</code></pre>
+    --instance=geo-spanner-instance</code></pre>
           </div>
         </div>
 
         <div class="os-content" data-os="powershell">
           <div class="code-block-container sql">
-            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Windows PowerShell Command</span></div>
-            <pre class="code-content"><code><span class="c-comment"># Create Database with PostgreSQL Dialect (PowerShell Syntax)</span>
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Windows PowerShell Command</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code><span class="c-comment"># Create Database with GoogleSQL Dialect (PowerShell Syntax)</span>
 gcloud spanner databases create geo-bank-db `
-    --instance=geo-spanner-instance `
-    --database-dialect=POSTGRESQL</code></pre>
+    --instance=geo-spanner-instance</code></pre>
           </div>
         </div>
 
@@ -794,7 +847,7 @@ gcloud spanner databases create geo-bank-db `
             <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
             <div class="task-content">
               <span class="task-label">Create Database</span>
-              <span class="task-desc">Verify that geo-bank-db is created with POSTGRESQL dialect.</span>
+              <span class="task-desc">Verify that geo-bank-db is created with GoogleSQL dialect.</span>
             </div>
           </li>
         </ul>
@@ -806,9 +859,32 @@ gcloud spanner databases create geo-bank-db `
         <p class="subtitle">Define database placement object mapping logical placement to physical instance partition.</p>
 
         <div class="code-block-container sql">
-          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> PostgreSQL Dialect Placement DDL</span></div>
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> GoogleSQL Dialect Placement DDL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
           <pre class="code-content"><code><span class="c-comment">-- Define Regional Database Placement (placement_us_east -> us-east1-partition)</span>
-<span class="c-kw">CREATE PLACEMENT IF NOT EXISTS</span> placement_us_east <span class="c-kw">WITH</span> (instance_partition = <span class="c-str">'us-east1-partition'</span>);</code></pre>
+<span class="c-kw">CREATE PLACEMENT IF NOT EXISTS</span> placement_us_east <span class="c-kw">OPTIONS</span> (instance_partition = <span class="c-str">'us-east1-partition'</span>);</code></pre>
+        </div>
+
+        <div class="os-tab-bar">
+          <button class="os-tab-btn active" data-os="linux" onclick="switchOsTab('linux')">🐧 Linux / macOS</button>
+          <button class="os-tab-btn" data-os="powershell" onclick="switchOsTab('powershell')">⚡ Windows (PowerShell)</button>
+        </div>
+
+        <div class="os-content active" data-os="linux">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud DDL Command</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases ddl update geo-bank-db \
+  --instance=geo-spanner-instance \
+  --ddl="CREATE PLACEMENT IF NOT EXISTS placement_us_east OPTIONS (instance_partition = 'us-east1-partition')"</code></pre>
+          </div>
+        </div>
+
+        <div class="os-content" data-os="powershell">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud DDL Command (PowerShell)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases ddl update geo-bank-db `
+  --instance=geo-spanner-instance `
+  --ddl="CREATE PLACEMENT IF NOT EXISTS placement_us_east OPTIONS (instance_partition = 'us-east1-partition')"</code></pre>
+          </div>
         </div>
 
         <ul class="task-checklist">
@@ -816,7 +892,7 @@ gcloud spanner databases create geo-bank-db `
             <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
             <div class="task-content">
               <span class="task-label">Inspect Placement DDL</span>
-              <span class="task-desc">Verify WITH (instance_partition = '...') syntax for Spanner PostgreSQL dialect.</span>
+              <span class="task-desc">Verify OPTIONS (instance_partition = '...') syntax for Spanner GoogleSQL dialect.</span>
             </div>
           </li>
         </ul>
@@ -828,22 +904,40 @@ gcloud spanner databases create geo-bank-db `
         <p class="subtitle">Decorate table column with PLACEMENT KEY to enable row-level regional data routing.</p>
 
         <div class="code-block-container sql">
-          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> PostgreSQL Dialect Table Schema DDL</span></div>
-          <pre class="code-content"><code><span class="c-kw">DROP INDEX IF EXISTS</span> idx_geo_accounts_type;
-<span class="c-kw">DROP TABLE IF EXISTS</span> user_geo_accounts;
-
-<span class="c-kw">CREATE TABLE IF NOT EXISTS</span> user_geo_accounts (
-    user_id <span class="c-type">VARCHAR(36)</span> <span class="c-kw">PRIMARY KEY</span>,
-    region_location <span class="c-type">TEXT</span> <span class="c-kw">NOT NULL PLACEMENT KEY</span>,
-    country_code <span class="c-type">VARCHAR(2)</span> <span class="c-kw">NOT NULL</span>,
-    full_name <span class="c-type">VARCHAR(255)</span> <span class="c-kw">NOT NULL</span>,
-    email <span class="c-type">VARCHAR(255)</span> <span class="c-kw">NOT NULL</span>,
-    account_type <span class="c-type">VARCHAR(50)</span> <span class="c-kw">NOT NULL</span>,
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> GoogleSQL Dialect Table Schema DDL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre class="code-content"><code><span class="c-kw">CREATE TABLE IF NOT EXISTS</span> user_geo_accounts (
+    user_id <span class="c-type">STRING(36)</span> <span class="c-kw">NOT NULL</span>,
+    region_location <span class="c-type">STRING(MAX)</span> <span class="c-kw">NOT NULL PLACEMENT KEY</span>,
+    country_code <span class="c-type">STRING(2)</span> <span class="c-kw">NOT NULL</span>,
+    full_name <span class="c-type">STRING(255)</span> <span class="c-kw">NOT NULL</span>,
+    email <span class="c-type">STRING(255)</span> <span class="c-kw">NOT NULL</span>,
+    account_type <span class="c-type">STRING(50)</span> <span class="c-kw">NOT NULL</span>,
     balance <span class="c-type">NUMERIC</span> <span class="c-kw">NOT NULL</span>,
-    created_at <span class="c-type">TIMESTAMPTZ</span> <span class="c-kw">NOT NULL DEFAULT</span> CURRENT_TIMESTAMP
-);
+    created_at <span class="c-type">TIMESTAMP</span> <span class="c-kw">NOT NULL OPTIONS</span> (allow_commit_timestamp = <span class="c-str">true</span>)
+) <span class="c-kw">PRIMARY KEY</span> (user_id);</code></pre>
+        </div>
 
-<span class="c-kw">CREATE INDEX IF NOT EXISTS</span> idx_geo_accounts_type <span class="c-kw">ON</span> user_geo_accounts(account_type) <span class="c-kw">INCLUDE</span> (balance, created_at);</code></pre>
+        <div class="os-tab-bar">
+          <button class="os-tab-btn active" data-os="linux" onclick="switchOsTab('linux')">🐧 Linux / macOS</button>
+          <button class="os-tab-btn" data-os="powershell" onclick="switchOsTab('powershell')">⚡ Windows (PowerShell)</button>
+        </div>
+
+        <div class="os-content active" data-os="linux">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud DDL Command</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases ddl update geo-bank-db \
+  --instance=geo-spanner-instance \
+  --ddl="CREATE TABLE IF NOT EXISTS user_geo_accounts (user_id STRING(36) NOT NULL, region_location STRING(MAX) NOT NULL PLACEMENT KEY, country_code STRING(2) NOT NULL, full_name STRING(255) NOT NULL, email STRING(255) NOT NULL, account_type STRING(50) NOT NULL, balance NUMERIC NOT NULL, created_at TIMESTAMP NOT NULL OPTIONS (allow_commit_timestamp = true)) PRIMARY KEY (user_id);"</code></pre>
+          </div>
+        </div>
+
+        <div class="os-content" data-os="powershell">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud DDL Command (PowerShell)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases ddl update geo-bank-db `
+  --instance=geo-spanner-instance `
+  --ddl="CREATE TABLE IF NOT EXISTS user_geo_accounts (user_id STRING(36) NOT NULL, region_location STRING(MAX) NOT NULL PLACEMENT KEY, country_code STRING(2) NOT NULL, full_name STRING(255) NOT NULL, email STRING(255) NOT NULL, account_type STRING(50) NOT NULL, balance NUMERIC NOT NULL, created_at TIMESTAMP NOT NULL OPTIONS (allow_commit_timestamp = true)) PRIMARY KEY (user_id);"</code></pre>
+          </div>
         </div>
 
         <ul class="task-checklist">
@@ -851,27 +945,51 @@ gcloud spanner databases create geo-bank-db `
             <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
             <div class="task-content">
               <span class="task-label">Inspect Schema DDL</span>
-              <span class="task-desc">Confirm user_id PRIMARY KEY and region_location TEXT NOT NULL PLACEMENT KEY.</span>
+              <span class="task-desc">Confirm user_id PRIMARY KEY and region_location STRING(MAX) NOT NULL PLACEMENT KEY in GoogleSQL.</span>
             </div>
           </li>
-              <!-- STEP 6: Inserting Data -->
+        </ul>
+      </section>
+
+      <!-- STEP 6: Inserting Data -->
       <section class="content-panel" id="panel-5">
         <h1>Step 6: Inserting Geo-Partitioned Data</h1>
         <p class="subtitle">Insert SQL rows pinned to placement_us_east and DEFAULT placement key with country_code.</p>
 
         <div class="code-block-container sql">
-          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Direct SQL Insert Statements</span></div>
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Direct SQL Insert Statements</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
           <pre class="code-content"><code><span class="c-comment">-- Row 1: Pinned to US-East regional placement</span>
-<span class="c-kw">INSERT INTO</span> user_geo_accounts (user_id, region_location, country_code, full_name, email, account_type, balance)
-<span class="c-kw">VALUES</span> (<span class="c-str">'usr-101'</span>, <span class="c-str">'placement_us_east'</span>, <span class="c-str">'US'</span>, <span class="c-str">'Alice Smith'</span>, <span class="c-str">'alice@spannerbank.com'</span>, <span class="c-str">'CHECKING'</span>, <span class="c-str">2500.00</span>);
+<span class="c-kw">INSERT INTO</span> user_geo_accounts (user_id, region_location, country_code, full_name, email, account_type, balance, created_at)
+<span class="c-kw">VALUES</span> (<span class="c-str">'usr-101'</span>, <span class="c-str">'placement_us_east'</span>, <span class="c-str">'US'</span>, <span class="c-str">'Alice Smith'</span>, <span class="c-str">'alice@spannerbank.com'</span>, <span class="c-str">'CHECKING'</span>, <span class="c-str">2500.00</span>, PENDING_COMMIT_TIMESTAMP());
 
 <span class="c-comment">-- Row 2: Pinned to US-East regional placement</span>
-<span class="c-kw">INSERT INTO</span> user_geo_accounts (user_id, region_location, country_code, full_name, email, account_type, balance)
-<span class="c-kw">VALUES</span> (<span class="c-str">'usr-102'</span>, <span class="c-str">'placement_us_east'</span>, <span class="c-str">'US'</span>, <span class="c-str">'Bob Johnson'</span>, <span class="c-str">'bob@spannerbank.com'</span>, <span class="c-str">'SAVINGS'</span>, <span class="c-str">5000.00</span>);
+<span class="c-kw">INSERT INTO</span> user_geo_accounts (user_id, region_location, country_code, full_name, email, account_type, balance, created_at)
+<span class="c-kw">VALUES</span> (<span class="c-str">'usr-102'</span>, <span class="c-str">'placement_us_east'</span>, <span class="c-str">'US'</span>, <span class="c-str">'Bob Johnson'</span>, <span class="c-str">'bob@spannerbank.com'</span>, <span class="c-str">'SAVINGS'</span>, <span class="c-str">5000.00</span>, PENDING_COMMIT_TIMESTAMP());
 
 <span class="c-comment">-- Row 3: Pinned to DEFAULT placement (Base Instance Multi-Region Storage Split)</span>
-<span class="c-kw">INSERT INTO</span> user_geo_accounts (user_id, region_location, country_code, full_name, email, account_type, balance)
-<span class="c-kw">VALUES</span> (<span class="c-str">'usr-103'</span>, <span class="c-str">'DEFAULT'</span>, <span class="c-str">'US'</span>, <span class="c-str">'Charlie Brown'</span>, <span class="c-str">'charlie@spannerbank.com'</span>, <span class="c-str">'SAVINGS'</span>, <span class="c-str">7500.00</span>);</code></pre>
+<span class="c-kw">INSERT INTO</span> user_geo_accounts (user_id, region_location, country_code, full_name, email, account_type, balance, created_at)
+<span class="c-kw">VALUES</span> (<span class="c-str">'usr-103'</span>, <span class="c-str">'DEFAULT'</span>, <span class="c-str">'US'</span>, <span class="c-str">'Charlie Brown'</span>, <span class="c-str">'charlie@spannerbank.com'</span>, <span class="c-str">'SAVINGS'</span>, <span class="c-str">7500.00</span>, PENDING_COMMIT_TIMESTAMP());</code></pre>
+        </div>
+
+        <div class="os-tab-bar">
+          <button class="os-tab-btn active" data-os="linux" onclick="switchOsTab('linux')">🐧 Linux / macOS</button>
+          <button class="os-tab-btn" data-os="powershell" onclick="switchOsTab('powershell')">⚡ Windows (PowerShell)</button>
+        </div>
+
+        <div class="os-content active" data-os="linux">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud SQL Insert Command</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases execute-sql geo-bank-db --instance=geo-spanner-instance \
+  --sql="INSERT INTO user_geo_accounts (user_id, region_location, country_code, full_name, email, account_type, balance, created_at) VALUES ('usr-101', 'placement_us_east', 'US', 'Alice Smith', 'alice@spannerbank.com', 'CHECKING', 2500.00, PENDING_COMMIT_TIMESTAMP())"</code></pre>
+          </div>
+        </div>
+
+        <div class="os-content" data-os="powershell">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud SQL Insert Command (PowerShell)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases execute-sql geo-bank-db --instance=geo-spanner-instance `
+  --sql="INSERT INTO user_geo_accounts (user_id, region_location, country_code, full_name, email, account_type, balance, created_at) VALUES ('usr-101', 'placement_us_east', 'US', 'Alice Smith', 'alice@spannerbank.com', 'CHECKING', 2500.00, PENDING_COMMIT_TIMESTAMP())"</code></pre>
+          </div>
         </div>
 
         <ul class="task-checklist">
@@ -891,7 +1009,7 @@ gcloud spanner databases create geo-bank-db `
         <p class="subtitle">Execute SQL SELECT queries filtered by region_location (regional &amp; DEFAULT placements).</p>
 
         <div class="code-block-container sql">
-          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Direct SQL Query Statements</span></div>
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Direct SQL Query Statements</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
           <pre class="code-content"><code><span class="c-comment">-- 1. Fetch US-East placement rows</span>
 <span class="c-kw">SELECT</span> user_id, region_location, country_code, full_name, email, account_type, balance 
 <span class="c-kw">FROM</span> user_geo_accounts 
@@ -901,6 +1019,27 @@ gcloud spanner databases create geo-bank-db `
 <span class="c-kw">SELECT</span> user_id, region_location, country_code, full_name, email, account_type, balance 
 <span class="c-kw">FROM</span> user_geo_accounts 
 <span class="c-kw">WHERE</span> region_location = <span class="c-str">'DEFAULT'</span>;</code></pre>
+        </div>
+
+        <div class="os-tab-bar">
+          <button class="os-tab-btn active" data-os="linux" onclick="switchOsTab('linux')">🐧 Linux / macOS</button>
+          <button class="os-tab-btn" data-os="powershell" onclick="switchOsTab('powershell')">⚡ Windows (PowerShell)</button>
+        </div>
+
+        <div class="os-content active" data-os="linux">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud Query Command</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases execute-sql geo-bank-db --instance=geo-spanner-instance \
+  --sql="SELECT user_id, region_location, country_code, full_name, email, balance FROM user_geo_accounts WHERE region_location = 'placement_us_east'"</code></pre>
+          </div>
+        </div>
+
+        <div class="os-content" data-os="powershell">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud Query Command (PowerShell)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases execute-sql geo-bank-db --instance=geo-spanner-instance `
+  --sql="SELECT user_id, region_location, country_code, full_name, email, balance FROM user_geo_accounts WHERE region_location = 'placement_us_east'"</code></pre>
+          </div>
         </div>
 
         <ul class="task-checklist">
@@ -920,11 +1059,32 @@ gcloud spanner databases create geo-bank-db `
         <p class="subtitle">Execute an UPDATE statement to modify payload fields on a geo-partitioned record.</p>
 
         <div class="code-block-container sql">
-          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Direct SQL Update Statement</span></div>
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Direct SQL Update Statement</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
           <pre class="code-content"><code><span class="c-comment">-- Update Alice Smith's account balance in placement_us_east</span>
 <span class="c-kw">UPDATE</span> user_geo_accounts 
 <span class="c-kw">SET</span> balance = <span class="c-str">3000.00</span> 
 <span class="c-kw">WHERE</span> user_id = <span class="c-str">'usr-101'</span> <span class="c-kw">AND</span> region_location = <span class="c-str">'placement_us_east'</span>;</code></pre>
+        </div>
+
+        <div class="os-tab-bar">
+          <button class="os-tab-btn active" data-os="linux" onclick="switchOsTab('linux')">🐧 Linux / macOS</button>
+          <button class="os-tab-btn" data-os="powershell" onclick="switchOsTab('powershell')">⚡ Windows (PowerShell)</button>
+        </div>
+
+        <div class="os-content active" data-os="linux">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud Update Command</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases execute-sql geo-bank-db --instance=geo-spanner-instance \
+  --sql="UPDATE user_geo_accounts SET balance = 3000.00 WHERE user_id = 'usr-101' AND region_location = 'placement_us_east'"</code></pre>
+          </div>
+        </div>
+
+        <div class="os-content" data-os="powershell">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud Update Command (PowerShell)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases execute-sql geo-bank-db --instance=geo-spanner-instance `
+  --sql="UPDATE user_geo_accounts SET balance = 3000.00 WHERE user_id = 'usr-101' AND region_location = 'placement_us_east'"</code></pre>
+          </div>
         </div>
 
         <ul class="task-checklist">
@@ -944,11 +1104,32 @@ gcloud spanner databases create geo-bank-db `
         <p class="subtitle">Confirm that Alice Smith's balance is updated to 3000.00.</p>
 
         <div class="code-block-container sql">
-          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Verification SQL Query</span></div>
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Verification SQL Query</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
           <pre class="code-content"><code><span class="c-comment">-- Verify updated record</span>
 <span class="c-kw">SELECT</span> user_id, region_location, country_code, full_name, email, balance 
 <span class="c-kw">FROM</span> user_geo_accounts 
 <span class="c-kw">WHERE</span> user_id = <span class="c-str">'usr-101'</span>;</code></pre>
+        </div>
+
+        <div class="os-tab-bar">
+          <button class="os-tab-btn active" data-os="linux" onclick="switchOsTab('linux')">🐧 Linux / macOS</button>
+          <button class="os-tab-btn" data-os="powershell" onclick="switchOsTab('powershell')">⚡ Windows (PowerShell)</button>
+        </div>
+
+        <div class="os-content active" data-os="linux">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud Query Command</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases execute-sql geo-bank-db --instance=geo-spanner-instance \
+  --sql="SELECT user_id, region_location, country_code, full_name, email, balance FROM user_geo_accounts WHERE user_id = 'usr-101'"</code></pre>
+          </div>
+        </div>
+
+        <div class="os-content" data-os="powershell">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud Query Command (PowerShell)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases execute-sql geo-bank-db --instance=geo-spanner-instance `
+  --sql="SELECT user_id, region_location, country_code, full_name, email, balance FROM user_geo_accounts WHERE user_id = 'usr-101'"</code></pre>
+          </div>
         </div>
 
         <ul class="task-checklist">
@@ -968,9 +1149,30 @@ gcloud spanner databases create geo-bank-db `
         <p class="subtitle">Query INFORMATION_SCHEMA.PLACEMENTS to inspect database placements.</p>
 
         <div class="code-block-container sql">
-          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Direct SQL Metadata Query</span></div>
+          <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Direct SQL Metadata Query</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
           <pre class="code-content"><code><span class="c-comment">-- Query Placement Metadata</span>
 <span class="c-kw">SELECT</span> * <span class="c-kw">FROM</span> INFORMATION_SCHEMA.PLACEMENTS;</code></pre>
+        </div>
+
+        <div class="os-tab-bar">
+          <button class="os-tab-btn active" data-os="linux" onclick="switchOsTab('linux')">🐧 Linux / macOS</button>
+          <button class="os-tab-btn" data-os="powershell" onclick="switchOsTab('powershell')">⚡ Windows (PowerShell)</button>
+        </div>
+
+        <div class="os-content active" data-os="linux">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud Query Command</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases execute-sql geo-bank-db --instance=geo-spanner-instance \
+  --sql="SELECT * FROM INFORMATION_SCHEMA.PLACEMENTS"</code></pre>
+          </div>
+        </div>
+
+        <div class="os-content" data-os="powershell">
+          <div class="code-block-container sql">
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> gcloud Query Command (PowerShell)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre class="code-content"><code>gcloud spanner databases execute-sql geo-bank-db --instance=geo-spanner-instance `
+  --sql="SELECT * FROM INFORMATION_SCHEMA.PLACEMENTS"</code></pre>
+          </div>
         </div>
 
         <ul class="task-checklist">
@@ -1003,7 +1205,7 @@ gcloud spanner databases create geo-bank-db `
 
         <div class="os-content active" data-os="linux">
           <div class="code-block-container sql">
-            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Linux / macOS Commands</span></div>
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Linux / macOS Commands</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
             <pre class="code-content"><code><span class="c-comment"># 1. Scale Compute Nodes of an Instance Partition (e.g. from 1 node to 2 nodes)</span>
 gcloud spanner instance-partitions update us-east1-partition \
     --instance=geo-spanner-instance \
@@ -1022,7 +1224,7 @@ gcloud spanner instance-partitions delete us-east1-partition \
 
         <div class="os-content" data-os="powershell">
           <div class="code-block-container sql">
-            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Windows PowerShell Commands</span></div>
+            <div class="code-header"><span class="code-lang-badge"><span class="code-lang-dot"></span> Windows PowerShell Commands</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
             <pre class="code-content"><code><span class="c-comment"># 1. Scale Compute Nodes of an Instance Partition (PowerShell)</span>
 gcloud spanner instance-partitions update us-east1-partition `
     --instance=geo-spanner-instance `
@@ -1144,9 +1346,9 @@ gcloud spanner instance-partitions delete us-east1-partition `
 
         <!-- Q2 -->
         <div class="quiz-card">
-          <div class="quiz-question">2. Which DDL statement defines a database placement in Cloud Spanner PostgreSQL dialect?</div>
+          <div class="quiz-question">2. Which DDL statement defines a database placement in Cloud Spanner GoogleSQL dialect?</div>
           <div class="quiz-options">
-            <div class="quiz-option" data-correct="true">A) CREATE PLACEMENT placement_name WITH (instance_partition = 'partition_id');</div>
+            <div class="quiz-option" data-correct="true">A) CREATE PLACEMENT placement_name OPTIONS (instance_partition = 'partition_id');</div>
             <div class="quiz-option" data-correct="false">B) CREATE PARTITION placement_name ON REGION 'us-east1';</div>
             <div class="quiz-option" data-correct="false">C) ALTER TABLE ADD REGION placement_name;</div>
           </div>
@@ -1204,10 +1406,10 @@ gcloud spanner instance-partitions delete us-east1-partition `
 
         <!-- Q8 -->
         <div class="quiz-card">
-          <div class="quiz-question">8. What clause is used in PostgreSQL dialect DDL to create a covering index?</div>
+          <div class="quiz-question">8. What clause is used in GoogleSQL dialect DDL to create a covering index?</div>
           <div class="quiz-options">
-            <div class="quiz-option" data-correct="true">A) INCLUDE (...)</div>
-            <div class="quiz-option" data-correct="false">B) STORING (...)</div>
+            <div class="quiz-option" data-correct="true">A) STORING (...)</div>
+            <div class="quiz-option" data-correct="false">B) INCLUDE (...)</div>
             <div class="quiz-option" data-correct="false">C) COVER (...)</div>
           </div>
         </div>
@@ -1236,7 +1438,7 @@ gcloud spanner instance-partitions delete us-east1-partition `
         <div class="quiz-card">
           <div class="quiz-question">11. What parameter specifies database dialect during gcloud spanner databases create?</div>
           <div class="quiz-options">
-            <div class="quiz-option" data-correct="true">A) --database-dialect=POSTGRESQL</div>
+            <div class="quiz-option" data-correct="true">A) --database-dialect (default is GoogleSQL when omitted)</div>
             <div class="quiz-option" data-correct="false">B) --sql-mode=POSTGRES</div>
             <div class="quiz-option" data-correct="false">C) --type=POSTGRESQL</div>
           </div>
@@ -1274,7 +1476,7 @@ gcloud spanner instance-partitions delete us-east1-partition `
 
         <!-- Q15 -->
         <div class="quiz-card">
-          <div class="quiz-question">15. What is the benefit of regional covering indexes with INCLUDE clauses?</div>
+          <div class="quiz-question">15. What is the benefit of regional covering indexes with STORING clauses?</div>
           <div class="quiz-options">
             <div class="quiz-option" data-correct="true">A) Satisfies queries directly from the index split without 2-step base table backjoins.</div>
             <div class="quiz-option" data-correct="false">B) Restricts table access to superusers.</div>
@@ -1283,7 +1485,7 @@ gcloud spanner instance-partitions delete us-east1-partition `
         </div>
 
         <ul class="task-checklist">
-          <li class="task-checkbox-container" data-task-id="t16_1">
+          <li class="task-checkbox-container" data-task-id="t15_1">
             <div class="custom-checkbox"><svg class="check-mark" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
             <div class="task-content">
               <span class="task-label">Complete Knowledge Assessment</span>
@@ -1411,54 +1613,85 @@ gcloud spanner instance-partitions delete us-east1-partition `
     function copyCode(btn) {
       const code = btn.closest('.code-block-container').querySelector('pre').innerText;
       navigator.clipboard.writeText(code).then(() => {
-        const tooltip = btn.nextElementSibling;
-        tooltip.classList.add('show');
-        setTimeout(() => tooltip.classList.remove('show'), 2000);
+        const origText = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = origText, 2000);
       });
     }
 
     function generateCertificate() {
-      const canvas = document.getElementById('certCanvas');
+      const canvas = document.getElementById("certCanvas");
       if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const name = document.getElementById('studentNameInput').value || 'Cloud Spanner Engineer';
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const ctx = canvas.getContext("2d");
+      const name = document.getElementById("studentNameInput").value || "Cloud Spanner Engineer";
 
-      ctx.fillStyle = isDark ? '#111827' : '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
 
-      ctx.strokeStyle = isDark ? '#3b82f6' : '#2563eb';
+      // Background Gradient
+      const grad = ctx.createLinearGradient(0, 0, 800, 500);
+      if (isDark) {
+        grad.addColorStop(0, "#0f172a");
+        grad.addColorStop(0.5, "#1e1b4b");
+        grad.addColorStop(1, "#312e81");
+      } else {
+        grad.addColorStop(0, "#ffffff");
+        grad.addColorStop(0.5, "#f1f5f9");
+        grad.addColorStop(1, "#e2e8f0");
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 800, 500);
+
+      // Gold Border
+      ctx.strokeStyle = "#8b5cf6";
       ctx.lineWidth = 10;
-      ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+      ctx.strokeRect(20, 20, 760, 460);
 
-      ctx.strokeStyle = isDark ? '#8b5cf6' : '#7c3aed';
+      ctx.strokeStyle = "#6366f1";
       ctx.lineWidth = 2;
-      ctx.strokeRect(28, 28, canvas.width - 56, canvas.height - 56);
+      ctx.strokeRect(30, 30, 740, 440);
 
-      ctx.fillStyle = isDark ? '#f9fafb' : '#0f172a';
-      ctx.font = 'bold 28px Inter, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('CERTIFICATE OF ACHIEVEMENT', canvas.width / 2, 90);
+      // Title
+      ctx.fillStyle = isDark ? "#ffffff" : "#0f172a";
+      ctx.font = "bold 26px Inter";
+      ctx.textAlign = "center";
+      ctx.fillText("CERTIFICATE OF ACHIEVEMENT", 400, 90);
 
-      ctx.fillStyle = isDark ? '#9ca3af' : '#475569';
-      ctx.font = '16px Inter, sans-serif';
-      ctx.fillText('THIS IS PROUDLY PRESENTED TO', canvas.width / 2, 140);
+      ctx.fillStyle = "#8b5cf6";
+      ctx.font = "600 16px Inter";
+      ctx.fillText("PROUDLY PRESENTED TO", 400, 130);
 
-      ctx.fillStyle = isDark ? '#60a5fa' : '#2563eb';
-      ctx.font = 'bold 34px Inter, sans-serif';
-      ctx.fillText(name, canvas.width / 2, 210);
+      // Name
+      ctx.fillStyle = isDark ? "#f8fafc" : "#0f172a";
+      ctx.font = "bold 32px Inter";
+      ctx.fillText(name, 400, 190);
 
-      ctx.fillStyle = isDark ? '#e5e7eb' : '#334155';
-      ctx.font = '16px Inter, sans-serif';
-      ctx.fillText('FOR SUCCESSFULLY COMPLETING THE ADVANCED TRAINING ON', canvas.width / 2, 270);
+      // Decorative Line
+      ctx.strokeStyle = "#8b5cf6";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(250, 210);
+      ctx.lineTo(550, 210);
+      ctx.stroke();
 
-      ctx.fillStyle = isDark ? '#a78bfa' : '#7c3aed';
-      ctx.font = 'bold 22px Inter, sans-serif';
-      ctx.fillText('Cloud Spanner Geo-Partitioning & Database Placements', canvas.width / 2, 320);
+      // Description
+      ctx.fillStyle = isDark ? "#94a3b8" : "#475569";
+      ctx.font = "14px Inter";
+      ctx.fillText("For successfully demonstrating technical mastery in", 400, 250);
 
-      ctx.fillStyle = isDark ? '#9ca3af' : '#64748b';
-      ctx.font = '14px Inter, sans-serif';
-      ctx.fillText(`Issued on: ${new Date().toLocaleDateString()} | Verification ID: SPN-LAB10-SQL-SUCCESS`, canvas.width / 2, 420);
+      ctx.fillStyle = isDark ? "#f8fafc" : "#0f172a";
+      ctx.font = "bold 18px Inter";
+      ctx.fillText("Google Cloud Spanner Geo-Partitioning & Database Placements", 400, 285);
+
+      ctx.fillStyle = isDark ? "#94a3b8" : "#475569";
+      ctx.font = "13px Inter";
+      ctx.fillText("Covering GoogleSQL DDL, PLACEMENT KEY, INFORMATION_SCHEMA.PLACEMENTS,", 400, 320);
+      ctx.fillText("and multi-region data routing in Cloud Spanner.", 400, 345);
+
+      // Footer Date & Seal
+      const dateStr = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      ctx.fillStyle = isDark ? "#64748b" : "#94a3b8";
+      ctx.font = "12px Inter";
+      ctx.fillText(`Issued: ${dateStr} • Google Cloud Spanner Training Series`, 400, 420);
     }
   </script>
 </body>
